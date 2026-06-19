@@ -1,24 +1,25 @@
 "use client";
 import { useState } from "react";
 import {
-  form,
+  CONTAINER,
+  CONTENT,
+  FORM,
+  PANEL_BASE,
   signIn,
   signUp,
   toggleContainer,
-  toggleLeft,
   togglePanel,
-  toggleRight,
 } from "./constants";
-// import "./styles.css";
+import { cx } from "class-variance-authority";
 
 export default function SignIn() {
   const [isSignIn, setIsSignIn] = useState(true);
 
   return (
-    <main className="grid place-items-center min-w-screen min-h-screen bg-linear-to-r from-neutral-200 to-indigo-200">
-      <div className="relative bg-white shadow-xl rounded-4xl min-w-3xl min-h-120 m-8 overflow-hidden">
+    <main className={CONTAINER}>
+      <div className={CONTENT}>
         <section className={signUp({ isSignIn })}>
-          <form className={form()}>
+          <form className={FORM}>
             <h1>Create Account</h1>
             <input type="text" placeholder="Name" />
             <input type="email" placeholder="Email" />
@@ -30,7 +31,7 @@ export default function SignIn() {
         </section>
 
         <section className={signIn({ isSignIn })}>
-          <form className={form()}>
+          <form className={FORM}>
             <h1>Sign In</h1>
             <input type="email" placeholder="Email" />
             <input type="password" placeholder="Password" />
@@ -40,13 +41,13 @@ export default function SignIn() {
 
         <section className={toggleContainer({ isSignIn })}>
           <div className={togglePanel({ isSignIn })}>
-            <div className={toggleLeft({ isSignIn })}>
+            <div className={PANEL_BASE}>
               <h1>Welcome Back!</h1>
               <p>Enter your personal details to use all of site features</p>
               <button onClick={() => setIsSignIn(false)}>Sign In</button>
             </div>
 
-            <div className={toggleRight({ isSignIn })}>
+            <div className={cx("right-0", PANEL_BASE)}>
               <h1>Hello, Friend!</h1>
               <p>Register with your personal details to use all of site features</p>
               <button onClick={() => setIsSignIn(true)}>Sign Up</button>

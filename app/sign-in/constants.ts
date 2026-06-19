@@ -1,39 +1,47 @@
-import { cva } from "class-variance-authority";
+import { cva, cx } from "class-variance-authority";
 
-export const form = cva("bg-white flex flex-col items-center justify-center gap-4 px-10 h-full");
-
-export const signUp = cva(
-  "absolute top-0 h-full transition-all duration-600 ease-in-out left-0 w-1/2",
-  {
-    variants: {
-      isSignIn: {
-        true: "translate-x-full opacity-100 z-30 animate-[move_0.6s]",
-        false: "opacity-0 z-10",
-      },
-    },
-    defaultVariants: {
-      isSignIn: false,
-    },
-  },
+const TRANSITION = cx("transition-all duration-600 ease-in-out");
+const SIGN_IN_OUT_PANEL = cx("absolute top-0 h-full left-0 w-1/2", TRANSITION);
+export const PANEL_BASE = cx(
+  "absolute top-0 w-1/2 h-full px-8 text-center",
+  "flex flex-col items-center justify-center gap-8",
+  TRANSITION,
+);
+export const FORM = cx("bg-white flex flex-col items-center justify-center gap-4 px-10 h-full");
+export const CONTAINER = cx(
+  "grid place-items-center min-w-screen min-h-screen",
+  "bg-linear-to-r from-neutral-200 to-indigo-200",
+);
+export const CONTENT = cx(
+  "relative bg-white shadow-xl rounded-4xl min-w-3xl min-h-120 m-8 overflow-hidden",
 );
 
-export const signIn = cva(
-  "absolute top-0 h-full transition-all duration-600 ease-in-out left-0 w-1/2 z-20",
-  {
-    variants: {
-      isSignIn: {
-        true: "translate-x-full",
-        false: "",
-      },
-    },
-    defaultVariants: {
-      isSignIn: true,
+export const signUp = cva(SIGN_IN_OUT_PANEL, {
+  variants: {
+    isSignIn: {
+      true: "translate-x-full opacity-100 z-30 animate-[move_0.6s]",
+      false: "opacity-0 z-10",
     },
   },
-);
+  defaultVariants: {
+    isSignIn: false,
+  },
+});
+
+export const signIn = cva(cx(SIGN_IN_OUT_PANEL, "z-20"), {
+  variants: {
+    isSignIn: {
+      true: "translate-x-full",
+      false: "",
+    },
+  },
+  defaultVariants: {
+    isSignIn: true,
+  },
+});
 
 export const toggleContainer = cva(
-  "absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-all duration-600 ease-in-out z-100",
+  cx("absolute top-0 left-1/2 w-1/2 h-full overflow-hidden z-100", TRANSITION),
   {
     variants: {
       isSignIn: {
@@ -48,41 +56,11 @@ export const toggleContainer = cva(
 );
 
 export const togglePanel = cva(
-  "bg-linear-to-r from-slate-500 to-violet-800 text-white relative -left-full h-full w-[200%] transition-all duration-600 ease-in-out",
+  `bg-linear-to-r from-slate-500 to-violet-800 text-white relative -left-full h-full w-[200%] ${TRANSITION}`,
   {
     variants: {
       isSignIn: {
         true: "translate-x-1/2",
-        false: "translate-x-0",
-      },
-    },
-    defaultVariants: {
-      isSignIn: true,
-    },
-  },
-);
-
-export const toggleLeft = cva(
-  "absolute top-0 w-1/2 h-full flex flex-col items-center justify-center gap-8 px-8 text-center transition-all duration-600 ease-in-out",
-  {
-    variants: {
-      isSignIn: {
-        true: "translate-x-0",
-        false: "translate-x-[-200%]",
-      },
-    },
-    defaultVariants: {
-      isSignIn: true,
-    },
-  },
-);
-
-export const toggleRight = cva(
-  "absolute top-0 w-1/2 h-full flex flex-col items-center justify-center gap-8 px-8 text-center transition-all duration-600 ease-in-out right-0",
-  {
-    variants: {
-      isSignIn: {
-        true: "translate-x-[200%]",
         false: "translate-x-0",
       },
     },
