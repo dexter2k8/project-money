@@ -2,6 +2,7 @@ import { cva, cx } from "class-variance-authority";
 
 export const buttonVariants = cva(
   cx(
+    "inline-flex items-center justify-center gap-2",
     "rounded-lg cursor-pointer focus:animate-[pulse-button_0.5s] active:animate-none",
     "transition-all duration-200 ease-in-out",
     "disabled:cursor-not-allowed disabled:opacity-50",
@@ -9,7 +10,7 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: " border border-violet-200 text-slate-900 enabled:hover:border-violet-400",
+        default: "border border-violet-200 text-slate-900 enabled:hover:border-violet-400",
         "default-reverse":
           "border border-violet-200 text-indigo-200 enabled:hover:border-violet-400",
         primary: "bg-violet-800 border border-violet-200 text-white enabled:hover:bg-violet-600",
