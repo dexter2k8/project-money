@@ -11,6 +11,7 @@ import {
   togglePanel,
 } from "./constants";
 import { cx } from "class-variance-authority";
+import Button from "@/components/Button";
 
 export default function SignIn() {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -26,7 +27,9 @@ export default function SignIn() {
             <input type="password" placeholder="Password" />
             <input type="password" placeholder="Confirm Password" />
             <input type="text" placeholder="Avatar URL" />
-            <button type="submit">Create Account</button>
+            <Button variant="primary" type="submit">
+              SIGN UP
+            </Button>
           </form>
         </section>
 
@@ -35,7 +38,9 @@ export default function SignIn() {
             <h1>Sign In</h1>
             <input type="email" placeholder="Email" />
             <input type="password" placeholder="Password" />
-            <button type="submit">Sign In</button>
+            <Button variant="primary" type="submit" onClick={(e) => e.preventDefault()}>
+              SIGN IN
+            </Button>
           </form>
         </section>
 
@@ -44,13 +49,17 @@ export default function SignIn() {
             <div className={PANEL_BASE}>
               <h1>Welcome Back!</h1>
               <p>Enter your personal details to use all of site features</p>
-              <button onClick={() => setIsSignIn(false)}>Go to Sign In</button>
+              <Button size="lg" variant="link-reverse" onClick={() => setIsSignIn(true)}>
+                Go to Sign In
+              </Button>
             </div>
 
             <div className={cx("right-0", PANEL_BASE)}>
               <h1>Hello, Friend!</h1>
               <p>Register with your personal details to use all of site features</p>
-              <button onClick={() => setIsSignIn(true)}>Go to Sign Up</button>
+              <Button size="lg" variant="link-reverse" onClick={() => setIsSignIn(false)}>
+                Go to Sign Up
+              </Button>
             </div>
           </div>
         </section>

@@ -19,8 +19,8 @@ export const CONTENT = cx(
 export const signUp = cva(SIGN_IN_OUT_PANEL, {
   variants: {
     isSignIn: {
-      true: "translate-x-full opacity-100 z-30 animate-[move_0.6s]",
-      false: "opacity-0 z-10",
+      true: "opacity-0 z-10",
+      false: "translate-x-full opacity-100 z-30 animate-[move_0.6s]",
     },
   },
   defaultVariants: {
@@ -31,8 +31,8 @@ export const signUp = cva(SIGN_IN_OUT_PANEL, {
 export const signIn = cva(cx(SIGN_IN_OUT_PANEL, "z-20"), {
   variants: {
     isSignIn: {
-      true: "translate-x-full",
-      false: "",
+      true: "",
+      false: "translate-x-full",
     },
   },
   defaultVariants: {
@@ -45,8 +45,8 @@ export const toggleContainer = cva(
   {
     variants: {
       isSignIn: {
-        true: "-translate-x-full rounded-[0_9rem_6rem_0]",
-        false: "rounded-[9rem_0_0_6rem]",
+        true: "rounded-[9rem_0_0_6rem]",
+        false: "-translate-x-full rounded-[0_9rem_6rem_0]",
       },
     },
     defaultVariants: {
@@ -60,8 +60,8 @@ export const togglePanel = cva(
   {
     variants: {
       isSignIn: {
-        true: "translate-x-1/2",
-        false: "translate-x-0",
+        true: "translate-x-0",
+        false: "translate-x-1/2",
       },
     },
     defaultVariants: {

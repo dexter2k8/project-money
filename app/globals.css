@@ -47,3 +47,21 @@ body {
 .animate-move {
   animation: move 0.6s;
 }
+
+@keyframes pulse-button {
+  0% {
+    box-shadow: 0 0 0 0 rgba(195, 52, 224, 0.7);
+  }
+
+  99% {
+    box-shadow: 0 0 0 5px rgba(52, 172, 224, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 172, 224, 0);
+  }
+}
+
+.animate-pulse-button {
+  animation: pulse-button 0.5s;
+}
