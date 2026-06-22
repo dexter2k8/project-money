@@ -48,19 +48,25 @@ export default function SignIn() {
         <section className={toggleContainer({ isSignIn })}>
           <div className={togglePanel({ isSignIn })}>
             <div className={PANEL_BASE}>
-              <h1>Welcome Back!</h1>
-              <p>Enter your personal details to use all of site features</p>
-              <Button size="lg" variant="link-reverse" onClick={() => setIsSignIn(true)}>
-                Go to Sign In
-              </Button>
+              <h1>Hello, Friend!</h1>
+              <p>Register with your personal details to use all of site features</p>
+              <div>
+                <p>Already have an account?</p>
+                <Button size="lg" variant="link-reverse" onClick={() => setIsSignIn(true)}>
+                  Go to Sign In
+                </Button>
+              </div>
             </div>
 
             <div className={cx("right-0", PANEL_BASE)}>
-              <h1>Hello, Friend!</h1>
-              <p>Register with your personal details to use all of site features</p>
-              <Button size="lg" variant="link-reverse" onClick={() => setIsSignIn(false)}>
-                Go to Sign Up
-              </Button>
+              <h1>Welcome Back!</h1>
+              <p>Enter your personal details to use all of site features</p>
+              <div>
+                <p>Don&apos;t have an account?</p>
+                <Button size="lg" variant="link-reverse" onClick={() => setIsSignIn(false)}>
+                  Go to Sign Up
+                </Button>
+              </div>
             </div>
           </div>
         </section>
