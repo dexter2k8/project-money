@@ -1,4 +1,12 @@
 {
   "tailwindCSS.classFunctions": ["cva", "cx"],
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "cSpell.words": [
+    "APIKEY",
+    "AUTHDOMAIN",
+    "MEASUREMENTID",
+    "MESSAGINGSENDERID",
+    "PROJECTID",
+    "STORAGEBUCKET"
+  ]
 }

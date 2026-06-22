@@ -1,10 +1,10 @@
-import React from "react";
 import Eye from "./Icons/eye";
 import EyeSlashed from "./Icons/eye-slashed";
 import InfoCircle from "./Icons/info-circle";
 import CheckCircle from "./Icons/check-circle";
 import ExclamationCircle from "./Icons/exclamation-circle";
 import { iconVariants, inputVariants, labelVariants, messageVariants } from "./constants";
+import { useState } from "react";
 
 type TStatus = "info" | "success" | "error";
 type size = "small" | "default" | "large";
@@ -35,7 +35,7 @@ const Input: React.FC<IInputProps> = ({
   disabled,
   ...props
 }) => {
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
 
   return (
