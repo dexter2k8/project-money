@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../components";
 
 :root {
   --font-size-h1: 2rem;
