@@ -56,19 +56,17 @@ export default function AuthPage() {
         <section className={signIn({ isSignIn })}>
           <form className={FORM} onSubmit={signInForm.handleSubmit(handleSignIn)}>
             <h1>Sign In</h1>
-            <Input
-              {...signInForm.register("email")}
+            <Input.Controlled
               type="email"
               label="Email"
-              status={signInForm.formState.errors.email ? "error" : "info"}
-              message={signInForm.formState.errors.email?.message}
+              name="email"
+              control={signInForm.control}
             />
-            <Input
-              {...signInForm.register("password")}
+            <Input.Controlled
               type="password"
               label="Password"
-              status={signInForm.formState.errors.password ? "error" : "info"}
-              message={signInForm.formState.errors.password?.message}
+              name="password"
+              control={signInForm.control}
             />
             <Button variant="primary" type="submit" loading={loading}>
               SIGN IN

@@ -5,11 +5,12 @@ import CheckCircle from "./Icons/check-circle";
 import ExclamationCircle from "./Icons/exclamation-circle";
 import { iconVariants, inputVariants, labelVariants, messageVariants } from "./constants";
 import { useState } from "react";
+import { ControlledInput } from "./ControlledInput";
 
 type TStatus = "info" | "success" | "error";
 type size = "small" | "default" | "large";
 
-interface IInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
+export interface IInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   label?: string;
   status?: TStatus;
   message?: string;
@@ -25,7 +26,7 @@ const messageIcon = (status: TStatus) => {
   return icon[status];
 };
 
-export default function Input({
+function InputBasic({
   label,
   status = "info",
   message,
@@ -67,3 +68,8 @@ export default function Input({
     </div>
   );
 }
+
+const Input = InputBasic as React.FC<IInputProps> & { Controlled: typeof ControlledInput };
+Input.Controlled = ControlledInput;
+
+export default Input;
