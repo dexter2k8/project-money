@@ -49,4 +49,15 @@ async function SignUp(props: TSignUpArgs) {
   return false;
 }
 
-export { SignIn, SignUp };
+async function SignOut() {
+  try {
+    const response = await fetch(API.AUTH.SIGN_OUT, { method: "POST" });
+    if (response.ok) return true;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    toast.error(error?.message);
+  }
+  return false;
+}
+
+export { SignIn, SignUp, SignOut };
