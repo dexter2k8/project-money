@@ -20,6 +20,7 @@ import { signInSchema, signUpSchema } from "./validations/auth";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { TSignInArgs } from "./api/auth/sign-in/types";
 import { TSignUpArgs } from "./api/auth/sign-up/types";
+import { Tooltip } from "react-tooltip";
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -51,7 +52,10 @@ export default function AuthPage() {
     <main className={CONTAINER}>
       <div className={CONTENT}>
         <section className={signUp({ isSignIn })}>
-          <form className={FORM} onSubmit={signUpForm.handleSubmit(handleSignUp)}>
+          <form
+            className={cx(FORM, "pointer-events-none")}
+            onSubmit={signUpForm.handleSubmit(handleSignUp)}
+          >
             <h1>Create Account</h1>
             <Input.Controlled label="Name" name="name" control={signUpForm.control} />
             <Input.Controlled
@@ -73,6 +77,11 @@ export default function AuthPage() {
               control={signUpForm.control}
             />
             <Input.Controlled label="Avatar URL" name="avatar" control={signUpForm.control} />
+
+            <small className="text-red-400">
+              <em>Sign Up is not available on this demo</em>
+            </small>
+
             <Button variant="primary" type="submit" loading={loading}>
               SIGN UP
             </Button>
@@ -94,6 +103,16 @@ export default function AuthPage() {
               name="password"
               control={signInForm.control}
             />
+
+            <small
+              className="text-green-400 cursor-default"
+              data-tooltip-id="demo-tooltip"
+              data-tooltip-content="For demo: email:user@mail.com password:123456"
+            >
+              <em>Hover over here to see demo credentials</em>
+            </small>
+            <Tooltip place="bottom" id="demo-tooltip" style={{ maxWidth: "12rem" }} />
+
             <Button variant="primary" type="submit" loading={loading}>
               SIGN IN
             </Button>
