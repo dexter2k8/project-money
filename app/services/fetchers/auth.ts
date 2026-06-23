@@ -1,13 +1,14 @@
-import { ISignInArgs } from "@/app/api/auth/sign-in/types";
+import { TSignInArgs } from "@/app/api/auth/sign-in/types";
+import { TSignUpArgs } from "@/app/api/auth/sign-up/types";
 import { API } from "@/app/utils/paths";
 import { toast } from "react-toastify";
 
-async function SignIn({ email, password, name, avatar }: ISignInArgs) {
+async function SignIn(props: TSignInArgs) {
   try {
     const response = await fetch(API.AUTH.SIGN_IN, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name, avatar }),
+      body: JSON.stringify(props),
     });
 
     if (response.ok) {
@@ -24,4 +25,28 @@ async function SignIn({ email, password, name, avatar }: ISignInArgs) {
   return false;
 }
 
-export { SignIn };
+async function SignUp(props: TSignUpArgs) {
+  try {
+    const { confirmPassword, ...body } = props;
+    void confirmPassword;
+    const response = await fetch(API.AUTH.SIGN_UP, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (response.ok) {
+      toast.success(response.statusText);
+    } else {
+      toast.error(response.statusText);
+    }
+
+    return response.ok;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    toast.error(error?.message);
+  }
+  return false;
+}
+
+export { SignIn, SignUp };

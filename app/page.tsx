@@ -13,23 +13,34 @@ import {
 import { cx } from "class-variance-authority";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { SignIn } from "./services/fetchers/auth";
-import { signInSchema } from "./validations/auth";
+import { SignIn, SignUp } from "./services/fetchers/auth";
+import { signInSchema, signUpSchema } from "./validations/auth";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ISignInArgs } from "./api/auth/sign-in/types";
+import { TSignInArgs } from "./api/auth/sign-in/types";
+import { TSignUpArgs } from "./api/auth/sign-up/types";
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-  const signInForm = useForm<ISignInArgs>({
+  const signUpForm = useForm<TSignUpArgs>({
+    resolver: yupResolver(signUpSchema),
+  });
+  const signInForm = useForm<TSignInArgs>({
     resolver: yupResolver(signInSchema),
   });
 
-  const handleSignIn: SubmitHandler<ISignInArgs> = async (data) => {
+  const handleSignUp = async (data: TSignUpArgs) => {
+    setLoading(true);
+    const result = await SignUp(data);
+    if (result) setIsSignIn(true);
+    setLoading(false);
+  };
+
+  const handleSignIn = async (data: TSignInArgs) => {
     setLoading(true);
     const result = await SignIn(data);
     if (result) router.replace("/dashboard");
@@ -40,14 +51,29 @@ export default function AuthPage() {
     <main className={CONTAINER}>
       <div className={CONTENT}>
         <section className={signUp({ isSignIn })}>
-          <form className={FORM}>
+          <form className={FORM} onSubmit={signUpForm.handleSubmit(handleSignUp)}>
             <h1>Create Account</h1>
-            <Input label="Name" />
-            <Input type="email" label="Email" />
-            <Input type="password" label="Password" />
-            <Input type="password" label="Confirm Password" />
-            <Input label="Avatar URL" />
-            <Button variant="primary" type="submit">
+            <Input.Controlled label="Name" name="name" control={signUpForm.control} />
+            <Input.Controlled
+              type="email"
+              label="Email"
+              name="email"
+              control={signUpForm.control}
+            />
+            <Input.Controlled
+              type="password"
+              label="Password"
+              name="password"
+              control={signUpForm.control}
+            />
+            <Input.Controlled
+              type="password"
+              label="Confirm Password"
+              name="confirmPassword"
+              control={signUpForm.control}
+            />
+            <Input.Controlled label="Avatar URL" name="avatar" control={signUpForm.control} />
+            <Button variant="primary" type="submit" loading={loading}>
               SIGN UP
             </Button>
           </form>

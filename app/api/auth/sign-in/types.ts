@@ -1,11 +1,11 @@
-export interface ISignInArgs {
+export type TSignInArgs = {
   email: string;
   password: string;
   name?: string;
   avatar?: string;
-}
+};
 
-export interface ISignInResponse {
+export type TSignInResponse = {
   uid: string;
   email: string;
   emailVerified: boolean;
@@ -29,4 +29,4 @@ export interface ISignInResponse {
   lastLoginAt: string;
   apiKey: string;
   appName: "[DEFAULT]";
-}
+};

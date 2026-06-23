@@ -4,12 +4,12 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { auth } from "@/app/services/firebase";
-import { ISignInArgs } from "./types";
+import { TSignInArgs } from "./types";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, name, avatar }: ISignInArgs = body;
+    const { email, password, name, avatar }: TSignInArgs = body;
 
     await signInWithEmailAndPassword(auth, email, password);
     const uid = auth.currentUser?.uid as string;
