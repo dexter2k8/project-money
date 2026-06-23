@@ -25,7 +25,7 @@ const messageIcon = (status: TStatus) => {
   return icon[status];
 };
 
-const Input: React.FC<IInputProps> = ({
+export default function Input({
   label,
   status = "info",
   message,
@@ -34,7 +34,7 @@ const Input: React.FC<IInputProps> = ({
   size = "default",
   disabled,
   ...props
-}) => {
+}: IInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
 
@@ -66,6 +66,4 @@ const Input: React.FC<IInputProps> = ({
       )}
     </div>
   );
-};
-
-export default Input;
+}
