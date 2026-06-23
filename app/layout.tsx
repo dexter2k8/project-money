@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
+import { Slide, ToastContainer } from "react-toastify";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -19,7 +20,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${montserrat.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col overflow-hidden">{children}</body>
+      <body className="min-h-full flex flex-col overflow-hidden">
+        {children}
+        <ToastContainer
+          position="bottom-center"
+          autoClose={3000}
+          transition={Slide}
+          hideProgressBar
+        />
+      </body>
     </html>
   );
 }

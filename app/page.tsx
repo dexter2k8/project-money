@@ -13,9 +13,28 @@ import {
 import { cx } from "class-variance-authority";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { SignIn } from "./services/fetchers/auth";
+import { signInSchema } from "./validations/auth";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { ISignInArgs } from "./api/auth/sign-in/types";
 
-export default function SignIn() {
+export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+  const signInForm = useForm<ISignInArgs>({
+    resolver: yupResolver(signInSchema),
+  });
+
+  const handleSignIn: SubmitHandler<ISignInArgs> = async (data) => {
+    setLoading(true);
+    const result = await SignIn(data);
+    if (result) router.replace("/dashboard");
+    setLoading(false);
+  };
 
   return (
     <main className={CONTAINER}>
@@ -35,11 +54,23 @@ export default function SignIn() {
         </section>
 
         <section className={signIn({ isSignIn })}>
-          <form className={FORM}>
+          <form className={FORM} onSubmit={signInForm.handleSubmit(handleSignIn)}>
             <h1>Sign In</h1>
-            <Input label="Email" type="email" />
-            <Input label="Password" type="password" />
-            <Button variant="primary" type="submit" onClick={(e) => e.preventDefault()}>
+            <Input
+              {...signInForm.register("email")}
+              type="email"
+              label="Email"
+              status={signInForm.formState.errors.email ? "error" : "info"}
+              message={signInForm.formState.errors.email?.message}
+            />
+            <Input
+              {...signInForm.register("password")}
+              type="password"
+              label="Password"
+              status={signInForm.formState.errors.password ? "error" : "info"}
+              message={signInForm.formState.errors.password?.message}
+            />
+            <Button variant="primary" type="submit" loading={loading}>
               SIGN IN
             </Button>
           </form>
