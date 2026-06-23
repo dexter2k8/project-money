@@ -15,7 +15,7 @@ export const ControlledInput = <T extends FieldValues>({
     control={control}
     name={name}
     render={({ field, fieldState: { error } }) => (
-      <Input {...field} {...props} status={error ? "error" : "info"} message={error?.message} />
+      <Input {...field} {...props} value={field.value ?? ""} status={error ? "error" : "info"} message={error?.message} />
     )}
   />
 );
