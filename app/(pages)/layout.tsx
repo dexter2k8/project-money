@@ -1,11 +1,19 @@
 "use client";
-import Sidebar from "@/components/Sidebar";
+import Sidebar, { ISidebarItemProps } from "@/components/Sidebar";
 import { cx } from "class-variance-authority";
 import Link from "next/link";
 import Image from "next/image";
 import Button from "@/components/Button";
 import { useRouter } from "next/navigation";
 import { SignOut } from "../services/fetchers/auth";
+import Divisor from "@/components/Divisor";
+import { LayoutDashboard, FileSpreadsheet, Settings } from "lucide-react";
+
+const sidebarItems: ISidebarItemProps[] = [
+  { label: "Dashboard", path: "/dashboard", icon: <LayoutDashboard /> },
+  { label: "Analytics", path: "/analytics", icon: <FileSpreadsheet /> },
+  { label: "Settings", path: "/settings", icon: <Settings /> },
+];
 
 export default function PagesLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -22,9 +30,12 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
           <Image className="dark:invert" src="/money.svg" alt="money logo" width={40} height={40} />
           <h3 className="whitespace-nowrap">Project Money</h3>
         </Link>
-        <Button variant="link" onClick={handleSignOut}>
-          Logout
-        </Button>
+        <div className="flex gap-4">
+          <Divisor vertical />
+          <Button variant="link" onClick={handleSignOut}>
+            Logout
+          </Button>
+        </div>
       </header>
       <div
         className={cx(
@@ -32,7 +43,7 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
           "bg-linear-to-r from-neutral-200 to-indigo-200",
         )}
       >
-        <Sidebar />
+        <Sidebar items={sidebarItems} />
         {children}
       </div>
     </div>
