@@ -12,7 +12,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="bg-slate-300 h-full">
+    <div className="h-full">
       <h2>Dashboard Content</h2>
       <button onClick={handleSignOut}>Logout</button>
     </div>
