@@ -14,9 +14,9 @@ export const buttonVariants = cva(
         "default-reverse":
           "border border-violet-200 text-indigo-200 enabled:hover:border-violet-400",
         primary: "bg-violet-800 border border-violet-200 text-white enabled:hover:bg-violet-600",
-        link: "bg-transparent text-indigo-600 enabled:hover:text-indigo-200 focus:animate-none",
+        link: "px-0! bg-transparent text-indigo-600 enabled:hover:text-indigo-200 focus:animate-none",
         "link-reverse":
-          "bg-transparent text-indigo-200 enabled:hover:text-indigo-400 focus:animate-none",
+          "px-0! bg-transparent text-indigo-200 enabled:hover:text-indigo-400 focus:animate-none",
       },
       size: {
         default: "text-xs h-8 px-10",
