@@ -82,7 +82,7 @@ export default function AuthPage() {
               <em>Sign Up is not available on this demo</em>
             </small>
 
-            <Button variant="primary" type="submit" loading={loading}>
+            <Button className="px-10" variant="primary" type="submit" loading={loading}>
               SIGN UP
             </Button>
           </form>
@@ -113,7 +113,7 @@ export default function AuthPage() {
             </small>
             <Tooltip place="bottom" id="demo-tooltip" style={{ maxWidth: "12rem" }} />
 
-            <Button variant="primary" type="submit" loading={loading}>
+            <Button className="px-10" variant="primary" type="submit" loading={loading}>
               SIGN IN
             </Button>
           </form>

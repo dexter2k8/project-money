@@ -14,14 +14,14 @@ export const buttonVariants = cva(
         "default-reverse":
           "border border-violet-200 text-indigo-200 enabled:hover:border-violet-400",
         primary: "bg-violet-800 border border-violet-200 text-white enabled:hover:bg-violet-600",
-        link: "px-0! bg-transparent text-indigo-600 enabled:hover:text-indigo-200 focus:animate-none",
+        link: "bg-transparent text-indigo-600 enabled:hover:text-indigo-200 focus:animate-none",
         "link-reverse":
-          "px-0! bg-transparent text-indigo-200 enabled:hover:text-indigo-400 focus:animate-none",
+          "bg-transparent text-indigo-200 enabled:hover:text-indigo-400 focus:animate-none",
       },
       size: {
-        default: "text-xs h-8 px-10",
-        sm: "text-xs h-6 px-6",
-        lg: "h-10 px-12",
+        default: "text-xs h-8 px-2",
+        sm: "text-xs h-6 px-1",
+        lg: "h-10 px-3",
       },
     },
     defaultVariants: {

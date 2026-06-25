@@ -13,15 +13,18 @@ export interface ISidebarItemProps {
 
 export interface ISidebarProps {
   items: ISidebarItemProps[];
+  header?: (isCollapsed: boolean) => React.ReactNode;
 }
 
-export default function Sidebar({ items }: ISidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+export default function Sidebar({ items, header }: ISidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   return (
     <nav className={sidebarVariants({ isCollapsed })}>
       <SidebarMenu isCollapsed={isCollapsed} onClick={() => setIsCollapsed(!isCollapsed)} />
       <div className="px-2 pb-4">
         <Divisor />
+        {header?.(isCollapsed)}
+        {!!header && <Divisor />}
       </div>
       <SidebarItems items={items} />
     </nav>
