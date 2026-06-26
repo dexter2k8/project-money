@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${montserrat.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col overflow-hidden">
+      <body className="h-screen flex flex-col overflow-hidden">
         {children}
         <ToastContainer
           position="bottom-center"

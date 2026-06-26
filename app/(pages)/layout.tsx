@@ -26,8 +26,8 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
   const TRANSITION = cx("transition-all duration-300 ease-in-out");
 
   const headerContent = (isCollapsed: boolean) => (
-    <div className="flex">
-      <div className={cx(isCollapsed ? "w-10" : "opacity-0", "w-0 px-0.5 py-2", TRANSITION)}>
+    <div className="flex items-center">
+      <div className={cx(isCollapsed ? "w-10" : "opacity-0", "w-0 px-0.5 py-4", TRANSITION)}>
         <Button size="lg">IT</Button>
       </div>
       <div className={cx(isCollapsed && "opacity-0", "w-full", TRANSITION)}>
@@ -41,7 +41,7 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="h-screen">
+    <>
       <header className="flex items-center justify-between p-2 bg-yellow-100">
         <Link className="flex items-center gap-2 w-fit" href="/dashboard">
           <Image className="dark:invert" src="/money.svg" alt="money logo" width={40} height={40} />
@@ -63,6 +63,6 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
         <Sidebar header={headerContent} items={sidebarItems} />
         {children}
       </div>
-    </div>
+    </>
   );
 }
