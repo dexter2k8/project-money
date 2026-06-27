@@ -14,7 +14,7 @@ export default function TableFooter<T>({ rows, columns }: IFooter<T>) {
   }
 
   return (
-    <tfoot className="font-semibold bg-neutral-100">
+    <tfoot className="font-semibold bg-neutral-100 sticky bottom-0">
       <tr>
         <td className="p-2 whitespace-nowrap" colSpan={span}>
           {columns[firstIndex].renderFooter!(rows)}

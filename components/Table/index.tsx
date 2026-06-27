@@ -17,9 +17,8 @@ export interface ITableProps<T> {
 
 export default function Table<T>({ rows, columns, caption }: ITableProps<T>) {
   return (
-    <table className="w-full caption-bottom text-sm">
-      {caption && <caption>{caption}</caption>}
-      <Head columns={columns} />
+    <table className="w-full text-sm border-separate border-spacing-0">
+      <Head columns={columns} caption={caption} />
       <Body rows={rows} columns={columns} />
       <Footer rows={rows} columns={columns} />
     </table>
