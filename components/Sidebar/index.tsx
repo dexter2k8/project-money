@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import SidebarMenu from "./components/SidebarMenu";
+import SidebarArrow from "./components/SidebarArrow";
 import { sidebarVariants } from "./constants";
 import Divisor from "../Divisor";
 import SidebarItems from "./components/SidebarItems";
@@ -20,13 +20,13 @@ export default function Sidebar({ items, header }: ISidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   return (
     <nav className={sidebarVariants({ isCollapsed })}>
-      <SidebarMenu isCollapsed={isCollapsed} onClick={() => setIsCollapsed(!isCollapsed)} />
+      <SidebarArrow isCollapsed={isCollapsed} onClick={() => setIsCollapsed(!isCollapsed)} />
       <div className="px-2 pb-4">
         <Divisor />
         {header?.(isCollapsed)}
         {!!header && <Divisor />}
       </div>
-      <SidebarItems items={items} />
+      <SidebarItems isCollapsed={isCollapsed} items={items} />
     </nav>
   );
 }

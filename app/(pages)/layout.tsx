@@ -27,7 +27,13 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
 
   const headerContent = (isCollapsed: boolean) => (
     <div className="flex items-center">
-      <div className={cx(isCollapsed ? "w-10" : "opacity-0", "w-0 px-0.5 py-4", TRANSITION)}>
+      <div
+        className={cx(
+          isCollapsed ? "w-10" : "opacity-0 pointer-events-none",
+          "w-0 px-0.5 py-4",
+          TRANSITION,
+        )}
+      >
         <Button size="lg">IT</Button>
       </div>
       <div className={cx(isCollapsed && "opacity-0", "w-full", TRANSITION)}>

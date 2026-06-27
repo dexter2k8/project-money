@@ -5,7 +5,7 @@ interface IMenuProps {
   onClick: () => void;
   isCollapsed?: boolean;
 }
-export default function SidebarMenu({ onClick, isCollapsed }: IMenuProps) {
+export default function SidebarArrow({ onClick, isCollapsed }: IMenuProps) {
   return (
     <div className="flex items-end justify-between p-2">
       <p

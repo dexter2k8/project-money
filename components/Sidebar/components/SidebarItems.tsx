@@ -2,18 +2,29 @@ import Link from "next/link";
 import { ISidebarProps } from "..";
 import { cx } from "class-variance-authority";
 import { usePathname } from "next/navigation";
+import { Tooltip } from "react-tooltip";
 
-export default function SidebarItems({ items }: ISidebarProps) {
+interface ISidebarItemProps extends ISidebarProps {
+  isCollapsed: boolean;
+}
+
+export default function SidebarItems({ items, isCollapsed }: ISidebarItemProps) {
   const pathname = usePathname();
 
   return (
     <ul className="flex flex-col gap-4">
       {items.map(({ label, path, icon }, i) => (
-        <li key={i} className={cx(pathname === path ? "bg-violet-200" : "hover:bg-violet-100")}>
+        <li
+          key={i}
+          data-tooltip-id={label}
+          className={cx(pathname === path ? "bg-violet-200" : "hover:bg-violet-100")}
+        >
           <Link className="flex items-center" href={path}>
             <figure className="px-4.5">{icon}</figure>
             <h4>{label}</h4>
           </Link>
+
+          {isCollapsed && <Tooltip className="z-50" id={label} place="right" content={label} />}
         </li>
       ))}
     </ul>
