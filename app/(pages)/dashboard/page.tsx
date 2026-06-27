@@ -1,6 +1,5 @@
-"use client";
-import { columns, data } from "./columns";
 import Table from "@/components/Table";
+import { columns, data } from "./columns";
 
 export default function Dashboard() {
   return (
