@@ -14,11 +14,15 @@ export default function TableFooter<T>({ rows, columns }: IFooter<T>) {
   }
 
   return (
-    <tfoot>
+    <tfoot className="font-semibold bg-neutral-100">
       <tr>
-        <td colSpan={span}>{columns[firstIndex].renderFooter!(rows)}</td>
+        <td className="p-2 whitespace-nowrap" colSpan={span}>
+          {columns[firstIndex].renderFooter!(rows)}
+        </td>
         {columns.slice(firstIndex + span).map((col, i) => (
-          <td key={i}>{col.renderFooter ? col.renderFooter(rows) : ""}</td>
+          <td className="p-2 whitespace-nowrap" key={i}>
+            {col.renderFooter ? col.renderFooter(rows) : ""}
+          </td>
         ))}
       </tr>
     </tfoot>

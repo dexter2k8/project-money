@@ -12,12 +12,13 @@ export interface IGridColDef<T> {
 export interface ITableProps<T> {
   columns: IGridColDef<T>[];
   rows: T[];
+  caption?: string;
 }
 
-export default function Table<T>({ rows, columns }: ITableProps<T>) {
+export default function Table<T>({ rows, columns, caption }: ITableProps<T>) {
   return (
-    <table>
-      <caption>Table caption</caption>
+    <table className="w-full caption-bottom text-sm">
+      {caption && <caption>{caption}</caption>}
       <Head columns={columns} />
       <Body rows={rows} columns={columns} />
       <Footer rows={rows} columns={columns} />

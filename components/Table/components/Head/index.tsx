@@ -5,10 +5,12 @@ export interface IHeadProps<T> {
 }
 export default function Head<T>({ columns }: IHeadProps<T>) {
   return (
-    <thead>
+    <thead className="h-10 text-left  border-b border-neutral-300">
       <tr>
         {columns.map((col, i) => (
-          <th key={i}> {col.renderHeader ? col.renderHeader(col.headerName) : col.headerName}</th>
+          <th className="px-2 whitespace-nowrap" key={i}>
+            {col.renderHeader ? col.renderHeader(col.headerName) : col.headerName}
+          </th>
         ))}
       </tr>
     </thead>
