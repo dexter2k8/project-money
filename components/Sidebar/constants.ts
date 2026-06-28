@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const sidebarVariants = cva(
-  "bg-white h-full overflow-hidden transition-all duration-300 ease-in-out",
+  "flex flex-col justify-between bg-white h-full overflow-hidden transition-all duration-300 ease-in-out",
   {
     variants: {
       isCollapsed: {

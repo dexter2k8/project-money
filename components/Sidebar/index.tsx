@@ -4,6 +4,7 @@ import SidebarArrow from "./components/SidebarArrow";
 import { sidebarVariants } from "./constants";
 import Divisor from "../Divisor";
 import SidebarItems from "./components/SidebarItems";
+import SidebarFooter from "./components/SidebarFooter";
 
 export interface ISidebarItemProps {
   label: string;
@@ -20,13 +21,16 @@ export default function Sidebar({ items, header }: ISidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   return (
     <nav className={sidebarVariants({ isCollapsed })}>
-      <SidebarArrow isCollapsed={isCollapsed} onClick={() => setIsCollapsed(!isCollapsed)} />
-      <div className="px-2 pb-4">
-        <Divisor />
-        {header?.(isCollapsed)}
-        {!!header && <Divisor />}
+      <div>
+        <SidebarArrow isCollapsed={isCollapsed} onClick={() => setIsCollapsed(!isCollapsed)} />
+        <div className="px-2 pb-4">
+          <Divisor />
+          {header?.(isCollapsed)}
+          {!!header && <Divisor />}
+        </div>
+        <SidebarItems isCollapsed={isCollapsed} items={items} />
       </div>
-      <SidebarItems isCollapsed={isCollapsed} items={items} />
+      <SidebarFooter />
     </nav>
   );
 }
