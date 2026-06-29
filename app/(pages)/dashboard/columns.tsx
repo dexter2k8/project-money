@@ -1,6 +1,11 @@
+import Button from "@/components/Button";
+import Input from "@/components/Input";
+import Modal from "@/components/Modal";
 import { ISegmentedControlItem } from "@/components/SegmentedControl";
 import { ISelectOptions } from "@/components/Select/types";
 import { IGridColDef } from "@/components/Table";
+import TextArea from "@/components/TextArea";
+import { SquarePen } from "lucide-react";
 
 interface IInvoice {
   date: string;
@@ -12,21 +17,48 @@ interface IInvoice {
 
 export const columns: IGridColDef<IInvoice>[] = [
   {
-    field: "date",
-    headerName: "Data",
-    renderFooter: () => "",
+    field: "balance",
+    header: "",
+    className: "text-center w-10",
+    render: () => (
+      <Modal cross title="Edit transaction" content={modalContent}>
+        <Button>
+          <SquarePen size={16} />
+        </Button>
+      </Modal>
+    ),
+    renderFooter: () => (
+      <Modal cross title="Add transaction" content={modalContent}>
+        <Button className="px-3" variant="primary">
+          +
+        </Button>
+      </Modal>
+    ),
   },
-  { field: "description", headerName: "Descrição" },
-  { field: "document", headerName: "Documento" },
-  { field: "value", headerName: "Valor", className: "text-right" },
+  {
+    field: "date",
+    header: "Data",
+  },
+  { field: "description", header: "Descrição" },
+  { field: "document", header: "Documento" },
+  { field: "value", header: "Valor", className: "text-right" },
   {
     field: "balance",
-    headerName: "Saldo",
+    header: "Saldo",
     className: "text-right",
-    renderFooter: (rows) => "Saldo: $5600",
+    renderFooter: () => "Saldo: $5600",
     // `$${rows.reduce((acc, r) => acc + Number(r.amount.replace("$", "")), 0)}`,
   },
 ];
+
+const modalContent = (
+  <div className="flex flex-col gap-4 p-4 w-100">
+    <Input type="date" label="Data" />
+    <TextArea showCounter maxLength={100} label="Descrição" />
+    <Input label="Documento" />
+    <Input label="Valor" />
+  </div>
+);
 
 export const segmentedControlItems: ISegmentedControlItem[] = [
   { key: 0, label: "JAN" },

@@ -3,7 +3,6 @@ import { columns, data, segmentedControlItems, selectYearOptions } from "./colum
 import SegmentedControl from "@/components/SegmentedControl";
 import Select from "@/components/Select";
 import Button from "@/components/Button";
-import Modal from "@/components/Modal";
 
 export default function Dashboard() {
   return (
@@ -17,11 +16,9 @@ export default function Dashboard() {
         <Select defaultValue="2014" className="w-32!" options={selectYearOptions} />
       </div>
       <div className="relative m-4 flex-1 min-h-0">
-        <Modal cross title="Importar OFC/OFX" subtitle="Selecione o arquivo" content={modalContent}>
-          <Button className="absolute left-1 top-1 z-10" variant="primary">
-            Importar OFC/OFX
-          </Button>
-        </Modal>
+        <Button className="absolute left-1 top-1 z-10" variant="primary">
+          Importar OFC/OFX
+        </Button>
         <div className="h-full overflow-auto">
           <div className="min-w-4xl">
             <Table columns={columns} rows={data} caption="Anterior: $100" />
@@ -31,9 +28,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-const modalContent = (
-  <div className="modal-content">
-    <p className="modal-text">Este é um conteúdo de exemplo do modal.</p>
-  </div>
-);

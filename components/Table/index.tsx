@@ -4,7 +4,7 @@ import Head from "./components/Head";
 
 export interface IGridColDef<T> {
   field: keyof T;
-  headerName: string;
+  header: string;
   className?: string;
   renderHeader?: (value?: string) => React.ReactNode;
   render?: (value: T[keyof T]) => React.ReactNode;

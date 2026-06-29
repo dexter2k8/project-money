@@ -23,7 +23,7 @@ export default function Head<T>({ columns, caption }: IHeadProps<T>) {
             className={cx("border-b border-neutral-300 px-2 whitespace-nowrap", col.className)}
             key={i}
           >
-            {col.renderHeader ? col.renderHeader(col.headerName) : col.headerName}
+            {col.renderHeader ? col.renderHeader(col.header) : col.header}
           </th>
         ))}
       </tr>

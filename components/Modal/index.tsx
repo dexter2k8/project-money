@@ -63,7 +63,7 @@ const ModalComponent: React.FC<IModalProps> = ({
         ) : null}
 
         {cross && (
-          <Button variant="link" className="absolute top-4 right-4 text-xl p-1" onClick={onClose}>
+          <Button variant="link" className="absolute text-lg! top-4 right-4" onClick={onClose}>
             x
           </Button>
         )}
@@ -71,7 +71,7 @@ const ModalComponent: React.FC<IModalProps> = ({
         {children}
 
         <div className="flex justify-end gap-4 p-4 border-t border-gray-200">
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose}>Cancel</Button>
           <Button variant="primary" onClick={handleApply}>
             Apply
           </Button>
@@ -92,7 +92,7 @@ const Modal: React.FC<IModalWrapperProps> = ({ content, onClose, children, ...pr
 
   return (
     <>
-      <div onClick={() => setIsOpen(true)}>{children}</div>
+      <span onClick={() => setIsOpen(true)}>{children}</span>
       <ModalComponent
         isOpen={isOpen}
         onClose={handleClose}

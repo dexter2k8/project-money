@@ -1,3 +1,4 @@
+"use client";
 import Eye from "./Icons/eye";
 import EyeSlashed from "./Icons/eye-slashed";
 import InfoCircle from "./Icons/info-circle";
