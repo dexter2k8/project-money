@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { segmentedControlItemVariants, INDICATOR } from "./constants";
+import { liVariants, INDICATOR, CONTAINER } from "./constants";
 
 interface ISegmentedControlItem {
   key: number;
@@ -35,12 +35,12 @@ export default function SegmentedControl({
   }, [active]);
 
   return (
-    <ul className="w-fit relative p-1 rounded-lg shadow-sm" ref={containerRef}>
+    <ul className={CONTAINER} ref={containerRef}>
       <div className={INDICATOR} />
       {items.map((item) => (
         <li
           key={item.key}
-          className={segmentedControlItemVariants({ active: active === item.key })}
+          className={liVariants({ active: active === item.key })}
           onClick={() => {
             setInternalActive(item.key);
             onSelect?.(item.key);
