@@ -14,13 +14,15 @@ export interface ITableProps<T> {
   columns: IGridColDef<T>[];
   rows: T[];
   caption?: string;
+  loading?: boolean;
+  emptyMessage?: string;
 }
 
-export default function Table<T>({ rows, columns, caption }: ITableProps<T>) {
+export default function Table<T>({ rows, columns, caption, loading, emptyMessage }: ITableProps<T>) {
   return (
     <table className="w-full text-sm border-separate border-spacing-0">
       <Head columns={columns} caption={caption} />
-      <Body rows={rows} columns={columns} />
+      <Body rows={rows} columns={columns} loading={loading} emptyMessage={emptyMessage} />
       <Footer rows={rows} columns={columns} />
     </table>
   );

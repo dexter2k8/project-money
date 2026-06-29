@@ -4,9 +4,38 @@ import { IGridColDef } from "../..";
 interface IBodyProps<T> {
   rows: T[];
   columns: IGridColDef<T>[];
+  loading?: boolean;
+  emptyMessage?: string;
 }
 
-export default function Body<T>({ rows, columns }: IBodyProps<T>) {
+export default function Body<T>({ rows, columns, loading, emptyMessage }: IBodyProps<T>) {
+  if (loading) {
+    return (
+      <tbody>
+        <tr>
+          <td className="p-4 text-center text-neutral-400" colSpan={columns.length}>
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-violet-600" />
+              Carregando...
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    );
+  }
+
+  if (rows.length === 0) {
+    return (
+      <tbody>
+        <tr>
+          <td className="p-4 text-center text-neutral-400" colSpan={columns.length}>
+            {emptyMessage ?? "Nenhum dado disponível"}
+          </td>
+        </tr>
+      </tbody>
+    );
+  }
+
   return (
     <tbody>
       {rows.map((row, i) => (
