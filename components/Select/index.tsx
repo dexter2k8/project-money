@@ -18,6 +18,7 @@ export default function Select({
   placeholder,
   value,
   onChange,
+  disabled = false,
 }: ISelectProps) {
   const isControlled = value !== undefined;
   const [internalSelected, setInternalSelected] = useState(defaultValue);
@@ -92,8 +93,9 @@ export default function Select({
           type,
           isOpen: open,
           isPlaceholder,
+          disabled,
         })}
-        onClick={() => type !== "search" && setOpen(!open)}
+        onClick={() => !disabled && type !== "search" && setOpen(!open)}
       >
         {type === "search" ? (
           <input
@@ -103,6 +105,7 @@ export default function Select({
             value={text}
             onChange={(e) => setText(e.target.value)}
             onFocus={handleInputFocus}
+            disabled={disabled}
           />
         ) : (
           <span className="flex-1 truncate">
@@ -116,6 +119,7 @@ export default function Select({
             className={cx(
               "absolute right-2 text-neutral-500 transition-transform duration-200",
               open && "-rotate-180",
+              disabled && "text-neutral-300",
             )}
           />
         )}

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { liVariants, INDICATOR, CONTAINER } from "./constants";
+import { liVariants, INDICATOR, containerVariants } from "./constants";
 
 export interface ISegmentedControlItem {
   key: number;
@@ -12,6 +12,7 @@ interface ISegmentedControlProps {
   defaultSelected?: number;
   selected?: number;
   onSelect?: (key: number) => void;
+  disabled?: boolean;
 }
 
 export default function SegmentedControl({
@@ -19,6 +20,7 @@ export default function SegmentedControl({
   defaultSelected = 0,
   selected,
   onSelect,
+  disabled = false,
 }: ISegmentedControlProps) {
   const [internalActive, setInternalActive] = useState<number>(defaultSelected);
   const active = selected ?? internalActive;
@@ -35,13 +37,14 @@ export default function SegmentedControl({
   }, [active]);
 
   return (
-    <ul className={CONTAINER} ref={containerRef}>
+    <ul className={containerVariants({ disabled })} ref={containerRef}>
       <div className={INDICATOR} />
       {items.map((item) => (
         <li
           key={item.key}
-          className={liVariants({ active: active === item.key })}
+          className={liVariants({ active: active === item.key, disabled })}
           onClick={() => {
+            if (disabled) return;
             setInternalActive(item.key);
             onSelect?.(item.key);
           }}

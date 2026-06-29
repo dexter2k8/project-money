@@ -4,7 +4,7 @@ export const selectTriggerVariants = cva(
   cx(
     "box-border relative flex items-center",
     "border border-solid border-neutral-300 rounded-md",
-    "h-8 text-left whitespace-nowrap cursor-pointer",
+    "h-8 text-left whitespace-nowrap",
     "shadow-sm transition-all duration-200 ease-in-out",
     "hover:border-neutral-400",
   ),
@@ -22,11 +22,16 @@ export const selectTriggerVariants = cva(
         true: "text-neutral-400",
         false: "",
       },
+      disabled: {
+        true: "bg-neutral-100 text-neutral-400 border-neutral-200 cursor-not-allowed hover:border-neutral-300",
+        false: "cursor-pointer",
+      },
     },
     defaultVariants: {
       type: "default",
       isOpen: false,
       isPlaceholder: false,
+      disabled: false,
     },
   },
 );

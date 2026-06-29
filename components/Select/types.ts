@@ -12,6 +12,7 @@ export interface ISelectProps {
   defaultValue?: string;
   onChange?: (value: string) => void;
   className?: string;
+  disabled?: boolean;
 }
 
 type TTypes = "default" | "search";
