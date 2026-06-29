@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { liVariants, INDICATOR, CONTAINER } from "./constants";
 
-interface ISegmentedControlItem {
+export interface ISegmentedControlItem {
   key: number;
   label: React.ReactNode;
 }
