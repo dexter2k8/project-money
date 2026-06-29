@@ -44,6 +44,7 @@ async function SignUp(props: TSignUpArgs) {
     return response.ok;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    console.error(error);
     toast.error(error?.message);
   }
   return false;
@@ -55,9 +56,22 @@ async function SignOut() {
     if (response.ok) return true;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    console.error(error);
     toast.error(error?.message);
   }
   return false;
 }
 
-export { SignIn, SignUp, SignOut };
+async function GetSelfUser() {
+  try {
+    const response = await fetch(API.AUTH.GET_SELF_USER, { method: "GET" });
+    if (response.ok) return response.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error(error);
+    toast.error(error?.message);
+  }
+  return null;
+}
+
+export { SignIn, SignUp, SignOut, GetSelfUser };
