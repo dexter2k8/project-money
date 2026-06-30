@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { CircleUserRound } from "lucide-react";
 import Image from "next/image";
 import { GetSelfUser } from "@/app/services/fetchers/auth";
-import { ISelfUser } from "@/app/api/auth/get-self-user/types";
+import { IUser } from "@/app/api/auth/get-self-user/types";
 
 export default function SidebarFooter() {
-  const [user, setUser] = useState<ISelfUser | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
 
   useEffect(() => {
     const getUserData = async () => {

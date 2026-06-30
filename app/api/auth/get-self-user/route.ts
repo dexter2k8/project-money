@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import admin from "firebase-admin";
-import { ISelfUser } from "./types";
+import { IUser } from "./types";
 
 export async function GET() {
   try {
@@ -14,7 +14,7 @@ export async function GET() {
 
     const decodedToken = await admin.auth().verifyIdToken(token);
 
-    const user: ISelfUser = {
+    const user: IUser = {
       displayName: decodedToken?.name,
       email: decodedToken?.email,
       photoURL: decodedToken?.picture,
