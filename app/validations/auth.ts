@@ -1,6 +1,6 @@
 import * as yup from "yup";
 import type { TSignInArgs } from "../api/auth/sign-in/types";
-import type { TSignUpArgs } from "../api/auth/sign-up/types";
+import type { TPostUserArgs } from "../api/auth/sign-up/types";
 
 export const signInSchema = yup.object({
   email: yup.string().required("Email is required").email("Invalid email format"),
@@ -17,7 +17,7 @@ export const signUpSchema = yup.object({
     .string()
     .required("Please confirm your password")
     .oneOf([yup.ref("password")], "Passwords do not match"),
-}) satisfies yup.Schema<TSignUpArgs>;
+}) satisfies yup.Schema<TPostUserArgs>;
 
 export const updateUserSchema = yup.object({
   displayName: yup.string().required("Name is required"),

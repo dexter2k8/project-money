@@ -10,6 +10,7 @@ const ModalComponent: React.FC<IModalProps> = ({
   isOpen,
   onClose,
   onApply,
+  applyLoading,
   children,
   title,
   subtitle,
@@ -72,7 +73,7 @@ const ModalComponent: React.FC<IModalProps> = ({
 
         <div className="flex justify-end gap-4 p-4 border-t border-gray-200">
           <Button onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={handleApply}>
+          <Button variant="primary" onClick={handleApply} loading={applyLoading}>
             Apply
           </Button>
         </div>
@@ -101,6 +102,7 @@ const Modal: React.FC<IModalWrapperProps> = ({ content, onClose, children, ...pr
         subtitle={props.subtitle}
         cross={props.cross}
         onApply={props.onApply}
+        applyLoading={props.applyLoading}
       >
         {content}
       </ModalComponent>

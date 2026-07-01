@@ -3,20 +3,20 @@ import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import { auth } from "@/app/services/firebase";
 import type { NextRequest } from "next/server";
-import type { TSignUpArgs } from "./types";
+import type { TPostUserArgs } from "./types";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, name, avatar = "" }: TSignUpArgs = body;
+    const { email, password, displayName, photoURL }: TPostUserArgs = body;
 
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    if (user && name) {
+    if (user && displayName) {
       updateProfile(user, {
-        displayName: name,
-        photoURL: avatar,
+        displayName: displayName,
+        photoURL: photoURL,
       });
     }
 

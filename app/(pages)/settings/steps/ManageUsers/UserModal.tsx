@@ -1,22 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 import { Tooltip } from "react-tooltip";
 import { PatchUser, PostUser } from "@/app/services/fetchers/auth";
 import { editUserSchema, postUserSchema } from "@/app/validations/auth";
 import Checkbox from "@/components/Checkbox";
 import Input from "@/components/Input";
 import Modal from "@/components/Modal";
-import type { SubmitHandler } from "react-hook-form";
+import type { Resolver, SubmitHandler } from "react-hook-form";
 import type { IUser } from "@/app/api/auth/get-self-user/types";
-import type { IUpdateUser } from "@/app/api/auth/patch-user/types";
+import type { TPostUserArgs } from "@/app/api/auth/sign-up/types";
 import type { TAction } from "./types";
 
 interface IUserForm {
   displayName: string;
   email: string;
   password?: string;
+  confirmPassword?: string;
   photoURL?: string;
 }
 
@@ -31,27 +31,23 @@ interface IUserModalProps {
 export default function UserModal({ userData, action, onMutate, open, onClose }: IUserModalProps) {
   const triggerRef = useRef<HTMLSpanElement>(null);
   const [checked, setChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { control, handleSubmit, setValue, reset } = useForm<IUserForm>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: yupResolver(action === "add" ? postUserSchema : editUserSchema) as any,
+    resolver: yupResolver(
+      action === "add" ? postUserSchema : editUserSchema,
+    ) as Resolver<IUserForm>,
   });
 
   const onSubmit: SubmitHandler<IUserForm> = async (data) => {
-    try {
-      const payload: IUpdateUser = {
-        displayName: data.displayName,
-        email: data.email,
-        password: data.password,
-        photoURL: data.photoURL,
-      };
-      if (action === "add") await PostUser(payload);
-      if (action === "edit") await PatchUser(userData?.uid || "", payload);
-      onMutate();
-      toast.success(`User ${action === "add" ? "added" : "updated"} successfully`);
-    } catch {
-      toast.error(`Failed to ${action === "add" ? "add" : "update"} user`);
-    }
+    if (!userData?.uid) return;
+
+    setLoading(true);
+    if (action === "add") await PostUser(data as TPostUserArgs);
+    if (action === "edit") await PatchUser(userData.uid, data);
+    onMutate();
+    setLoading(false);
+
     onClose();
     reset();
   };
@@ -116,11 +112,11 @@ export default function UserModal({ userData, action, onMutate, open, onClose }:
     <Modal
       title={userData ? "Edit User" : "Add User"}
       onClose={handleCloseModal}
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onApply={handleSubmit(onSubmit as any)}
+      onApply={handleSubmit(onSubmit)}
       width="17rem"
       cross
       content={formContent}
+      applyLoading={loading}
     >
       <span ref={triggerRef} className="hidden" />
     </Modal>

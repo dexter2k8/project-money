@@ -1,8 +1,8 @@
 import { toast } from "react-toastify";
 import { API } from "@/app/utils/paths";
-import type { IUpdateUser } from "@/app/api/auth/patch-user/types";
+import type { TPatchUserArgs } from "@/app/api/auth/patch-user/types";
 import type { TSignInArgs } from "@/app/api/auth/sign-in/types";
-import type { TSignUpArgs } from "@/app/api/auth/sign-up/types";
+import type { TPostUserArgs } from "@/app/api/auth/sign-up/types";
 
 async function SignIn(props: TSignInArgs) {
   try {
@@ -14,38 +14,11 @@ async function SignIn(props: TSignInArgs) {
 
     if (response.ok) {
       toast.success("Welcome back!");
-    } else {
-      toast.error(response.statusText);
+      return response.ok;
     }
 
-    return response.ok;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    toast.error(error?.message);
-  }
-  return false;
-}
-
-async function SignUp(props: TSignUpArgs) {
-  try {
-    const { confirmPassword, ...body } = props;
-    void confirmPassword;
-    const response = await fetch(API.AUTH.SIGN_UP, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    if (response.ok) {
-      toast.success(response.statusText);
-    } else {
-      toast.error(response.statusText);
-    }
-
-    return response.ok;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.error(error);
     toast.error(error?.message);
   }
   return false;
@@ -75,30 +48,42 @@ async function GetSelfUser() {
   return null;
 }
 
-async function PostUser(data: IUpdateUser) {
+async function PostUser(data: TPostUserArgs) {
   try {
+    const { confirmPassword, ...body } = data;
+    void confirmPassword;
     const response = await fetch(API.AUTH.SIGN_UP, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(body),
     });
-    if (response.ok) return response.json();
+
+    if (response.ok) {
+      toast.success("Account created successfully!");
+      return response.ok;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(error);
     toast.error(error?.message);
   }
-  return null;
+  return false;
 }
 
-async function PatchUser(uuid: string, data: IUpdateUser) {
+async function PatchUser(uuid: string, data: TPatchUserArgs) {
+  const { confirmPassword, ...body } = data;
+  void confirmPassword;
   try {
     const response = await fetch(API.AUTH.PATCH_USER + uuid, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(body),
     });
-    if (response.ok) return response.json();
+    if (response.ok) {
+      toast.success("Account updated successfully!");
+      return response.json();
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(error);
@@ -110,7 +95,10 @@ async function PatchUser(uuid: string, data: IUpdateUser) {
 async function DeleteUser(uuid: string) {
   try {
     const response = await fetch(API.AUTH.DELETE_USER + uuid, { method: "DELETE" });
-    if (response.ok) return response.json();
+    if (response.ok) {
+      toast.success("Account deleted successfully!");
+      return response.json();
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(error);
@@ -119,4 +107,4 @@ async function DeleteUser(uuid: string) {
   return null;
 }
 
-export { SignIn, SignUp, SignOut, GetSelfUser, PostUser, PatchUser, DeleteUser };
+export { SignIn, SignOut, GetSelfUser, PostUser, PatchUser, DeleteUser };

@@ -17,26 +17,26 @@ import {
   toggleContainer,
   togglePanel,
 } from "./constants";
-import { SignIn, SignUp } from "./services/fetchers/auth";
+import { PostUser, SignIn } from "./services/fetchers/auth";
 import { signInSchema, signUpSchema } from "./validations/auth";
 import type { TSignInArgs } from "./api/auth/sign-in/types";
-import type { TSignUpArgs } from "./api/auth/sign-up/types";
+import type { TPostUserArgs } from "./api/auth/sign-up/types";
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-  const signUpForm = useForm<TSignUpArgs>({
+  const signUpForm = useForm<TPostUserArgs>({
     resolver: yupResolver(signUpSchema),
   });
   const signInForm = useForm<TSignInArgs>({
     resolver: yupResolver(signInSchema),
   });
 
-  const handleSignUp = async (data: TSignUpArgs) => {
+  const handleSignUp = async (data: TPostUserArgs) => {
     setLoading(true);
-    const result = await SignUp(data);
+    const result = await PostUser(data);
     if (result) setIsSignIn(true);
     setLoading(false);
   };
@@ -57,7 +57,7 @@ export default function AuthPage() {
             onSubmit={signUpForm.handleSubmit(handleSignUp)}
           >
             <h1>Create Account</h1>
-            <Input.Controlled label="Name" name="name" control={signUpForm.control} />
+            <Input.Controlled label="Name" name="displayName" control={signUpForm.control} />
             <Input.Controlled
               type="email"
               label="Email"
@@ -76,7 +76,7 @@ export default function AuthPage() {
               name="confirmPassword"
               control={signUpForm.control}
             />
-            <Input.Controlled label="Avatar URL" name="avatar" control={signUpForm.control} />
+            <Input.Controlled label="Avatar URL" name="photoURL" control={signUpForm.control} />
 
             <small className="text-red-400">
               <em>Sign Up is not available on this demo</em>

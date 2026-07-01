@@ -1,11 +1,11 @@
 import type { TSignInResponse } from "../sign-in/types";
 
-export type TSignUpArgs = {
+export type TPostUserArgs = {
   email: string;
   password: string;
   confirmPassword: string;
-  name?: string;
-  avatar?: string;
+  displayName?: string;
+  photoURL?: string;
 };
 
-export type TSignUpResponse = TSignInResponse;
+export type TPostUserResponse = TSignInResponse;
