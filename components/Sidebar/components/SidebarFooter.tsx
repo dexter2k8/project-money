@@ -1,29 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
 import { CircleUserRound } from "lucide-react";
 import Image from "next/image";
-import { GetSelfUser } from "@/app/services/fetchers/auth";
-import { IUser } from "@/app/api/auth/get-self-user/types";
+import { useAuth } from "@/app/providers/AuthProvider";
 
 export default function SidebarFooter() {
-  const [user, setUser] = useState<IUser | null>(null);
-
-  useEffect(() => {
-    const getUserData = async () => {
-      const user = await GetSelfUser();
-      setUser(user);
-    };
-
-    getUserData();
-  }, []);
+  const { selfUser } = useAuth();
 
   return (
     <div className="flex items-center py-4">
       <figure className="px-2.5">
-        {user?.photoURL ? (
+        {selfUser?.photoURL ? (
           <Image
-            src={user.photoURL}
-            alt={user.displayName ?? "avatar"}
+            src={selfUser.photoURL}
+            alt={selfUser.displayName ?? "avatar"}
             width={40}
             height={40}
             className="rounded-full object-cover min-w-10 min-h-10"
@@ -33,8 +22,8 @@ export default function SidebarFooter() {
         )}
       </figure>
       <section>
-        <p className="font-semibold leading-3">{user?.displayName ?? "Usuário"}</p>
-        <small className="text-neutral-500">{user?.email ?? "—"}</small>
+        <p className="font-semibold leading-3">{selfUser?.displayName ?? "Usuário"}</p>
+        <small className="text-neutral-500">{selfUser?.email ?? "—"}</small>
       </section>
     </div>
   );

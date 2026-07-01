@@ -1,7 +1,8 @@
-import { TSignInArgs } from "@/app/api/auth/sign-in/types";
-import { TSignUpArgs } from "@/app/api/auth/sign-up/types";
-import { API } from "@/app/utils/paths";
 import { toast } from "react-toastify";
+import { API } from "@/app/utils/paths";
+import type { IUpdateUser } from "@/app/api/auth/patch-user/types";
+import type { TSignInArgs } from "@/app/api/auth/sign-in/types";
+import type { TSignUpArgs } from "@/app/api/auth/sign-up/types";
 
 async function SignIn(props: TSignInArgs) {
   try {
@@ -12,7 +13,7 @@ async function SignIn(props: TSignInArgs) {
     });
 
     if (response.ok) {
-      toast.success(response.statusText);
+      toast.success("Welcome back!");
     } else {
       toast.error(response.statusText);
     }
@@ -74,4 +75,48 @@ async function GetSelfUser() {
   return null;
 }
 
-export { SignIn, SignUp, SignOut, GetSelfUser };
+async function PostUser(data: IUpdateUser) {
+  try {
+    const response = await fetch(API.AUTH.SIGN_UP, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (response.ok) return response.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error(error);
+    toast.error(error?.message);
+  }
+  return null;
+}
+
+async function PatchUser(uuid: string, data: IUpdateUser) {
+  try {
+    const response = await fetch(API.AUTH.PATCH_USER + uuid, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (response.ok) return response.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error(error);
+    toast.error(error?.message);
+  }
+  return null;
+}
+
+async function DeleteUser(uuid: string) {
+  try {
+    const response = await fetch(API.AUTH.DELETE_USER + uuid, { method: "DELETE" });
+    if (response.ok) return response.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error(error);
+    toast.error(error?.message);
+  }
+  return null;
+}
+
+export { SignIn, SignUp, SignOut, GetSelfUser, PostUser, PatchUser, DeleteUser };

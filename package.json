@@ -19,6 +19,7 @@
     "react-hook-form": "^7.80.0",
     "react-toastify": "^11.1.0",
     "react-tooltip": "^6.0.8",
+    "swr": "^2.4.2",
     "yup": "^1.7.1"
   },
   "devDependencies": {
@@ -29,6 +30,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

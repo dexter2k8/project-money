@@ -1,3 +1,4 @@
+import { cx } from "class-variance-authority";
 import { buttonVariants } from "./constants";
 import Loading from "./loading";
 
@@ -21,7 +22,7 @@ export default function Button({
 }: IButtonProps) {
   return (
     <button
-      className={buttonVariants({ variant, size, className })}
+      className={cx(buttonVariants({ variant, size }), className)}
       disabled={disabled || loading}
       {...props}
     >

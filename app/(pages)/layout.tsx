@@ -1,13 +1,15 @@
 "use client";
-import Sidebar, { ISidebarItemProps } from "@/components/Sidebar";
 import { cx } from "class-variance-authority";
-import Link from "next/link";
+import { FileSpreadsheet, LayoutDashboard, Settings } from "lucide-react";
 import Image from "next/image";
-import Button from "@/components/Button";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SignOut } from "../services/fetchers/auth";
+import Button from "@/components/Button";
 import Divisor from "@/components/Divisor";
-import { LayoutDashboard, FileSpreadsheet, Settings } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
+import { AuthProvider } from "../providers/AuthProvider";
+import { SignOut } from "../services/fetchers/auth";
+import type { ISidebarItemProps } from "@/components/Sidebar";
 
 const sidebarItems: ISidebarItemProps[] = [
   { label: "Dashboard", path: "/dashboard", icon: <LayoutDashboard /> },
@@ -47,8 +49,8 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <>
-      <header className="flex items-center justify-between p-2 bg-yellow-100">
+    <AuthProvider>
+      <header className="flex items-center justify-between p-2 bg-yellow-100 shrink-0">
         <Link className="flex items-center gap-2 w-fit" href="/dashboard">
           <Image className="dark:invert" src="/money.svg" alt="money logo" width={40} height={40} />
           <h3 className="whitespace-nowrap">Project Money</h3>
@@ -62,13 +64,13 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
       </header>
       <div
         className={cx(
-          "flex h-full w-full overflow-hidden",
+          "flex flex-1 w-full overflow-hidden",
           "bg-linear-to-r from-neutral-200 to-indigo-200",
         )}
       >
         <Sidebar header={headerContent} items={sidebarItems} />
         {children}
       </div>
-    </>
+    </AuthProvider>
   );
 }

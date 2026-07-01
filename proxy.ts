@@ -12,7 +12,7 @@ if (!admin.apps.length) {
   });
 }
 
-const protectedRoutes = ["/dashboard"];
+const protectedRoutes = ["/dashboard", "/analytics", "/settings"];
 const publicRoutes = ["/"];
 
 export async function proxy(request: NextRequest) {
