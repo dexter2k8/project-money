@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
-import SidebarArrow from "./components/SidebarArrow";
 import { sidebarVariants } from "./constants";
 import Divisor from "../Divisor";
-import SidebarItems from "./components/SidebarItems";
+import SidebarArrow from "./components/SidebarArrow";
 import SidebarFooter from "./components/SidebarFooter";
+import SidebarItems from "./components/SidebarItems";
 
 export interface ISidebarItemProps {
   label: string;

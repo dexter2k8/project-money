@@ -1,11 +1,11 @@
+import { SquarePen } from "lucide-react";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Modal from "@/components/Modal";
-import { ISegmentedControlItem } from "@/components/SegmentedControl";
-import { ISelectOptions } from "@/components/Select/types";
-import { IGridColDef } from "@/components/Table";
 import TextArea from "@/components/TextArea";
-import { SquarePen } from "lucide-react";
+import type { ISegmentedControlItem } from "@/components/SegmentedControl";
+import type { ISelectOptions } from "@/components/Select/types";
+import type { IGridColDef } from "@/components/Table";
 
 interface IInvoice {
   date: string;

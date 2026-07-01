@@ -1,7 +1,7 @@
 import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { IUser } from "../get-self-user/types";
+import type { IUser } from "../get-self-user/types";
 
 export async function GET() {
   const cookieStore = await cookies();

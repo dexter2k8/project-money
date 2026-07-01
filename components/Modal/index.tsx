@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { cx } from "class-variance-authority";
-import Button from "../Button";
-import { IModalProps, IModalWrapperProps } from "./types";
+import { createPortal } from "react-dom";
 import { CONTENT, OVERLAY } from "./constants";
+import Button from "../Button";
+import type { IModalProps, IModalWrapperProps } from "./types";
 
 const ModalComponent: React.FC<IModalProps> = ({
   isOpen,

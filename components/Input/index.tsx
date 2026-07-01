@@ -1,21 +1,21 @@
 "use client";
+import { useState } from "react";
+import { iconVariants, inputVariants, labelVariants, messageVariants } from "./constants";
+import { ControlledInput } from "./ControlledInput";
+import CheckCircle from "./Icons/check-circle";
+import ExclamationCircle from "./Icons/exclamation-circle";
 import Eye from "./Icons/eye";
 import EyeSlashed from "./Icons/eye-slashed";
 import InfoCircle from "./Icons/info-circle";
-import CheckCircle from "./Icons/check-circle";
-import ExclamationCircle from "./Icons/exclamation-circle";
-import { iconVariants, inputVariants, labelVariants, messageVariants } from "./constants";
-import { useState } from "react";
-import { ControlledInput } from "./ControlledInput";
 
 type TStatus = "info" | "success" | "error";
-type size = "small" | "default" | "large";
+type TSize = "small" | "default" | "large";
 
 export interface IInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   label?: string;
   status?: TStatus;
   message?: string;
-  size?: size;
+  size?: TSize;
 }
 
 const messageIcon = (status: TStatus) => {

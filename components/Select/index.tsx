@@ -3,12 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cx } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
 import {
-  selectTriggerVariants,
+  INPUT,
   selectOptionsVariants,
   selectOptionVariants,
-  INPUT,
+  selectTriggerVariants,
 } from "./constants";
-import { ISelectProps } from "./types";
+import type { ISelectProps } from "./types";
 
 export default function Select({
   type = "default",

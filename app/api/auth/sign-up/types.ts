@@ -1,4 +1,4 @@
-import { TSignInResponse } from "../sign-in/types";
+import type { TSignInResponse } from "../sign-in/types";
 
 export type TSignUpArgs = {
   email: string;

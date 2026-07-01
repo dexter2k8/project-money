@@ -1,8 +1,8 @@
-import Table from "@/components/Table";
-import { columns, data, segmentedControlItems, selectYearOptions } from "./columns";
+import Button from "@/components/Button";
 import SegmentedControl from "@/components/SegmentedControl";
 import Select from "@/components/Select";
-import Button from "@/components/Button";
+import Table from "@/components/Table";
+import { columns, data, segmentedControlItems, selectYearOptions } from "./columns";
 
 export default function Dashboard() {
   return (

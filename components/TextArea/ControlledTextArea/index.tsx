@@ -1,5 +1,7 @@
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
-import TextArea, { ITextAreaProps } from "..";
+import { Controller } from "react-hook-form";
+import TextArea from "..";
+import type { Control, FieldValues, Path } from "react-hook-form";
+import type { ITextAreaProps } from "..";
 
 interface IControlledTextAreaProps<T extends FieldValues> extends ITextAreaProps {
   name: Path<T>;
@@ -15,7 +17,13 @@ export const ControlledTextArea = <T extends FieldValues>({
     control={control}
     name={name}
     render={({ field, fieldState: { error } }) => (
-      <TextArea {...field} {...props} value={field.value ?? ""} status={error ? "error" : "info"} message={error?.message} />
+      <TextArea
+        {...field}
+        {...props}
+        value={field.value ?? ""}
+        status={error ? "error" : "info"}
+        message={error?.message}
+      />
     )}
   />
 );

@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
 import "./globals.css";
 import "react-tooltip/dist/react-tooltip.css";
 import "react-toastify/dist/ReactToastify.css";
+import { Montserrat } from "next/font/google";
 import { Slide, ToastContainer } from "react-toastify";
+import type { Metadata } from "next";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",

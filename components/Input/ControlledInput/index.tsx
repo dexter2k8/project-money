@@ -1,5 +1,7 @@
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
-import Input, { IInputProps } from "..";
+import { Controller } from "react-hook-form";
+import Input from "..";
+import type { Control, FieldValues, Path } from "react-hook-form";
+import type { IInputProps } from "..";
 
 interface IControlledInputProps<T extends FieldValues> extends IInputProps {
   name: Path<T>;
@@ -15,7 +17,13 @@ export const ControlledInput = <T extends FieldValues>({
     control={control}
     name={name}
     render={({ field, fieldState: { error } }) => (
-      <Input {...field} {...props} value={field.value ?? ""} status={error ? "error" : "info"} message={error?.message} />
+      <Input
+        {...field}
+        {...props}
+        value={field.value ?? ""}
+        status={error ? "error" : "info"}
+        message={error?.message}
+      />
     )}
   />
 );

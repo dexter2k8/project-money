@@ -1,5 +1,5 @@
 import { cx } from "class-variance-authority";
-import { IGridColDef } from "../..";
+import type { IGridColDef } from "../..";
 
 export interface IHeadProps<T> {
   columns: IGridColDef<T>[];

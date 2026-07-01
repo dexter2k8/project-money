@@ -1,7 +1,7 @@
+import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import admin from "firebase-admin";
-import { IUser } from "./types";
+import type { IUser } from "./types";
 
 export async function GET() {
   try {

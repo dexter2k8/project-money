@@ -2,9 +2,9 @@ import { signInWithCustomToken, signInWithEmailAndPassword, updateProfile } from
 import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { auth } from "@/app/services/firebase";
-import { TSignInArgs } from "./types";
+import type { NextRequest } from "next/server";
+import type { TSignInArgs } from "./types";
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
-import InfoCircle from "../Input/Icons/info-circle";
+import { counterVariants, labelVariants, messageVariants, textareaVariants } from "./constants";
 import CheckCircle from "../Input/Icons/check-circle";
 import ExclamationCircle from "../Input/Icons/exclamation-circle";
-import { textareaVariants, labelVariants, messageVariants, counterVariants } from "./constants";
-import { ITextAreaProps } from "./types";
+import InfoCircle from "../Input/Icons/info-circle";
+import type { ITextAreaProps } from "./types";
 export type { ITextAreaProps } from "./types";
 import { ControlledTextArea } from "./ControlledTextArea";
 
@@ -76,7 +76,9 @@ function TextAreaBasic({
   );
 }
 
-const TextArea = TextAreaBasic as React.FC<ITextAreaProps> & { Controlled: typeof ControlledTextArea };
+const TextArea = TextAreaBasic as React.FC<ITextAreaProps> & {
+  Controlled: typeof ControlledTextArea;
+};
 TextArea.Controlled = ControlledTextArea;
 
 export default TextArea;

@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { ISidebarProps } from "..";
 import { cx } from "class-variance-authority";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tooltip } from "react-tooltip";
+import type { ISidebarProps } from "..";
 
 interface ISidebarItemProps extends ISidebarProps {
   isCollapsed: boolean;

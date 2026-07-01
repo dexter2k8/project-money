@@ -1,5 +1,12 @@
 "use client";
 import { useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { cx } from "class-variance-authority";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { Tooltip } from "react-tooltip";
+import Button from "@/components/Button";
+import Input from "@/components/Input";
 import {
   CONTAINER,
   CONTENT,
@@ -10,17 +17,10 @@ import {
   toggleContainer,
   togglePanel,
 } from "./constants";
-import { cx } from "class-variance-authority";
-import Button from "@/components/Button";
-import Input from "@/components/Input";
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import { SignIn, SignUp } from "./services/fetchers/auth";
 import { signInSchema, signUpSchema } from "./validations/auth";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { TSignInArgs } from "./api/auth/sign-in/types";
-import { TSignUpArgs } from "./api/auth/sign-up/types";
-import { Tooltip } from "react-tooltip";
+import type { TSignInArgs } from "./api/auth/sign-in/types";
+import type { TSignUpArgs } from "./api/auth/sign-up/types";
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);

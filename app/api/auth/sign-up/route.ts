@@ -1,9 +1,9 @@
-import { auth } from "@/app/services/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import type { NextRequest } from "next/server";
 import admin from "firebase-admin";
 import { NextResponse } from "next/server";
-import { TSignUpArgs } from "./types";
+import { auth } from "@/app/services/firebase";
+import type { NextRequest } from "next/server";
+import type { TSignUpArgs } from "./types";
 
 export async function POST(request: NextRequest) {
   try {
