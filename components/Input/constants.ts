@@ -86,7 +86,7 @@ export const labelVariants = cva(
   },
 );
 
-export const iconVariants = cva("absolute right-2 top-1/2 -translate-y-1/2", {
+export const iconVariants = cva("absolute right-2 top-2", {
   variants: {
     disabled: {
       true: "cursor-not-allowed text-neutral-200",

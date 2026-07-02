@@ -4,12 +4,12 @@ import type { TPatchUserArgs } from "@/app/api/auth/patch-user/types";
 import type { TSignInArgs } from "@/app/api/auth/sign-in/types";
 import type { TPostUserArgs } from "@/app/api/auth/sign-up/types";
 
-async function SignIn(props: TSignInArgs) {
+async function SignIn(data: TSignInArgs) {
   try {
     const response = await fetch(API.AUTH.SIGN_IN, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(props),
+      body: JSON.stringify(data),
     });
 
     if (response.ok) {
@@ -71,11 +71,11 @@ async function PostUser(data: TPostUserArgs) {
   return false;
 }
 
-async function PatchUser(uuid: string, data: TPatchUserArgs) {
+async function PatchUser(uid: string, data: TPatchUserArgs) {
   const { confirmPassword, ...body } = data;
   void confirmPassword;
   try {
-    const response = await fetch(API.AUTH.PATCH_USER + uuid, {
+    const response = await fetch(API.AUTH.PATCH_USER + uid, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -92,9 +92,9 @@ async function PatchUser(uuid: string, data: TPatchUserArgs) {
   return null;
 }
 
-async function DeleteUser(uuid: string) {
+async function DeleteUser(uid: string) {
   try {
-    const response = await fetch(API.AUTH.DELETE_USER + uuid, { method: "DELETE" });
+    const response = await fetch(API.AUTH.DELETE_USER + uid, { method: "DELETE" });
     if (response.ok) {
       toast.success("Account deleted successfully!");
       return response.json();

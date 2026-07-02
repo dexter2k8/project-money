@@ -9,9 +9,10 @@ export interface IModalProps {
   width?: CSSProperties["width"];
   onClose?: () => void;
   onApply?: () => void | boolean | Promise<boolean | void>;
-  applyLoading?: boolean;
+  loadingApply?: boolean;
+  disabledApply?: boolean;
 }
 
 export interface IModalWrapperProps extends Omit<IModalProps, "isOpen"> {
-  content: ReactNode;
+  content?: ReactNode;
 }

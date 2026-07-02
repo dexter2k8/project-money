@@ -1,8 +1,8 @@
 import Image from "next/image";
-import TableActions from "@/components/TableActions";
+import ColumnActions from "@/app/(pages)/settings/steps/ManageUsers/ColumnActions";
+import type { IActions } from "@/app/(pages)/settings/steps/ManageUsers/types";
 import type { IUser } from "@/app/api/auth/get-self-user/types";
 import type { IGridColDef } from "@/components/Table";
-import type { IActions } from "@/components/TableActions";
 
 export function getColumns({ onAction }: IActions) {
   const columns: IGridColDef<IUser>[] = [
@@ -38,7 +38,7 @@ export function getColumns({ onAction }: IActions) {
     {
       field: "uid",
       header: "ACTIONS",
-      render: (value) => <TableActions id={value as string} onAction={onAction} />,
+      render: (value) => <ColumnActions id={value as string} onAction={onAction} />,
     },
   ];
 

@@ -8,3 +8,10 @@ export interface IActionsProps {
   action: TAction;
   id?: string | number;
 }
+
+export type TManageUserArgs = {
+  displayName: string;
+  email: string;
+  password?: string;
+  photoURL?: string;
+};
