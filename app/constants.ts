@@ -1,11 +1,11 @@
 import { cva, cx } from "class-variance-authority";
 
-const TRANSITION = cx("transition-all duration-600 ease-in-out");
-const SIGN_IN_OUT_PANEL = cx("absolute top-0 h-full left-0 w-1/2", TRANSITION);
+const TRANSITION_600 = cx("transition-all duration-600 ease-in-out");
+const SIGN_IN_OUT_PANEL = cx("absolute top-0 h-full left-0 w-1/2", TRANSITION_600);
 export const PANEL_BASE = cx(
   "absolute top-0 w-1/2 h-full px-8 text-center",
   "flex flex-col items-center justify-center gap-8",
-  TRANSITION,
+  TRANSITION_600,
 );
 export const FORM = cx("bg-white flex flex-col items-center justify-center gap-4 px-10 h-full");
 export const CONTAINER = cx(
@@ -41,7 +41,7 @@ export const signIn = cva(cx(SIGN_IN_OUT_PANEL, "z-20"), {
 });
 
 export const toggleContainer = cva(
-  cx("absolute top-0 left-1/2 w-1/2 h-full overflow-hidden z-100", TRANSITION),
+  cx("absolute top-0 left-1/2 w-1/2 h-full overflow-hidden z-100", TRANSITION_600),
   {
     variants: {
       isSignIn: {
@@ -56,7 +56,7 @@ export const toggleContainer = cva(
 );
 
 export const togglePanel = cva(
-  `bg-linear-to-r from-slate-500 to-violet-800 text-white relative -left-full h-full w-[200%] ${TRANSITION}`,
+  `bg-linear-to-r from-slate-500 to-violet-800 text-white relative -left-full h-full w-[200%] ${TRANSITION_600}`,
   {
     variants: {
       isSignIn: {

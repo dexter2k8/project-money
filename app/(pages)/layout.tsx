@@ -1,14 +1,10 @@
 "use client";
-import { cx } from "class-variance-authority";
 import { FileSpreadsheet, LayoutDashboard, Settings } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import Button from "@/components/Button";
-import Divisor from "@/components/Divisor";
 import Sidebar from "@/components/Sidebar";
+import { PAGE_CONTAINER } from "./constants";
+import Header from "./Header";
+import SidebarHead from "./SidebarHead";
 import { AuthProvider } from "../providers/AuthProvider";
-import { SignOut } from "../services/fetchers/auth";
 import type { ISidebarItemProps } from "@/components/Sidebar";
 
 const sidebarItems: ISidebarItemProps[] = [
@@ -18,57 +14,11 @@ const sidebarItems: ISidebarItemProps[] = [
 ];
 
 export default function PagesLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-
-  const handleSignOut = async () => {
-    const result = await SignOut();
-    if (result) router.replace("/");
-  };
-
-  const TRANSITION = cx("transition-all duration-300 ease-in-out");
-
-  const headerContent = (isCollapsed: boolean) => (
-    <div className="flex items-center">
-      <div
-        className={cx(
-          isCollapsed ? "w-10" : "opacity-0 pointer-events-none",
-          "w-0 px-0.5 py-4",
-          TRANSITION,
-        )}
-      >
-        <Button size="lg">IT</Button>
-      </div>
-      <div className={cx(isCollapsed && "opacity-0", "w-full", TRANSITION)}>
-        <p>Itau</p>
-        <div className="whitespace-nowrap flex items-center justify-between gap-2">
-          <small>CC: 123456 AG:1234</small>
-          <Button variant="link">Change</Button>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <AuthProvider>
-      <header className="flex items-center justify-between p-2 bg-yellow-100 shrink-0">
-        <Link className="flex items-center gap-2 w-fit" href="/dashboard">
-          <Image className="dark:invert" src="/money.svg" alt="money logo" width={40} height={40} />
-          <h3 className="whitespace-nowrap">Project Money</h3>
-        </Link>
-        <div className="flex gap-4">
-          <Divisor vertical />
-          <Button variant="link" onClick={handleSignOut}>
-            Logout
-          </Button>
-        </div>
-      </header>
-      <div
-        className={cx(
-          "flex flex-1 w-full overflow-hidden",
-          "bg-linear-to-r from-neutral-200 to-indigo-200",
-        )}
-      >
-        <Sidebar header={headerContent} items={sidebarItems} />
+      <Header />
+      <div className={PAGE_CONTAINER}>
+        <Sidebar header={SidebarHead} items={sidebarItems} />
         {children}
       </div>
     </AuthProvider>

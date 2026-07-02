@@ -1,0 +1,30 @@
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Button from "@/components/Button";
+import Divisor from "@/components/Divisor";
+import { SignOut } from "../services/fetchers/auth";
+
+export default function Header() {
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    const result = await SignOut();
+    if (result) router.replace("/");
+  };
+
+  return (
+    <header className="flex items-center justify-between p-2 bg-yellow-100 shrink-0">
+      <Link className="flex items-center gap-2 w-fit" href="/dashboard">
+        <Image className="dark:invert" src="/money.svg" alt="money logo" width={40} height={40} />
+        <h3 className="whitespace-nowrap">Project Money</h3>
+      </Link>
+      <div className="flex gap-4">
+        <Divisor vertical />
+        <Button variant="link" onClick={handleSignOut}>
+          Logout
+        </Button>
+      </div>
+    </header>
+  );
+}
