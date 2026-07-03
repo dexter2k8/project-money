@@ -7,7 +7,7 @@ export const API = {
     LIST_USERS: "/api/auth/list-users",
     PATCH_USER: "/api/auth/patch-user/",
     DELETE_USER: "/api/auth/delete-user/",
-    // VERIFY_TOKEN: "/api/auth/verify-token",
+    REFRESH_TOKEN: "/api/auth/refresh-token",
   },
 };
 

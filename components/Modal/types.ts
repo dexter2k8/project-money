@@ -11,6 +11,7 @@ export interface IModalProps {
   onApply?: () => void | boolean | Promise<boolean | void>;
   loadingApply?: boolean;
   disabledApply?: boolean;
+  labelApply?: string;
 }
 
 export interface IModalWrapperProps extends Omit<IModalProps, "isOpen"> {

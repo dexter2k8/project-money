@@ -1,11 +1,14 @@
 import { cx } from "class-variance-authority";
 import { ChevronRight } from "lucide-react";
+import { useSessionTimer } from "@/app/providers/SessionTimerProvider";
 
 interface IMenuProps {
   onClick: () => void;
   isCollapsed?: boolean;
 }
 export default function SidebarArrow({ onClick, isCollapsed }: IMenuProps) {
+  const { remainingSeconds } = useSessionTimer();
+
   return (
     <div className="flex items-end justify-between p-2">
       <p
@@ -14,7 +17,7 @@ export default function SidebarArrow({ onClick, isCollapsed }: IMenuProps) {
           "whitespace-nowrap transition-all duration-300 ease-in-out",
         )}
       >
-        Session: 01:00:00
+        Session: {formatTimer(remainingSeconds)}
       </p>
       <ChevronRight
         className="dark:invert cursor-pointer transition-all duration-300 ease-in-out"
@@ -25,3 +28,9 @@ export default function SidebarArrow({ onClick, isCollapsed }: IMenuProps) {
     </div>
   );
 }
+
+const formatTimer = (seconds: number) => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+};

@@ -20,6 +20,7 @@ export async function GET() {
       photoURL: decodedToken?.picture,
       uid: decodedToken?.uid,
       role: decodedToken?.role,
+      exp: decodedToken?.exp,
     };
 
     return NextResponse.json(user, { status: 200 });

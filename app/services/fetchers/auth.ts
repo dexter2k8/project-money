@@ -107,4 +107,16 @@ async function DeleteUser(uid: string) {
   return null;
 }
 
-export { SignIn, SignOut, GetSelfUser, PostUser, PatchUser, DeleteUser };
+async function RefreshSession() {
+  try {
+    const response = await fetch(API.AUTH.REFRESH_TOKEN, { method: "POST" });
+    if (response.ok) return response.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error(error);
+    toast.error(error?.message);
+  }
+  return null;
+}
+
+export { SignIn, SignOut, GetSelfUser, PostUser, PatchUser, DeleteUser, RefreshSession };

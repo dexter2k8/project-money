@@ -12,6 +12,7 @@ const ModalComponent: React.FC<IModalProps> = ({
   onApply,
   loadingApply,
   disabledApply,
+  labelApply,
   children,
   title,
   subtitle,
@@ -80,7 +81,7 @@ const ModalComponent: React.FC<IModalProps> = ({
             loading={loadingApply}
             disabled={disabledApply}
           >
-            Apply
+            {labelApply || "Apply"}
           </Button>
         </div>
       </div>

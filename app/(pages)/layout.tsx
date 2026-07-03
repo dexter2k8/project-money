@@ -1,10 +1,13 @@
 "use client";
+import { type PropsWithChildren } from "react";
 import { FileSpreadsheet, LayoutDashboard, Settings } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import { PAGE_CONTAINER } from "./constants";
 import Header from "./Header";
+import SessionExpiringModal from "./SessionExpiringModal";
 import SidebarHead from "./SidebarHead";
 import { AuthProvider } from "../providers/AuthProvider";
+import { SessionTimerProvider } from "../providers/SessionTimerProvider";
 import type { ISidebarItemProps } from "@/components/Sidebar";
 
 const sidebarItems: ISidebarItemProps[] = [
@@ -13,14 +16,17 @@ const sidebarItems: ISidebarItemProps[] = [
   { label: "Settings", path: "/settings", icon: <Settings /> },
 ];
 
-export default function PagesLayout({ children }: { children: React.ReactNode }) {
+export default function PagesLayout({ children }: PropsWithChildren) {
   return (
     <AuthProvider>
-      <Header />
-      <div className={PAGE_CONTAINER}>
-        <Sidebar header={SidebarHead} items={sidebarItems} />
-        {children}
-      </div>
+      <SessionTimerProvider>
+        <Header />
+        <div className={PAGE_CONTAINER}>
+          <Sidebar header={SidebarHead} items={sidebarItems} />
+          {children}
+        </div>
+        <SessionExpiringModal />
+      </SessionTimerProvider>
     </AuthProvider>
   );
 }
