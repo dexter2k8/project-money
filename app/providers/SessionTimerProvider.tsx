@@ -1,15 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useAuth } from "./AuthProvider";
 import { RefreshSession, SignOut } from "../services/fetchers/auth";
-import { setResetSessionTimer } from "../utils/sessionTimerBridge";
 import type { PropsWithChildren } from "react";
 
-const EXPIRING_SOON_THRESHOLD = 60; // 1 minute
 const CHECK_INTERVAL = 1000; // 1 second
+const EXPIRING_SOON_THRESHOLD = 60; // 1 minute
+const ACTIVITY_THRESHOLD = 5 * 60; // 5 minutes
+const ACTIVITY_EVENTS = ["click", "keydown", "scroll", "touchstart"];
 
 interface ISessionTimerContextProps {
   remainingSeconds: number;
-  resetSession: () => void;
   refreshSession: () => Promise<void>;
   isExpiringSoon: boolean;
 }
@@ -22,6 +22,7 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isSigningOutRef = useRef<boolean>(false);
   const isInitializedRef = useRef<boolean>(false);
+  const lastActivityRef = useRef<number>(0);
 
   const calculateRemaining = useCallback(() => {
     const diff = expiresAtRef.current - Date.now();
@@ -29,11 +30,6 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
   }, []);
 
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
-
-  const resetSession = useCallback(() => {
-    isSigningOutRef.current = false;
-    setRemainingSeconds(calculateRemaining());
-  }, [calculateRemaining]);
 
   const refreshSession = useCallback(async () => {
     const response = await RefreshSession();
@@ -59,12 +55,6 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
     }
   }, [remainingSeconds, handleSignOut]);
 
-  // Register session reset on bridge
-  useEffect(() => {
-    setResetSessionTimer(resetSession);
-    return () => setResetSessionTimer(() => {});
-  }, [resetSession]);
-
   // Update remaining seconds
   useEffect(() => {
     if (!selfUser?.exp) return;
@@ -81,7 +71,42 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
     };
   }, [selfUser?.exp, calculateRemaining]);
 
-  const values = { remainingSeconds, resetSession, refreshSession, isExpiringSoon };
+  // Update last activity
+  useEffect(() => {
+    const handleActivity = () => {
+      lastActivityRef.current = Date.now();
+    };
+
+    ACTIVITY_EVENTS.forEach((event) => {
+      document.addEventListener(event, handleActivity, true);
+    });
+
+    return () => {
+      ACTIVITY_EVENTS.forEach((event) => {
+        document.removeEventListener(event, handleActivity, true);
+      });
+    };
+  }, [refreshSession]);
+
+  // Renew session if user is interacting with the page last 5 minutes before expiring
+  useEffect(() => {
+    //tempo decorrido desde a ultima interação (em segundos)
+    const diff = (Date.now() - lastActivityRef.current) / 1000;
+    const lastActivity = Math.max(Math.floor(diff), 0);
+
+    // faltando menos de 5 minutos para completar 1 hora de sessão, permite renovar
+    const wasExpiringSoon =
+      remainingSeconds > EXPIRING_SOON_THRESHOLD && remainingSeconds <= ACTIVITY_THRESHOLD;
+
+    // se a última interação ocorreu há menos de 5 minutos, permite renovar
+    const wasActive = lastActivity < ACTIVITY_THRESHOLD;
+
+    if (wasActive && wasExpiringSoon) {
+      refreshSession();
+    }
+  }, [remainingSeconds, refreshSession]);
+
+  const values = { remainingSeconds, refreshSession, isExpiringSoon };
 
   return <SessionTimerContext.Provider value={values}>{children}</SessionTimerContext.Provider>;
 }
