@@ -9,6 +9,10 @@ export const API = {
     DELETE_USER: "/api/auth/delete-user/",
     REFRESH_TOKEN: "/api/auth/refresh-token",
   },
+
+  FUNDS: {
+    GET_BANKS: "/api/banks/get-banks",
+  },
 };
 
 export const DEMO_USER_ID = "zXwvyA8yCxSXCbuBA4eD9bekEHy2";
