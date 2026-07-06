@@ -12,6 +12,7 @@ interface ISessionTimerContextProps {
   remainingSeconds: number;
   refreshSession: () => Promise<void>;
   isExpiringSoon: boolean;
+  isLoading: boolean;
 }
 
 const SessionTimerContext = createContext<ISessionTimerContextProps | null>(null);
@@ -30,6 +31,7 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
   }, []);
 
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const refreshSession = useCallback(async () => {
     const response = await RefreshSession();
@@ -61,6 +63,11 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
 
     expiresAtRef.current = selfUser.exp * 1000;
     isInitializedRef.current = true;
+
+    queueMicrotask(() => {
+      setRemainingSeconds(calculateRemaining());
+      setIsLoading(false);
+    });
 
     intervalRef.current = setInterval(() => {
       setRemainingSeconds(calculateRemaining());
@@ -106,7 +113,7 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
     }
   }, [remainingSeconds, refreshSession]);
 
-  const values = { remainingSeconds, refreshSession, isExpiringSoon };
+  const values = { remainingSeconds, refreshSession, isExpiringSoon, isLoading };
 
   return <SessionTimerContext.Provider value={values}>{children}</SessionTimerContext.Provider>;
 }

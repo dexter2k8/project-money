@@ -1,5 +1,5 @@
 import { cx } from "class-variance-authority";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { useSessionTimer } from "@/app/providers/SessionTimerProvider";
 
 interface IMenuProps {
@@ -7,7 +7,7 @@ interface IMenuProps {
   isCollapsed?: boolean;
 }
 export default function SidebarArrow({ onClick, isCollapsed }: IMenuProps) {
-  const { remainingSeconds } = useSessionTimer();
+  const { remainingSeconds, isLoading } = useSessionTimer();
 
   return (
     <div className="flex items-end justify-between p-2">
@@ -17,7 +17,7 @@ export default function SidebarArrow({ onClick, isCollapsed }: IMenuProps) {
           "whitespace-nowrap transition-all duration-300 ease-in-out",
         )}
       >
-        Session: {formatTimer(remainingSeconds)}
+        Session: {isLoading ? <Loader2 className="inline animate-spin" size={14} /> : formatTimer(remainingSeconds)}
       </p>
       <ChevronRight
         className="dark:invert cursor-pointer transition-all duration-300 ease-in-out"
