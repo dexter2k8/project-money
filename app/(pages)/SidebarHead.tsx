@@ -6,45 +6,50 @@ import Modal from "@/components/Modal";
 import Select from "@/components/Select";
 import { buttonWrapperVariants, TRANSITION } from "./constants";
 import { useSWR } from "../hooks/useSWR";
+import { useAuth } from "../providers/AuthProvider";
 import { API } from "../utils/paths";
-import type { IResponse, TPostBankArgs } from "../api/types";
+import type { TGetAccountResponse } from "../api/accounts/types";
+import type { IResponse, TGetBankResponse } from "../api/types";
 
 export default function SidebarHead(isCollapsed: boolean) {
-  const [selectedBankId, setSelectedBankId] = useState<string>("");
-  const [pendingBankId, setPendingBankId] = useState<string>("");
+  const { setBank } = useAuth();
+  const [selectedBank, setSelectedBank] = useState<TGetBankResponse | null>(null);
+  const [pendingBank, setPendingBank] = useState<TGetBankResponse | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
 
-  const { response } = useSWR<IResponse<TPostBankArgs>>(API.BANKS.GET_BANKS);
+  const { response: banks } = useSWR<IResponse<TGetBankResponse>>(API.BANKS.GET_BANKS);
+  const { response: accounts } = useSWR<IResponse<TGetAccountResponse>>(API.ACCOUNTS.GET_ACCOUNTS);
 
-  const bankOptions = useMemo(
-    () =>
-      response?.data.map((bank) => ({
-        value: bank.id,
-        label: bank.name,
-      })) || [],
-    [response],
-  );
-
-  const selectedBank = useMemo(
-    () => response?.data.find((bank) => bank.id === selectedBankId),
-    [response, selectedBankId],
-  );
+  const bankOptions = useMemo(() => {
+    const accountBankIds = new Set(
+      accounts?.data.map((a) => a.bankid) ?? [],
+    );
+    return (
+      banks?.data
+        .filter((bank) => accountBankIds.has(Number(bank.id)))
+        .map((bank) => ({
+          value: bank.id,
+          label: bank.name,
+        })) ?? []
+    );
+  }, [banks, accounts]);
 
   const handleOpenModal = () => {
-    setPendingBankId(selectedBankId);
+    setPendingBank(selectedBank);
     triggerRef.current?.click();
   };
 
   const handleApply = () => {
-    setSelectedBankId(pendingBankId);
+    setSelectedBank(pendingBank);
+    setBank(pendingBank);
   };
 
   const modalContent = (
     <div className="p-4">
       <Select
         options={bankOptions}
-        value={pendingBankId}
-        onChange={setPendingBankId}
+        value={pendingBank?.id ?? ""}
+        onChange={(id) => setPendingBank(banks?.data.find((b) => b.id === id) ?? null)}
         placeholder="Choose a bank"
       />
     </div>

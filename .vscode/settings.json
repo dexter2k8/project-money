@@ -2,8 +2,12 @@
   "tailwindCSS.classFunctions": ["cva", "cx"],
   "css.lint.unknownAtRules": "ignore",
   "cSpell.words": [
+    "acctid",
+    "accttype",
     "APIKEY",
     "AUTHDOMAIN",
+    "bankid",
+    "branchid",
     "MEASUREMENTID",
     "MESSAGINGSENDERID",
     "PROJECTID",

@@ -17,6 +17,22 @@ export const API = {
     PATCH_BANK: "/api/banks/patch-bank/",
     DELETE_BANK: "/api/banks/delete-bank/",
   },
+
+  ACCOUNTS: {
+    GET_ACCOUNTS: "/api/accounts/get-accounts",
+    GET_ACCOUNT: "/api/accounts/get-account/",
+    POST_ACCOUNT: "/api/accounts/post-account",
+    PATCH_ACCOUNT: "/api/accounts/patch-account/",
+    DELETE_ACCOUNT: "/api/accounts/delete-account/",
+  },
+
+  TRANSACTIONS: {
+    GET_TRANSACTIONS: "/api/transactions/get-transactions",
+    GET_TRANSACTION: "/api/transactions/get-transaction/",
+    POST_TRANSACTION: "/api/transactions/post-transaction",
+    PATCH_TRANSACTION: "/api/transactions/patch-transaction/",
+    DELETE_TRANSACTION: "/api/transactions/delete-transaction/",
+  },
 };
 
 export const DEMO_USER_ID = "zXwvyA8yCxSXCbuBA4eD9bekEHy2";
