@@ -11,6 +11,7 @@ import type { IResponse, TPostBankArgs } from "../api/types";
 
 export default function SidebarHead(isCollapsed: boolean) {
   const [selectedBankId, setSelectedBankId] = useState<string>("");
+  const [pendingBankId, setPendingBankId] = useState<string>("");
   const triggerRef = useRef<HTMLSpanElement>(null);
 
   const { response } = useSWR<IResponse<TPostBankArgs>>(API.BANKS.GET_BANKS);
@@ -29,14 +30,21 @@ export default function SidebarHead(isCollapsed: boolean) {
     [response, selectedBankId],
   );
 
-  const handleOpenModal = () => triggerRef.current?.click();
+  const handleOpenModal = () => {
+    setPendingBankId(selectedBankId);
+    triggerRef.current?.click();
+  };
+
+  const handleApply = () => {
+    setSelectedBankId(pendingBankId);
+  };
 
   const modalContent = (
     <div className="p-4">
       <Select
         options={bankOptions}
-        value={selectedBankId}
-        onChange={setSelectedBankId}
+        value={pendingBankId}
+        onChange={setPendingBankId}
         placeholder="Choose a bank"
       />
     </div>
@@ -59,7 +67,13 @@ export default function SidebarHead(isCollapsed: boolean) {
         </div>
       </div>
 
-      <Modal title="Select Bank" content={modalContent} className="w-96" labelApply="Confirm">
+      <Modal
+        title="Select Bank"
+        content={modalContent}
+        className="w-96"
+        labelApply="Confirm"
+        onApply={handleApply}
+      >
         <span ref={triggerRef} className="hidden" />
       </Modal>
     </div>

@@ -128,7 +128,7 @@ export function ManageUsers() {
 
       <Modal
         title={action?.action === "add" ? "Add User" : "Edit User"}
-        width="md"
+        className="w-96"
         onApply={handleApply}
         onClose={handleCancel}
         content={<AddOrEditForm control={control} action={action?.action} />}

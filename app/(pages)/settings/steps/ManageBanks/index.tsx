@@ -126,7 +126,7 @@ export function ManageBanks() {
 
       <Modal
         title={action?.action === "add" ? "Add Bank" : "Edit Bank"}
-        width="md"
+        className="w-96"
         onApply={handleApply}
         onClose={handleCancel}
         content={<AddOrEditForm control={control} action={action?.action} />}
