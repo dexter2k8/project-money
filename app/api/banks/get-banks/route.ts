@@ -1,7 +1,7 @@
 import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import type { TGetBanksResponse } from "./types";
+import type { TGetBankResponse } from "../../types";
 
 export const runtime = "nodejs";
 
@@ -19,12 +19,14 @@ export async function GET() {
     const db = admin.firestore();
     const snapshot = await db.collection("bancos").get();
 
-    const banks = snapshot.docs.map((doc) => ({
+    const data = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-    })) as TGetBanksResponse[];
+    })) as TGetBankResponse[];
 
-    return NextResponse.json(banks, { status: 200 });
+    const count = data.length;
+
+    return NextResponse.json({ data, count }, { status: 200 });
   } catch (error) {
     console.error("Get banks error:", error);
     return NextResponse.json({ error: "Failed to fetch banks" }, { status: 500 });

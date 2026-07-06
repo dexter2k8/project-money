@@ -18,8 +18,8 @@ export default function Tabs({ items, defaultSelected = 0, minWidth }: ITabsProp
   }, [selected]);
 
   return (
-    <>
-      <ul className="relative list-none p-0 m-0 border-b border-neutral-200" style={{ minWidth }}>
+    <div className="flex flex-col h-full">
+      <ul className="relative list-none p-0 m-0 border-b border-neutral-200 shrink-0" style={{ minWidth }}>
         {items.map((item) => (
           <li
             key={item.key}
@@ -35,7 +35,7 @@ export default function Tabs({ items, defaultSelected = 0, minWidth }: ITabsProp
         className={activeLineVariants}
         style={{ width: indicator.width, transform: `translate(${indicator.offset}px, -3px)` }}
       />
-      <div className="flex-1">{items[selected]?.children}</div>
-    </>
+      <div className="h-0 flex-1 min-h-0">{items[selected]?.children}</div>
+    </div>
   );
 }

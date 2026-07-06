@@ -1,8 +1,8 @@
 import { toast } from "react-toastify";
 import { API } from "@/app/utils/paths";
 import type { TPatchUserArgs } from "@/app/api/auth/patch-user/types";
+import type { TPostUserArgs } from "@/app/api/auth/post-user/types";
 import type { TSignInArgs } from "@/app/api/auth/sign-in/types";
-import type { TPostUserArgs } from "@/app/api/auth/sign-up/types";
 
 async function SignIn(data: TSignInArgs) {
   try {
@@ -52,7 +52,7 @@ async function PostUser(data: TPostUserArgs) {
   try {
     const { confirmPassword, ...body } = data;
     void confirmPassword;
-    const response = await fetch(API.AUTH.SIGN_UP, {
+    const response = await fetch(API.AUTH.POST_USER, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

@@ -1,7 +1,7 @@
 export const API = {
   AUTH: {
     SIGN_IN: "/api/auth/sign-in",
-    SIGN_UP: "/api/auth/sign-up",
+    POST_USER: "/api/auth/post-user",
     SIGN_OUT: "/api/auth/sign-out",
     GET_SELF_USER: "/api/auth/get-self-user",
     LIST_USERS: "/api/auth/list-users",
@@ -10,8 +10,11 @@ export const API = {
     REFRESH_TOKEN: "/api/auth/refresh-token",
   },
 
-  FUNDS: {
+  BANKS: {
     GET_BANKS: "/api/banks/get-banks",
+    POST_BANK: "/api/banks/post-bank",
+    PATCH_BANK: "/api/banks/patch-bank/",
+    DELETE_BANK: "/api/banks/delete-bank/",
   },
 };
 

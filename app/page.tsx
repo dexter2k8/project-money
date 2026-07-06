@@ -19,8 +19,8 @@ import {
 } from "./constants";
 import { PostUser, SignIn } from "./services/fetchers/auth";
 import { signInSchema, signUpSchema } from "./validations/auth";
+import type { TPostUserArgs } from "./api/auth/post-user/types";
 import type { TSignInArgs } from "./api/auth/sign-in/types";
-import type { TPostUserArgs } from "./api/auth/sign-up/types";
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);

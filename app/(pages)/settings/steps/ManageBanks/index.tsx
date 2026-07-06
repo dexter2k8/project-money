@@ -4,19 +4,18 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { SquarePlus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useSWR } from "@/app/hooks/useSWR";
-import { DeleteUser, PatchUser, PostUser } from "@/app/services/fetchers/auth";
+import { DeleteBank, PatchBank, PostBank } from "@/app/services/fetchers/banks";
 import { API } from "@/app/utils/paths";
-import { editUserSchema, postUserSchema } from "@/app/validations/auth";
+import { editBankSchema, postBankSchema } from "@/app/validations/banks";
 import Modal from "@/components/Modal";
 import Table from "@/components/Table";
 import AddOrEditForm from "./AddOrEditForm";
 import { getColumns } from "./columns";
 import type { Resolver, SubmitHandler } from "react-hook-form";
-import type { IUser } from "@/app/api/auth/get-self-user/types";
-import type { TPostUserArgs } from "@/app/api/auth/post-user/types";
-import type { IActionsProps, TManageUserArgs } from "./types";
+import type { IResponse, TPostBankArgs } from "@/app/api/types";
+import type { IActionsProps } from "./types";
 
-export function ManageUsers() {
+export function ManageBanks() {
   const [action, setAction] = useState<IActionsProps>();
   const [loading, setLoading] = useState(false);
 
@@ -27,16 +26,15 @@ export function ManageUsers() {
   const columns = useMemo(() => getColumns({ onAction: handleAction }), [handleAction]);
 
   const actionSchema = useMemo(
-    () => (action?.action === "add" ? postUserSchema : editUserSchema),
+    () => (action?.action === "add" ? postBankSchema : editBankSchema),
     [action?.action],
   );
 
-  const defaultValues = useMemo(
+  const defaultValues: TPostBankArgs = useMemo(
     () => ({
-      displayName: "",
-      email: "",
-      password: "",
-      photoURL: "",
+      id: "",
+      name: "",
+      alias: "",
     }),
     [],
   );
@@ -47,23 +45,23 @@ export function ManageUsers() {
     setValue,
     reset,
     formState: { isDirty },
-  } = useForm<TManageUserArgs>({
-    resolver: yupResolver(actionSchema) as Resolver<TManageUserArgs>,
+  } = useForm<TPostBankArgs>({
+    resolver: yupResolver(actionSchema) as Resolver<TPostBankArgs>,
     defaultValues,
   });
 
-  const { response: userList, isLoading, mutate } = useSWR<IUser[]>(API.AUTH.LIST_USERS);
+  const { response, isLoading, mutate } = useSWR<IResponse<TPostBankArgs>>(API.BANKS.GET_BANKS);
 
-  const userData = useMemo(
-    () => userList?.find((t) => t.uid === action?.id),
-    [userList, action?.id],
+  const bankData = useMemo(
+    () => response?.data.find((t) => t.id === action?.id),
+    [response, action?.id],
   );
 
   const handleDelete = async () => {
     if (!action?.id) return;
     setLoading(true);
     try {
-      await DeleteUser(String(action.id));
+      await DeleteBank(String(action.id));
       mutate();
       setAction(undefined);
     } finally {
@@ -71,12 +69,12 @@ export function ManageUsers() {
     }
   };
 
-  const onSubmit: SubmitHandler<TManageUserArgs> = async (data: TManageUserArgs) => {
+  const onSubmit: SubmitHandler<TPostBankArgs> = async (data: TPostBankArgs) => {
     if (!action?.id && action?.action === "edit") return;
     setLoading(true);
     try {
-      if (action?.action === "add") await PostUser(data as TPostUserArgs);
-      if (action?.action === "edit") await PatchUser(String(action.id), data);
+      if (action?.action === "add") await PostBank(data);
+      if (action?.action === "edit") await PatchBank(data.id, data);
       mutate();
       reset(defaultValues);
     } finally {
@@ -105,17 +103,17 @@ export function ManageUsers() {
   }, [action]);
 
   useEffect(() => {
-    if (!userData) return reset(defaultValues);
-    if (userData?.displayName) setValue("displayName", userData.displayName);
-    if (userData?.email) setValue("email", userData.email);
-    if (userData?.photoURL) setValue("photoURL", userData.photoURL);
+    if (!bankData) return reset(defaultValues);
+    if (bankData?.id) setValue("id", bankData.id);
+    if (bankData?.name) setValue("name", bankData.name);
+    if (bankData?.alias) setValue("alias", bankData.alias);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userData]);
+  }, [bankData]);
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between py-1 px-4 shrink-0">
-        <h4>Users</h4>
+        <h4>Banks</h4>
         <SquarePlus
           className="cursor-pointer"
           size="2rem"
@@ -123,11 +121,11 @@ export function ManageUsers() {
         />
       </div>
       <div className="h-0 flex-1 min-h-0 overflow-auto">
-        <Table loading={isLoading} columns={columns} rows={userList || []} />
+        <Table loading={isLoading} columns={columns} rows={response?.data || []} />
       </div>
 
       <Modal
-        title={action?.action === "add" ? "Add User" : "Edit User"}
+        title={action?.action === "add" ? "Add Bank" : "Edit Bank"}
         width="md"
         onApply={handleApply}
         onClose={handleCancel}
@@ -139,8 +137,8 @@ export function ManageUsers() {
       </Modal>
 
       <Modal
-        title="Delete User"
-        subtitle="Are you sure you want to delete this user?"
+        title="Delete Bank"
+        subtitle="Are you sure you want to delete this bank?"
         onClose={() => setAction(undefined)}
         onApply={handleDelete}
         loadingApply={loading}
