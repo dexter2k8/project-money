@@ -17,7 +17,7 @@ const ModalComponent: React.FC<IModalProps> = ({
   title,
   subtitle,
   cross,
-  width,
+  className,
 }) => {
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
@@ -57,7 +57,7 @@ const ModalComponent: React.FC<IModalProps> = ({
       onClick={onClose}
       onAnimationEnd={handleAnimationEnd}
     >
-      <div className={CONTENT} onClick={(e) => e.stopPropagation()} style={{ width }}>
+      <div className={cx(CONTENT, className)} onClick={(e) => e.stopPropagation()}>
         {title || subtitle ? (
           <div className="p-4 border-b border-gray-200">
             {title && <h4>{title}</h4>}
@@ -104,13 +104,14 @@ const Modal: React.FC<IModalWrapperProps> = ({ content, onClose, children, ...pr
       <ModalComponent
         isOpen={isOpen}
         onClose={handleClose}
-        width={props.width}
         title={props.title}
         subtitle={props.subtitle}
         cross={props.cross}
         onApply={props.onApply}
+        labelApply={props.labelApply}
         loadingApply={props.loadingApply}
         disabledApply={props.disabledApply}
+        className={props.className}
       >
         {content}
       </ModalComponent>

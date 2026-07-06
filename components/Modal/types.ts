@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export interface IModalProps {
   isOpen: boolean;
@@ -6,12 +6,12 @@ export interface IModalProps {
   title?: string;
   subtitle?: string;
   cross?: boolean;
-  width?: CSSProperties["width"];
   onClose?: () => void;
   onApply?: () => void | boolean | Promise<boolean | void>;
   loadingApply?: boolean;
   disabledApply?: boolean;
   labelApply?: string;
+  className?: string;
 }
 
 export interface IModalWrapperProps extends Omit<IModalProps, "isOpen"> {

@@ -1,10 +1,10 @@
 import ColumnActions from "@/app/(pages)/settings/steps/ManageUsers/ColumnActions";
 import type { IActions } from "@/app/(pages)/settings/steps/ManageUsers/types";
-import type { TGetBanksResponse } from "@/app/api/types";
+import type { TGetBankResponse } from "@/app/api/types";
 import type { IGridColDef } from "@/components/Table";
 
 export function getColumns({ onAction }: IActions) {
-  const columns: IGridColDef<TGetBanksResponse>[] = [
+  const columns: IGridColDef<TGetBankResponse>[] = [
     {
       field: "id",
       header: "ID",

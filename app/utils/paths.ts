@@ -12,6 +12,7 @@ export const API = {
 
   BANKS: {
     GET_BANKS: "/api/banks/get-banks",
+    GET_BANK: "/api/banks/get-bank/",
     POST_BANK: "/api/banks/post-bank",
     PATCH_BANK: "/api/banks/patch-bank/",
     DELETE_BANK: "/api/banks/delete-bank/",
