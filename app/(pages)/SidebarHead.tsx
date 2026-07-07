@@ -1,25 +1,29 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
 import { cx } from "class-variance-authority";
+import { useQueryState } from "nuqs";
 import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import Select from "@/components/Select";
 import { buttonWrapperVariants, TRANSITION } from "./constants";
 import { useSWR } from "../hooks/useSWR";
-import { useAuth } from "../providers/AuthProvider";
 import { API } from "../utils/paths";
 import type { TGetAccountResponse } from "../api/accounts/types";
 import type { TGetBankResponse } from "../api/banks/types";
 import type { IResponse } from "../api/types";
 
 export default function SidebarHead(isCollapsed: boolean) {
-  const { setBank } = useAuth();
-  const [selectedBank, setSelectedBank] = useState<TGetBankResponse | null>(null);
-  const [pendingBank, setPendingBank] = useState<TGetBankResponse | null>(null);
+  const [bankId, setBankId] = useQueryState("bank");
+  const [pendingBankId, setPendingBankId] = useState<string | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
 
   const { response: banks } = useSWR<IResponse<TGetBankResponse>>(API.BANKS.GET_BANKS);
   const { response: accounts } = useSWR<IResponse<TGetAccountResponse>>(API.ACCOUNTS.GET_ACCOUNTS);
+
+  const selectedBank = useMemo(
+    () => banks?.data.find((b) => b.id === bankId) ?? null,
+    [banks, bankId],
+  );
 
   const bankOptions = useMemo(() => {
     const accountBankIds = new Set(accounts?.data.map((a) => a.bankid) ?? []);
@@ -34,21 +38,20 @@ export default function SidebarHead(isCollapsed: boolean) {
   }, [banks, accounts]);
 
   const handleOpenModal = () => {
-    setPendingBank(selectedBank);
+    setPendingBankId(bankId);
     triggerRef.current?.click();
   };
 
   const handleApply = () => {
-    setSelectedBank(pendingBank);
-    setBank(pendingBank);
+    setBankId(pendingBankId);
   };
 
   const modalContent = (
     <div className="p-4">
       <Select
         options={bankOptions}
-        value={pendingBank?.id ?? ""}
-        onChange={(id) => setPendingBank(banks?.data.find((b) => b.id === id) ?? null)}
+        value={pendingBankId ?? ""}
+        onChange={(id) => setPendingBankId(id)}
         placeholder="Choose a bank"
       />
     </div>

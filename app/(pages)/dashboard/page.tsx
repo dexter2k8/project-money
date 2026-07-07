@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
+import { useQueryState } from "nuqs";
 import { useSWR } from "@/app/hooks/useSWR";
-import { useAuth } from "@/app/providers/AuthProvider";
 import { API } from "@/app/utils/paths";
 import Button from "@/components/Button";
 import SegmentedControl from "@/components/SegmentedControl";
@@ -14,8 +14,7 @@ import type { IResponse } from "@/app/api/types";
 const MONTH_ABBRS = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
 export default function Dashboard() {
-  const { bank } = useAuth();
-  const bankid = bank?.id;
+  const [bankid] = useQueryState("bank");
 
   const { response: balancesResponse } = useSWR<IResponse<TGetAccountResponse>>(
     bankid ? API.BALANCES.GET_BALANCES : undefined,
