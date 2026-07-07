@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { useQueryState } from "nuqs";
+import { useLocalStorage } from "@/app/hooks/useLocalStorage";
 import { useSWR } from "@/app/hooks/useSWR";
 import { API } from "@/app/utils/paths";
 import Button from "@/components/Button";
@@ -14,7 +14,7 @@ import type { IResponse } from "@/app/api/types";
 const MONTH_ABBRS = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
 export default function Dashboard() {
-  const [bankid] = useQueryState("bank");
+  const [bankid] = useLocalStorage<string | null>("bank", null);
 
   const { response: balancesResponse } = useSWR<IResponse<TGetAccountResponse>>(
     bankid ? API.BALANCES.GET_BALANCES : undefined,

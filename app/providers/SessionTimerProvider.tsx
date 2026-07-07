@@ -47,7 +47,10 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
     if (isSigningOutRef.current) return;
     isSigningOutRef.current = true;
     const result = await SignOut();
-    if (result) window.location.href = "/";
+    if (result) {
+      const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = `/?returnTo=${returnTo}`;
+    }
   }, []);
 
   // Sign out when session expires
@@ -62,9 +65,9 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
     if (!selfUser?.exp) return;
 
     expiresAtRef.current = selfUser.exp * 1000;
-    isInitializedRef.current = true;
 
     queueMicrotask(() => {
+      isInitializedRef.current = true;
       setRemainingSeconds(calculateRemaining());
       setIsLoading(false);
     });

@@ -1,16 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
 import Divisor from "@/components/Divisor";
 import { SignOut } from "../services/fetchers/auth";
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const handleSignOut = async () => {
     const result = await SignOut();
-    if (result) router.replace("/");
+    if (result) {
+      const query = searchParams.toString();
+      const returnTo = encodeURIComponent(pathname + (query ? `?${query}` : ""));
+      router.replace(`/?returnTo=${returnTo}`);
+    }
   };
 
   return (

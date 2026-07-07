@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { cx } from "class-variance-authority";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Tooltip } from "react-tooltip";
 import Button from "@/components/Button";
@@ -27,6 +27,9 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+
   const signUpForm = useForm<TPostUserArgs>({
     resolver: yupResolver(signUpSchema),
   });
@@ -44,7 +47,7 @@ export default function AuthPage() {
   const handleSignIn = async (data: TSignInArgs) => {
     setLoading(true);
     const result = await SignIn(data);
-    if (result) router.replace("/dashboard");
+    if (result) router.replace(returnTo ? decodeURIComponent(returnTo) : "/dashboard");
     setLoading(false);
   };
 

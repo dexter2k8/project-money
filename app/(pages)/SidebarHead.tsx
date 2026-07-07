@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
 import { cx } from "class-variance-authority";
-import { useQueryState } from "nuqs";
+import { useLocalStorage } from "@/app/hooks/useLocalStorage";
 import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import Select from "@/components/Select";
@@ -13,7 +13,7 @@ import type { TGetBankResponse } from "../api/banks/types";
 import type { IResponse } from "../api/types";
 
 export default function SidebarHead(isCollapsed: boolean) {
-  const [bankId, setBankId] = useQueryState("bank");
+  const [bankId, setBankId] = useLocalStorage<string | null>("bank", null);
   const [pendingBankId, setPendingBankId] = useState<string | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
 
