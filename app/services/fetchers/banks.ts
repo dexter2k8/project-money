@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { API } from "@/app/utils/paths";
-import type { TPatchBankArgs, TPostBankArgs } from "@/app/api/types";
+import type { TPatchBankArgs, TPostBankArgs } from "@/app/api/banks/types";
 
 async function PostBank(data: TPostBankArgs) {
   try {

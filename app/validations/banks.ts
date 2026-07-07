@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import type { TPatchBankArgs, TPostBankArgs } from "../api/types";
+import type { TPatchBankArgs, TPostBankArgs } from "../api/banks/types";
 
 export const postBankSchema = yup.object({
   id: yup.string().required("ID is required"),

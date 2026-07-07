@@ -4,7 +4,7 @@ import { API } from "../utils/paths";
 import type { PropsWithChildren } from "react";
 import type { KeyedMutator } from "swr";
 import type { IUser } from "../api/auth/get-self-user/types";
-import type { TGetBankResponse } from "../api/types";
+import type { TGetBankResponse } from "../api/banks/types";
 
 interface IAuthContextData {
   selfUser?: IUser | null;

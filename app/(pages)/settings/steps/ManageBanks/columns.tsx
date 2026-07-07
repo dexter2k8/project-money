@@ -1,6 +1,6 @@
 import ColumnActions from "@/app/(pages)/settings/steps/ManageUsers/ColumnActions";
 import type { IActions } from "@/app/(pages)/settings/steps/ManageUsers/types";
-import type { TGetBankResponse } from "@/app/api/types";
+import type { TGetBankResponse } from "@/app/api/banks/types";
 import type { IGridColDef } from "@/components/Table";
 
 export function getColumns({ onAction }: IActions) {

@@ -1,7 +1,7 @@
 import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
-import type { TPatchBankArgs } from "@/app/api/types";
+import type { TPatchBankArgs } from "../../types";
 
 export const runtime = "nodejs";
 

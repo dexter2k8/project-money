@@ -8,9 +8,14 @@
     "AUTHDOMAIN",
     "bankid",
     "branchid",
+    "chknum",
+    "dtposted",
+    "enddate",
     "MEASUREMENTID",
     "MESSAGINGSENDERID",
     "PROJECTID",
-    "STORAGEBUCKET"
+    "STORAGEBUCKET",
+    "trnamt",
+    "trntype"
   ]
 }

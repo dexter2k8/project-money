@@ -1,7 +1,7 @@
 import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import type { TGetBankResponse } from "../../types";
+import type { TGetBankResponse } from "../types";
 
 export const runtime = "nodejs";
 

@@ -1,6 +1,6 @@
 import Input from "@/components/Input";
 import type { Control } from "react-hook-form";
-import type { TPostBankArgs } from "@/app/api/types";
+import type { TPostBankArgs } from "@/app/api/banks/types";
 import type { TAction } from "./types";
 
 interface IUserModalProps {

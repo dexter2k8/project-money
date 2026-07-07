@@ -9,7 +9,8 @@ import { useSWR } from "../hooks/useSWR";
 import { useAuth } from "../providers/AuthProvider";
 import { API } from "../utils/paths";
 import type { TGetAccountResponse } from "../api/accounts/types";
-import type { IResponse, TGetBankResponse } from "../api/types";
+import type { TGetBankResponse } from "../api/banks/types";
+import type { IResponse } from "../api/types";
 
 export default function SidebarHead(isCollapsed: boolean) {
   const { setBank } = useAuth();
@@ -21,9 +22,7 @@ export default function SidebarHead(isCollapsed: boolean) {
   const { response: accounts } = useSWR<IResponse<TGetAccountResponse>>(API.ACCOUNTS.GET_ACCOUNTS);
 
   const bankOptions = useMemo(() => {
-    const accountBankIds = new Set(
-      accounts?.data.map((a) => a.bankid) ?? [],
-    );
+    const accountBankIds = new Set(accounts?.data.map((a) => a.bankid) ?? []);
     return (
       banks?.data
         .filter((bank) => accountBankIds.has(Number(bank.id)))

@@ -1,10 +1,24 @@
+"use client";
+import { useSWR } from "@/app/hooks/useSWR";
+import { useAuth } from "@/app/providers/AuthProvider";
+import { API } from "@/app/utils/paths";
 import Button from "@/components/Button";
 import SegmentedControl from "@/components/SegmentedControl";
 import Select from "@/components/Select";
 import Table from "@/components/Table";
 import { columns, data, segmentedControlItems, selectYearOptions } from "./columns";
+import type { TGetAccountResponse } from "@/app/api/accounts/types";
+import type { IResponse } from "@/app/api/types";
 
 export default function Dashboard() {
+  const { bank } = useAuth();
+  const bankid = bank?.id;
+  const { response } = useSWR<IResponse<TGetAccountResponse>>(
+    bankid ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
+    bankid ? { bankid, month: "5", year: "2025" } : undefined,
+  );
+  console.log({ response, bankid });
+
   return (
     <div className="m-8 bg-white w-full rounded-2xl overflow-hidden flex flex-col">
       <div className="flex items-center justify-between p-4">
