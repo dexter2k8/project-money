@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, Suspense, useContext, useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSWR } from "../hooks/useSWR";
 import { API } from "../utils/paths";
@@ -14,7 +14,7 @@ interface IAuthContextData {
 
 const AuthContext = createContext<IAuthContextData | null>(null);
 
-export function AuthProvider({ children }: PropsWithChildren) {
+function AuthProviderInner({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -37,6 +37,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const values = { selfUser, mutate };
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;
+}
+
+export function AuthProvider({ children }: PropsWithChildren) {
+  return (
+    <Suspense>
+      <AuthProviderInner>{children}</AuthProviderInner>
+    </Suspense>
+  );
 }
 
 export const useAuth = () => {

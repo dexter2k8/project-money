@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { cx } from "class-variance-authority";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -22,7 +22,7 @@ import { signInSchema, signUpSchema } from "./validations/auth";
 import type { TPostUserArgs } from "./api/auth/post-user/types";
 import type { TSignInArgs } from "./api/auth/sign-in/types";
 
-export default function AuthPage() {
+function AuthPageContent() {
   const [isSignIn, setIsSignIn] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -149,5 +149,13 @@ export default function AuthPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense>
+      <AuthPageContent />
+    </Suspense>
   );
 }

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -5,7 +6,7 @@ import Button from "@/components/Button";
 import Divisor from "@/components/Divisor";
 import { SignOut } from "../services/fetchers/auth";
 
-export default function Header() {
+function HeaderContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -32,5 +33,13 @@ export default function Header() {
         </Button>
       </div>
     </header>
+  );
+}
+
+export default function Header() {
+  return (
+    <Suspense>
+      <HeaderContent />
+    </Suspense>
   );
 }
