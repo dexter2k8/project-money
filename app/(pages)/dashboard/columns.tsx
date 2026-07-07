@@ -3,8 +3,6 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Modal from "@/components/Modal";
 import TextArea from "@/components/TextArea";
-import type { ISegmentedControlItem } from "@/components/SegmentedControl";
-import type { ISelectOptions } from "@/components/Select/types";
 import type { IGridColDef } from "@/components/Table";
 
 interface IInvoice {
@@ -59,37 +57,6 @@ const modalContent = (
     <Input label="Valor" />
   </div>
 );
-
-export const segmentedControlItems: ISegmentedControlItem[] = [
-  { key: 0, label: "JAN" },
-  { key: 1, label: "FEV" },
-  { key: 2, label: "MAR" },
-  { key: 3, label: "ABR" },
-  { key: 4, label: "MAI" },
-  { key: 5, label: "JUN" },
-  { key: 6, label: "JUL" },
-  { key: 7, label: "AGO" },
-  { key: 8, label: "SET" },
-  { key: 9, label: "OUT" },
-  { key: 10, label: "NOV" },
-  { key: 11, label: "DEZ" },
-];
-
-export const selectYearOptions: ISelectOptions[] = [
-  { value: "2014", label: "2014" },
-  { value: "2015", label: "2015" },
-  { value: "2016", label: "2016" },
-  { value: "2017", label: "2017" },
-  { value: "2018", label: "2018" },
-  { value: "2019", label: "2019" },
-  { value: "2020", label: "2020" },
-  { value: "2021", label: "2021" },
-  { value: "2022", label: "2022" },
-  { value: "2023", label: "2023" },
-  { value: "2024", label: "2024" },
-  { value: "2025", label: "2025" },
-  { value: "2026", label: "2026" },
-];
 
 export const data: IInvoice[] = [
   { date: "Data 1", document: "Paid", description: "Credit Card", value: "$100", balance: "$200" },

@@ -33,6 +33,10 @@ export const API = {
     PATCH_TRANSACTION: "/api/transactions/patch-transaction/",
     DELETE_TRANSACTION: "/api/transactions/delete-transaction/",
   },
+
+  BALANCES: {
+    GET_BALANCES: "/api/balances/get-balances/",
+  },
 };
 
 export const DEMO_USER_ID = "zXwvyA8yCxSXCbuBA4eD9bekEHy2";
