@@ -75,7 +75,7 @@ export const selectOptionsVariants = cva(
 
 export const selectOptionVariants = cva(
   cx(
-    "py-1 px-3 text-left cursor-pointer",
+    "py-1 px-3 text-sm text-left cursor-pointer",
     "transition-all duration-200 ease-in-out",
     "hover:bg-neutral-100",
   ),

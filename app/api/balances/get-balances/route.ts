@@ -16,14 +16,14 @@ export async function GET(request: NextRequest) {
 
     await admin.auth().verifyIdToken(token);
 
-    const bankid = request.nextUrl.searchParams.get("bankid");
+    const acctid = request.nextUrl.searchParams.get("acctid");
 
-    if (!bankid) {
-      return NextResponse.json({ error: "bankid is required" }, { status: 400 });
+    if (!acctid) {
+      return NextResponse.json({ error: "acctid is required" }, { status: 400 });
     }
 
     const db = admin.firestore();
-    const snapshot = await db.collection("contas").where("bankid", "==", Number(bankid)).get();
+    const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
 
     const data = await Promise.all(
       snapshot.docs.map(async (doc) => {

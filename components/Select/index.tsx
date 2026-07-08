@@ -108,7 +108,7 @@ export default function Select({
             disabled={disabled}
           />
         ) : (
-          <span className="flex-1 truncate">
+          <span className="flex-1 truncate text-sm">
             {options.find((t) => t.value === selected)?.label || placeholder}
           </span>
         )}

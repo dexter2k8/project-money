@@ -13,46 +13,51 @@ import type { TGetBankResponse } from "../api/banks/types";
 import type { IResponse } from "../api/types";
 
 export default function SidebarHead(isCollapsed: boolean) {
-  const [bankId, setBankId] = useLocalStorage<string | null>("bank", null);
-  const [pendingBankId, setPendingBankId] = useState<string | null>(null);
+  const [acctId, setAcctId] = useLocalStorage<string | null>("account", null);
+  const [pendingAcctId, setPendingAcctId] = useState<string | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
 
   const { response: banks } = useSWR<IResponse<TGetBankResponse>>(API.BANKS.GET_BANKS);
   const { response: accounts } = useSWR<IResponse<TGetAccountResponse>>(API.ACCOUNTS.GET_ACCOUNTS);
 
+  const selectedAccount = useMemo(
+    () => accounts?.data?.find((a) => a.acctid === acctId) ?? null,
+    [accounts, acctId],
+  );
   const selectedBank = useMemo(
-    () => banks?.data.find((b) => b.id === bankId) ?? null,
-    [banks, bankId],
+    () => banks?.data?.find((b) => Number(b.id) === selectedAccount?.bankid) ?? null,
+    [banks, selectedAccount],
   );
 
-  const bankOptions = useMemo(() => {
-    const accountBankIds = new Set(accounts?.data.map((a) => a.bankid) ?? []);
+  const accountOptions = useMemo(() => {
+    const bankMap = new Map(banks?.data?.map((b) => [Number(b.id), b]) ?? []);
     return (
-      banks?.data
-        .filter((bank) => accountBankIds.has(Number(bank.id)))
-        .map((bank) => ({
-          value: bank.id,
-          label: bank.name,
-        })) ?? []
+      accounts?.data?.map((account) => {
+        const bank = bankMap.get(account.bankid);
+        return {
+          value: account.acctid,
+          label: `${account.acctid} - ${bank?.name ?? "Unknown"}`,
+        };
+      }) ?? []
     );
   }, [banks, accounts]);
 
   const handleOpenModal = () => {
-    setPendingBankId(bankId);
+    setPendingAcctId(acctId);
     triggerRef.current?.click();
   };
 
   const handleApply = () => {
-    setBankId(pendingBankId);
+    setAcctId(pendingAcctId);
   };
 
   const modalContent = (
     <div className="p-4">
       <Select
-        options={bankOptions}
-        value={pendingBankId ?? ""}
-        onChange={(id) => setPendingBankId(id)}
-        placeholder="Choose a bank"
+        options={accountOptions}
+        value={pendingAcctId ?? ""}
+        onChange={(id) => setPendingAcctId(id)}
+        placeholder="Choose an account"
       />
     </div>
   );
@@ -67,7 +72,7 @@ export default function SidebarHead(isCollapsed: boolean) {
       <div className={cx(isCollapsed && "opacity-0", "w-full", TRANSITION)}>
         <p className="truncate">{selectedBank?.name || "Select a bank"}</p>
         <div className="whitespace-nowrap flex items-center justify-between gap-2">
-          <small>CC: 123456 AG:1234</small>
+          <small>{selectedAccount ? `CC: ${selectedAccount.acctid} AG: ${selectedAccount.branchid}` : "CC: ---- AG: ----"}</small>
           <Button variant="link" onClick={handleOpenModal}>
             Change
           </Button>

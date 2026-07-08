@@ -16,12 +16,12 @@ export async function GET(request: NextRequest) {
 
     await admin.auth().verifyIdToken(token);
 
-    const bankid = request.nextUrl.searchParams.get("bankid");
+    const acctid = request.nextUrl.searchParams.get("acctid");
     const month = request.nextUrl.searchParams.get("month");
     const year = request.nextUrl.searchParams.get("year");
 
-    if (!bankid) {
-      return NextResponse.json({ error: "bankid is required" }, { status: 400 });
+    if (!acctid) {
+      return NextResponse.json({ error: "acctid is required" }, { status: 400 });
     }
 
     let startTimestamp: admin.firestore.Timestamp | null = null;
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     const db = admin.firestore();
-    const snapshot = await db.collection("contas").where("bankid", "==", Number(bankid)).get();
+    const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
 
     const data = await Promise.all(
       snapshot.docs.map(async (doc) => {
@@ -48,10 +48,7 @@ export async function GET(request: NextRequest) {
           extratosQuery = extratosQuery.where("dtposted", "<=", endTimestamp);
         }
 
-        const [extratosSnapshot, saldosSnapshot] = await Promise.all([
-          extratosQuery.get(),
-          doc.ref.collection("saldos").get(),
-        ]);
+        const extratosSnapshot = await extratosQuery.get();
 
         const extratos = extratosSnapshot.docs.map((e) => ({
           id: e.id,
@@ -59,17 +56,10 @@ export async function GET(request: NextRequest) {
           dtposted: e.data().dtposted?.toDate?.().toISOString?.() ?? e.data().dtposted,
         }));
 
-        const saldos = saldosSnapshot.docs.map((s) => ({
-          id: s.id,
-          ...s.data(),
-          enddate: s.data().enddate?.toDate?.().toISOString?.() ?? s.data().enddate,
-        }));
-
         return {
           id: doc.id,
           ...doc.data(),
           extratos,
-          saldos,
         };
       }),
     );

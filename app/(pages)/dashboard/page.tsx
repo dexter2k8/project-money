@@ -8,42 +8,27 @@ import SegmentedControl from "@/components/SegmentedControl";
 import Select from "@/components/Select";
 import Table from "@/components/Table";
 import { columns, data } from "./columns";
+import { MONTH_ABBRS } from "./constants";
 import type { TGetAccountResponse } from "@/app/api/accounts/types";
 import type { IResponse } from "@/app/api/types";
 
-const MONTH_ABBRS = [
-  "JAN",
-  "FEV",
-  "MAR",
-  "ABR",
-  "MAI",
-  "JUN",
-  "JUL",
-  "AGO",
-  "SET",
-  "OUT",
-  "NOV",
-  "DEZ",
-];
-
 export default function Dashboard() {
-  const [bankid] = useLocalStorage<string | null>("bank", null);
+  const [acctid] = useLocalStorage<string | null>("account", null);
 
-  const { response: balancesResponse } = useSWR<IResponse<TGetAccountResponse>>(
-    bankid ? API.BALANCES.GET_BALANCES : undefined,
-    bankid ? { bankid } : undefined,
+  const { response: balances } = useSWR<IResponse<TGetAccountResponse>>(
+    acctid ? API.BALANCES.GET_BALANCES : undefined,
+    acctid ? { acctid } : undefined,
   );
 
-  const saldos = useMemo(
-    () => (balancesResponse?.data?.[0]?.saldos ?? []).slice(1),
-    [balancesResponse],
-  );
+  const saldos = useMemo(() => (balances?.data?.[0]?.saldos ?? []).slice(1), [balances]);
 
   const latest = useMemo(() => (saldos.length > 0 ? saldos[saldos.length - 1] : null), [saldos]);
   const latestDate = useMemo(() => (latest ? new Date(latest.enddate) : null), [latest]);
 
-  const [selectedYear, setSelectedYear] = useState<string | undefined>();
-  const [selectedMonth, setSelectedMonth] = useState<number | undefined>();
+  const [selections, setSelections] = useState<Record<string, { year?: string; month?: number }>>({});
+
+  const selectionKey = acctid ?? "";
+  const currentSelection = selections[selectionKey];
 
   const yearOptions = useMemo(() => {
     const years = [...new Set(saldos.map((s) => new Date(s.enddate).getFullYear()))];
@@ -51,7 +36,7 @@ export default function Dashboard() {
   }, [saldos]);
 
   const effectiveYear =
-    selectedYear ?? (latestDate ? String(latestDate.getFullYear()) : yearOptions[0]?.value);
+    currentSelection?.year ?? (latestDate ? String(latestDate.getFullYear()) : yearOptions[0]?.value);
 
   const monthItems = useMemo(() => {
     const filtered = effectiveYear
@@ -61,21 +46,33 @@ export default function Dashboard() {
     return months.sort((a, b) => a - b).map((m) => ({ key: m, label: MONTH_ABBRS[m] }));
   }, [saldos, effectiveYear]);
 
-  const effectiveMonth = useMemo(() => {
-    if (selectedMonth != null && monthItems.some((item) => item.key === selectedMonth)) {
-      return selectedMonth;
-    }
-    return latestDate ? latestDate.getMonth() : monthItems[0]?.key;
-  }, [selectedMonth, monthItems, latestDate]);
+  const effectiveMonth = currentSelection?.month ?? (monthItems.length > 0 ? monthItems[monthItems.length - 1].key : undefined);
 
-  const { response } = useSWR<IResponse<TGetAccountResponse>>(
-    bankid && effectiveYear && effectiveMonth != null
-      ? API.TRANSACTIONS.GET_TRANSACTIONS
-      : undefined,
-    bankid && effectiveYear && effectiveMonth != null
-      ? { bankid, month: String(effectiveMonth + 1), year: effectiveYear }
-      : undefined,
+  const setYear = (year: string) => {
+    setSelections((prev) => ({
+      ...prev,
+      [selectionKey]: { year, month: undefined },
+    }));
+  };
+
+  const setMonth = (month: number) => {
+    setSelections((prev) => ({
+      ...prev,
+      [selectionKey]: { ...prev[selectionKey], month },
+    }));
+  };
+
+  const canFetchTransactions = acctid && effectiveYear && effectiveMonth != null;
+  const transactionsParams = canFetchTransactions
+    ? { acctid, month: String(effectiveMonth + 1), year: effectiveYear }
+    : undefined;
+
+  const { response: accounts } = useSWR<IResponse<TGetAccountResponse>>(
+    canFetchTransactions ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
+    transactionsParams,
   );
+
+  console.log({ balances, accounts });
 
   return (
     <div className="m-8 bg-white w-full rounded-2xl overflow-hidden flex flex-col">
@@ -88,11 +85,11 @@ export default function Dashboard() {
           <SegmentedControl
             items={monthItems}
             selected={effectiveMonth}
-            onSelect={setSelectedMonth}
+            onSelect={setMonth}
           />
           <Select
             value={effectiveYear}
-            onChange={setSelectedYear}
+            onChange={setYear}
             className="w-32!"
             options={yearOptions}
           />
