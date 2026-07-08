@@ -14,16 +14,24 @@ export interface ITableProps<T> {
   columns: IGridColDef<T>[];
   rows: T[];
   caption?: React.ReactNode;
+  footerFirst?: React.ReactNode;
   loading?: boolean;
   emptyMessage?: string;
 }
 
-export default function Table<T>({ rows, columns, caption, loading, emptyMessage }: ITableProps<T>) {
+export default function Table<T>({
+  rows,
+  columns,
+  caption,
+  footerFirst,
+  loading,
+  emptyMessage,
+}: ITableProps<T>) {
   return (
     <table className="w-full text-sm border-separate border-spacing-0">
       <Head columns={columns} caption={caption} />
       <Body rows={rows} columns={columns} loading={loading} emptyMessage={emptyMessage} />
-      <Footer rows={rows} columns={columns} />
+      <Footer rows={rows} columns={columns} footerFirst={footerFirst} />
     </table>
   );
 }

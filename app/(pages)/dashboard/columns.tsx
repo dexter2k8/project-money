@@ -1,4 +1,5 @@
 import { SquarePen } from "lucide-react";
+import BalanceDisplay from "@/components/BalanceDisplay";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Modal from "@/components/Modal";
@@ -6,7 +7,9 @@ import TextArea from "@/components/TextArea";
 import type { TTransaction } from "@/app/api/accounts/types";
 import type { IGridColDef } from "@/components/Table";
 
-export const columns: IGridColDef<TTransaction>[] = [
+export type TTransactionWithSaldo = TTransaction & { saldo: number };
+
+export const columns: IGridColDef<TTransactionWithSaldo>[] = [
   {
     field: "id",
     header: "",
@@ -44,17 +47,13 @@ export const columns: IGridColDef<TTransaction>[] = [
     field: "trnamt",
     header: "Valor",
     className: "text-right",
-    render: (value) => {
-      const num = Number(value);
-      const formatted = Math.abs(num).toFixed(2).replace(".", ",");
-      const suffix = num >= 0 ? "C" : "D";
-      const color = num >= 0 ? "text-blue-600" : "text-red-600";
-      return (
-        <span className={color}>
-          {formatted} {suffix}
-        </span>
-      );
-    },
+    render: (value) => <BalanceDisplay value={Number(value)} />,
+  },
+  {
+    field: "saldo",
+    header: "Saldo",
+    className: "text-right",
+    render: (value) => <BalanceDisplay value={Number(value)} />,
   },
 ];
 

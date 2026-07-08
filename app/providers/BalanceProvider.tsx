@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
+import { createContext, useCallback, useContext, useMemo } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { useSWR } from "../hooks/useSWR";
 import { API } from "../utils/paths";
@@ -47,9 +47,12 @@ export function BalanceProvider({ children }: PropsWithChildren) {
     [bankList, selectedAccount],
   );
 
-  const handleSetAcctid = useCallback((value: string | null) => {
-    setAcctid(value);
-  }, [setAcctid]);
+  const handleSetAcctid = useCallback(
+    (value: string | null) => {
+      setAcctid(value);
+    },
+    [setAcctid],
+  );
 
   const values = useMemo(
     () => ({

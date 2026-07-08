@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useSWR } from "@/app/hooks/useSWR";
 import { useBalance } from "@/app/providers/BalanceProvider";
 import { API } from "@/app/utils/paths";
+import BalanceDisplay from "@/components/BalanceDisplay";
 import Button from "@/components/Button";
 import SegmentedControl from "@/components/SegmentedControl";
 import Select from "@/components/Select";
@@ -11,6 +12,7 @@ import { columns } from "./columns";
 import { MONTH_ABBRS } from "./constants";
 import type { TGetAccountResponse, TTransaction } from "@/app/api/accounts/types";
 import type { IResponse } from "@/app/api/types";
+import type { TTransactionWithSaldo } from "./columns";
 
 export default function Dashboard() {
   const { balance, acctid } = useBalance();
@@ -79,7 +81,7 @@ export default function Dashboard() {
   );
 
   const previousBalance = useMemo(() => {
-    if (effectiveMonth == null || !effectiveYear) return null;
+    if (effectiveMonth == null || !effectiveYear) return 0;
 
     let prevMonth = effectiveMonth - 1;
     let prevYear = Number(effectiveYear);
@@ -93,19 +95,28 @@ export default function Dashboard() {
       return date.getMonth() === prevMonth && date.getFullYear() === prevYear;
     });
 
-    return prevEntry?.balance ?? null;
+    return prevEntry?.balance ?? 0;
   }, [allSaldos, effectiveMonth, effectiveYear]);
 
-  const caption =
-    previousBalance != null ? (
-      <span>
-        Anterior:{" "}
-        <span className={previousBalance >= 0 ? "text-blue-600" : "text-red-600"}>
-          {Math.abs(previousBalance).toFixed(2).replace(".", ",")}{" "}
-          {previousBalance >= 0 ? "C" : "D"}
-        </span>
-      </span>
-    ) : undefined;
+  const currentBalance = useMemo(() => {
+    if (effectiveMonth == null || !effectiveYear) return 0;
+
+    const currentEntry = allSaldos.find((s) => {
+      const date = new Date(s.enddate);
+      return date.getMonth() === effectiveMonth && date.getFullYear() === Number(effectiveYear);
+    });
+
+    return currentEntry?.balance ?? 0;
+  }, [allSaldos, effectiveMonth, effectiveYear]);
+
+  const transactionsWithSaldo = useMemo(() => {
+    return transactions.reduce<TTransactionWithSaldo[]>((acc, t) => {
+      const prevSaldo = acc.length > 0 ? acc[acc.length - 1].saldo : previousBalance;
+      return [...acc, { ...t, saldo: prevSaldo + t.trnamt }];
+    }, []);
+  }, [transactions, previousBalance]);
+
+  const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;
 
   return (
     <div className="m-8 bg-white w-full rounded-2xl overflow-hidden flex flex-col">
@@ -130,7 +141,12 @@ export default function Dashboard() {
         </Button>
         <div className="h-full overflow-auto">
           <div className="min-w-4xl">
-            <Table columns={columns} rows={transactions} caption={caption} />
+            <Table
+              columns={columns}
+              rows={transactionsWithSaldo}
+              caption={caption}
+              footerFirst={<BalanceDisplay value={currentBalance} prefix="Saldo:" />}
+            />
           </div>
         </div>
       </div>
