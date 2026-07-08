@@ -3,7 +3,7 @@ import type { IGridColDef } from "../..";
 
 export interface IHeadProps<T> {
   columns: IGridColDef<T>[];
-  caption?: string;
+  caption?: React.ReactNode;
 }
 
 export default function Head<T>({ columns, caption }: IHeadProps<T>) {

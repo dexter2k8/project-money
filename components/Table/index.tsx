@@ -13,7 +13,7 @@ export interface IGridColDef<T> {
 export interface ITableProps<T> {
   columns: IGridColDef<T>[];
   rows: T[];
-  caption?: string;
+  caption?: React.ReactNode;
   loading?: boolean;
   emptyMessage?: string;
 }

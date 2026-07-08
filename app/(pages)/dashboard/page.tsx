@@ -15,7 +15,8 @@ import type { IResponse } from "@/app/api/types";
 export default function Dashboard() {
   const { balance, acctid } = useBalance();
 
-  const saldos = useMemo(() => (balance?.data?.[0]?.saldos ?? []).slice(1), [balance]);
+  const allSaldos = useMemo(() => balance?.data?.[0]?.saldos ?? [], [balance]);
+  const saldos = useMemo(() => allSaldos.slice(1), [allSaldos]);
 
   const latest = useMemo(() => (saldos.length > 0 ? saldos[saldos.length - 1] : null), [saldos]);
   const latestDate = useMemo(() => (latest ? new Date(latest.enddate) : null), [latest]);
@@ -77,6 +78,35 @@ export default function Dashboard() {
     [transactionsResponse],
   );
 
+  const previousBalance = useMemo(() => {
+    if (effectiveMonth == null || !effectiveYear) return null;
+
+    let prevMonth = effectiveMonth - 1;
+    let prevYear = Number(effectiveYear);
+    if (prevMonth < 0) {
+      prevMonth = 11;
+      prevYear -= 1;
+    }
+
+    const prevEntry = allSaldos.find((s) => {
+      const date = new Date(s.enddate);
+      return date.getMonth() === prevMonth && date.getFullYear() === prevYear;
+    });
+
+    return prevEntry?.balance ?? null;
+  }, [allSaldos, effectiveMonth, effectiveYear]);
+
+  const caption =
+    previousBalance != null ? (
+      <span>
+        Anterior:{" "}
+        <span className={previousBalance >= 0 ? "text-blue-600" : "text-red-600"}>
+          {Math.abs(previousBalance).toFixed(2).replace(".", ",")}{" "}
+          {previousBalance >= 0 ? "C" : "D"}
+        </span>
+      </span>
+    ) : undefined;
+
   return (
     <div className="m-8 bg-white w-full rounded-2xl overflow-hidden flex flex-col">
       <div className="flex items-center justify-between p-4">
@@ -100,7 +130,7 @@ export default function Dashboard() {
         </Button>
         <div className="h-full overflow-auto">
           <div className="min-w-4xl">
-            <Table columns={columns} rows={transactions} caption="Anterior: $100" />
+            <Table columns={columns} rows={transactions} caption={caption} />
           </div>
         </div>
       </div>
