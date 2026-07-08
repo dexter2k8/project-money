@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
           extratosQuery = extratosQuery.where("dtposted", "<=", endTimestamp);
         }
 
-        const extratosSnapshot = await extratosQuery.get();
+        const extratosSnapshot = await extratosQuery.orderBy("dtposted", "asc").get();
 
         const extratos = extratosSnapshot.docs.map((e) => ({
           id: e.id,
