@@ -7,6 +7,7 @@ import Header from "./Header";
 import SessionExpiringModal from "./SessionExpiringModal";
 import SidebarHead from "./SidebarHead";
 import { AuthProvider } from "../providers/AuthProvider";
+import { BalanceProvider } from "../providers/BalanceProvider";
 import { SessionTimerProvider } from "../providers/SessionTimerProvider";
 import type { ISidebarItemProps } from "@/components/Sidebar";
 
@@ -20,12 +21,14 @@ export default function PagesLayout({ children }: PropsWithChildren) {
   return (
     <AuthProvider>
       <SessionTimerProvider>
-        <Header />
-        <div className={PAGE_CONTAINER}>
-          <Sidebar header={SidebarHead} items={sidebarItems} />
-          {children}
-        </div>
-        <SessionExpiringModal />
+        <BalanceProvider>
+          <Header />
+          <div className={PAGE_CONTAINER}>
+            <Sidebar header={SidebarHead} items={sidebarItems} />
+            {children}
+          </div>
+          <SessionExpiringModal />
+        </BalanceProvider>
       </SessionTimerProvider>
     </AuthProvider>
   );

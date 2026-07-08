@@ -16,27 +16,36 @@ export async function GET(request: NextRequest) {
 
     await admin.auth().verifyIdToken(token);
 
+    const db = admin.firestore();
     const acctid = request.nextUrl.searchParams.get("acctid");
 
-    if (!acctid) {
-      return NextResponse.json({ error: "acctid is required" }, { status: 400 });
-    }
+    let snapshot: FirebaseFirestore.QuerySnapshot;
 
-    const db = admin.firestore();
-    const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
+    if (acctid) {
+      snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
+    } else {
+      snapshot = await db.collection("contas").get();
+    }
 
     const data = await Promise.all(
       snapshot.docs.map(async (doc) => {
-        const saldosSnapshot = await doc.ref.collection("saldos").orderBy("enddate").get();
-        const saldos = saldosSnapshot.docs.map((s) => ({
-          id: s.id,
-          ...s.data(),
-          enddate: s.data().enddate?.toDate?.().toISOString?.() ?? s.data().enddate,
-        }));
+        if (acctid) {
+          const saldosSnapshot = await doc.ref.collection("saldos").orderBy("enddate").get();
+          const saldos = saldosSnapshot.docs.map((s) => ({
+            id: s.id,
+            ...s.data(),
+            enddate: s.data().enddate?.toDate?.().toISOString?.() ?? s.data().enddate,
+          }));
+          return {
+            id: doc.id,
+            ...doc.data(),
+            saldos,
+          };
+        }
         return {
           id: doc.id,
           ...doc.data(),
-          saldos,
+          saldos: [],
         };
       }),
     );
