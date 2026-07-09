@@ -32,6 +32,7 @@ export const columns: IGridColDef<TTransactionWithSaldo>[] = [
   {
     field: "dtposted",
     header: "Data",
+    className: "text-left w-28",
     render: (value) => {
       if (!value) return "";
       const date = new Date(value);
@@ -41,8 +42,8 @@ export const columns: IGridColDef<TTransactionWithSaldo>[] = [
       return `${day}/${month}/${year}`;
     },
   },
-  { field: "memo", className: "max-w-96 truncate", header: "Descrição" },
-  { field: "chknum", header: "Documento" },
+  { field: "memo", className: "text-left max-w-80 truncate", header: "Descrição" },
+  { field: "chknum", className: "text-right w-28", header: "Documento" },
   {
     field: "trnamt",
     header: "Valor",
