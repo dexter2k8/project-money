@@ -12,19 +12,32 @@ export type TTransactionWithSaldo = TTransaction & { saldo: number };
 export const columns: IGridColDef<TTransactionWithSaldo>[] = [
   {
     field: "id",
-    header: "",
+    header: "UID",
     className: "text-center w-10",
+    renderHeader() {
+      return (
+        <Modal cross title="Add transaction" content={modalAdd}>
+          <Button className="px-3" variant="primary">
+            +
+          </Button>
+        </Modal>
+      );
+    },
     render: () => (
-      <Modal cross title="Edit transaction" content={modalContent}>
+      <Modal cross title="Edit transaction" content={modalAdd}>
         <Button>
           <SquarePen size={16} />
         </Button>
       </Modal>
     ),
     renderFooter: () => (
-      <Modal cross title="Add transaction" content={modalContent}>
-        <Button className="px-3" variant="primary">
-          +
+      <Modal
+        cross
+        title="Delete month transactions"
+        subtitle="Are you sure you want to delete all transactions for this month?"
+      >
+        <Button className="px-3 bg-red-500!" variant="primary">
+          -
         </Button>
       </Modal>
     ),
@@ -58,7 +71,7 @@ export const columns: IGridColDef<TTransactionWithSaldo>[] = [
   },
 ];
 
-const modalContent = (
+const modalAdd = (
   <div className="flex flex-col gap-4 p-4 w-100">
     <Input type="date" label="Data" />
     <TextArea showCounter maxLength={100} label="Descrição" />
