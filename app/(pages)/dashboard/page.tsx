@@ -1,7 +1,9 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { useSWR } from "@/app/hooks/useSWR";
 import { useBalance } from "@/app/providers/BalanceProvider";
+import { parseOfxFile } from "@/app/utils/parseOfx";
 import { API } from "@/app/utils/paths";
 import BalanceDisplay from "@/components/BalanceDisplay";
 import Button from "@/components/Button";
@@ -16,6 +18,8 @@ import type { TTransactionWithSaldo } from "./columns";
 
 export default function Dashboard() {
   const { balance, acctid } = useBalance();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const allSaldos = useMemo(() => balance?.data?.[0]?.saldos ?? [], [balance]);
   const saldos = useMemo(() => allSaldos.slice(1), [allSaldos]);
@@ -70,7 +74,7 @@ export default function Dashboard() {
     ? { acctid, month: String(effectiveMonth + 1), year: effectiveYear }
     : undefined;
 
-  const { response: transactionsResponse } = useSWR<IResponse<TGetAccountResponse>>(
+  const { response: transactionsResponse, isLoading, mutate } = useSWR<IResponse<TGetAccountResponse>>(
     canFetchTransactions ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
     transactionsParams,
   );
@@ -116,6 +120,67 @@ export default function Dashboard() {
     }, []);
   }, [transactions, previousBalance]);
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file || !acctid) return;
+
+      setIsUploading(true);
+
+      try {
+        const buffer = await file.arrayBuffer();
+        const decoder = new TextDecoder("iso-8859-1");
+        const content = decoder.decode(buffer);
+        const { transactions: parsed, accountInfo } = parseOfxFile(content);
+
+        if (accountInfo.acctid && accountInfo.acctid !== acctid) {
+          toast.error(
+            `Arquivo é da conta ${accountInfo.acctid}, mas a conta selecionada é ${acctid}.`,
+          );
+          return;
+        }
+
+        if (parsed.length === 0) {
+          toast.warning("Nenhuma transação encontrada no arquivo.");
+          return;
+        }
+
+        const response = await fetch(API.TRANSACTIONS.POST_TRANSACTION, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ acctid, transactions: parsed }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Erro ao salvar transações");
+        }
+
+        const result = await response.json();
+
+        if (result.count === 0) {
+          toast.info("Todas as transações já existem no sistema.");
+          return;
+        }
+
+        toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);
+        mutate();
+      } catch (error) {
+        console.error("Import error:", error);
+        toast.error("Erro ao importar arquivo. Verifique o formato.");
+      } finally {
+        setIsUploading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    },
+    [acctid, mutate],
+  );
+
   const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;
 
   return (
@@ -136,8 +201,20 @@ export default function Dashboard() {
         </div>
       )}
       <div className="relative m-4 flex-1 min-h-0">
-        <Button className="absolute left-1 top-1 z-10" variant="primary">
-          Importar OFC/OFX
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".ofc,.ofx"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <Button
+          className="absolute left-1 top-1 z-10"
+          variant="primary"
+          onClick={handleImportClick}
+          disabled={isUploading}
+        >
+          {isUploading ? "Importando..." : "Importar OFC/OFX"}
         </Button>
         <div className="h-full overflow-auto">
           <div className="min-w-4xl">
@@ -146,6 +223,7 @@ export default function Dashboard() {
               rows={transactionsWithSaldo}
               caption={caption}
               footerFirst={<BalanceDisplay value={currentBalance} prefix="Saldo:" />}
+              loading={isLoading}
             />
           </div>
         </div>

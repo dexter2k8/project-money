@@ -12,8 +12,8 @@ import Table from "@/components/Table";
 import AddOrEditForm from "./AddOrEditForm";
 import { getColumns } from "./columns";
 import type { Resolver, SubmitHandler } from "react-hook-form";
-import type { IResponse } from "@/app/api/types";
 import type { TPostBankArgs } from "@/app/api/banks/types";
+import type { IResponse } from "@/app/api/types";
 import type { IActionsProps } from "./types";
 
 export function ManageBanks() {

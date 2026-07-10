@@ -1,6 +1,6 @@
+import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import admin from "firebase-admin";
 
 if (!admin.apps.length) {
   admin.initializeApp({
