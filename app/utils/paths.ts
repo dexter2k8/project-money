@@ -28,6 +28,7 @@ export const API = {
 
   BALANCES: {
     GET_BALANCES: "/api/balances/get-balances/",
+    POST_BALANCES: "/api/balances/post-balances",
   },
 };
 

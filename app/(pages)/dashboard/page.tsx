@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { mutate } from "swr";
 import { useSWR } from "@/app/hooks/useSWR";
 import { useBalance } from "@/app/providers/BalanceProvider";
 import { parseOfxFile } from "@/app/utils/parseOfx";
@@ -74,7 +75,7 @@ export default function Dashboard() {
     ? { acctid, month: String(effectiveMonth + 1), year: effectiveYear }
     : undefined;
 
-  const { response: transactionsResponse, isLoading, mutate } = useSWR<IResponse<TGetAccountResponse>>(
+  const { response: transactionsResponse, isLoading, mutate: mutateTransactions } = useSWR<IResponse<TGetAccountResponse>>(
     canFetchTransactions ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
     transactionsParams,
   );
@@ -166,8 +167,15 @@ export default function Dashboard() {
           return;
         }
 
+        await fetch(API.BALANCES.POST_BALANCES, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ acctid }),
+        });
+
         toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);
-        mutate();
+        mutateTransactions();
+        mutate(`${API.BALANCES.GET_BALANCES}?acctid=${acctid}`);
       } catch (error) {
         console.error("Import error:", error);
         toast.error("Erro ao importar arquivo. Verifique o formato.");
@@ -178,7 +186,7 @@ export default function Dashboard() {
         }
       }
     },
-    [acctid, mutate],
+    [acctid, mutateTransactions],
   );
 
   const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;
