@@ -1,6 +1,8 @@
 import { SquarePen } from "lucide-react";
 import { toast } from "react-toastify";
+import { mutate as mutateSWR } from "swr";
 import { DeleteTransactions } from "@/app/services/fetchers/transactions";
+import { API } from "@/app/utils/paths";
 import BalanceDisplay from "@/components/BalanceDisplay";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
@@ -50,6 +52,7 @@ export const columns = ({ acctid, month, year, mutate }: TColumnsArgs): IGridCol
             await DeleteTransactions({ acctid, month, year });
             toast.success("Transações excluídas com sucesso!");
             mutate();
+            mutateSWR(`${API.BALANCES.GET_BALANCES}?acctid=${acctid}`);
           } catch {
             toast.error("Erro ao excluir transações.");
           }
