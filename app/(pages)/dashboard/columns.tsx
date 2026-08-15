@@ -1,4 +1,6 @@
 import { SquarePen } from "lucide-react";
+import { toast } from "react-toastify";
+import { DeleteTransactions } from "@/app/services/fetchers/transactions";
 import BalanceDisplay from "@/components/BalanceDisplay";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
@@ -9,14 +11,21 @@ import type { IGridColDef } from "@/components/Table";
 
 export type TTransactionWithSaldo = TTransaction & { saldo: number };
 
-export const columns: IGridColDef<TTransactionWithSaldo>[] = [
+type TColumnsArgs = {
+  acctid: string;
+  month: number;
+  year: number;
+  mutate: () => void;
+};
+
+export const columns = ({ acctid, month, year, mutate }: TColumnsArgs): IGridColDef<TTransactionWithSaldo>[] => [
   {
     field: "id",
     header: "UID",
     className: "text-center w-10",
     renderHeader() {
       return (
-        <Modal cross title="Add transaction" content={modalAdd}>
+        <Modal cross title="Add transaction" content={modalAdd(true)}>
           <Button className="px-3" variant="primary">
             +
           </Button>
@@ -24,7 +33,7 @@ export const columns: IGridColDef<TTransactionWithSaldo>[] = [
       );
     },
     render: () => (
-      <Modal cross title="Edit transaction" content={modalAdd}>
+      <Modal cross title="Edit transaction" content={modalAdd(false)}>
         <Button>
           <SquarePen size={16} />
         </Button>
@@ -35,6 +44,16 @@ export const columns: IGridColDef<TTransactionWithSaldo>[] = [
         cross
         title="Delete month transactions"
         subtitle="Are you sure you want to delete all transactions for this month?"
+        labelApply="Delete"
+        onApply={async () => {
+          try {
+            await DeleteTransactions({ acctid, month, year });
+            toast.success("Transações excluídas com sucesso!");
+            mutate();
+          } catch {
+            toast.error("Erro ao excluir transações.");
+          }
+        }}
       >
         <Button className="px-3 bg-red-500!" variant="primary">
           -
@@ -50,9 +69,9 @@ export const columns: IGridColDef<TTransactionWithSaldo>[] = [
       if (!value) return "";
       const date = new Date(value);
       const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const y = date.getFullYear();
+      return `${day}/${m}/${y}`;
     },
   },
   { field: "memo", className: "text-left max-w-80 truncate", header: "Descrição" },
@@ -71,9 +90,16 @@ export const columns: IGridColDef<TTransactionWithSaldo>[] = [
   },
 ];
 
-const modalAdd = (
+const modalAdd = (isAdd: boolean) => (
   <div className="flex flex-col gap-4 p-4 w-100">
-    <Input type="date" label="Data" />
+    <div className="flex gap-4">
+      <Input type="date" label="Data" />
+      {!isAdd && (
+        <Button className="px-3 bg-red-500!" variant="primary">
+          -
+        </Button>
+      )}
+    </div>
     <TextArea showCounter maxLength={100} label="Descrição" />
     <Input label="Documento" />
     <Input label="Valor" />

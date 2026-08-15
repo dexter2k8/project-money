@@ -7,7 +7,7 @@ export interface IGridColDef<T> {
   header: string;
   className?: string;
   renderHeader?: (value?: string) => React.ReactNode;
-  render?: (value: T[keyof T]) => React.ReactNode;
+  render?: (value: T[keyof T], row: T) => React.ReactNode;
   renderFooter?: (rows: T[]) => React.ReactNode;
 }
 export interface ITableProps<T> {

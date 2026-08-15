@@ -24,7 +24,9 @@ export default function TableFooter<T>({ rows, columns, footerFirst }: IFooter<T
     <tfoot className="font-semibold bg-neutral-100 sticky bottom-0">
       <tr>
         <td className="p-2 whitespace-nowrap" colSpan={span}>
-          {columns[firstIndex].renderFooter ? columns[firstIndex].renderFooter!(rows) : ""}
+          {firstIndex !== -1 && columns[firstIndex].renderFooter
+            ? columns[firstIndex].renderFooter!(rows)
+            : ""}
         </td>
         {footerFirst && (
           <td className="p-2 whitespace-nowrap text-right" colSpan={columns.length - span}>

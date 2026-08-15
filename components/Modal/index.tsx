@@ -119,4 +119,5 @@ const Modal: React.FC<IModalWrapperProps> = ({ content, onClose, children, ...pr
   );
 };
 
+export { ModalComponent };
 export default Modal;

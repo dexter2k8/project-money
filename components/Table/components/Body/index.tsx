@@ -45,7 +45,7 @@ export default function Body<T>({ rows, columns, loading, emptyMessage }: IBodyP
               className={cx("p-2 whitespace-nowrap border-b border-neutral-200", col.className)}
               key={j}
             >
-              {col.render ? col.render(row[col.field]) : String(row[col.field])}
+              {col.render ? col.render(row[col.field], row) : String(row[col.field])}
             </td>
           ))}
         </tr>

@@ -11,7 +11,7 @@ import Button from "@/components/Button";
 import SegmentedControl from "@/components/SegmentedControl";
 import Select from "@/components/Select";
 import Table from "@/components/Table";
-import { columns } from "./columns";
+import { columns as createColumns } from "./columns";
 import { MONTH_ABBRS } from "./constants";
 import type { TGetAccountResponse, TTransaction } from "@/app/api/accounts/types";
 import type { IResponse } from "@/app/api/types";
@@ -75,7 +75,11 @@ export default function Dashboard() {
     ? { acctid, month: String(effectiveMonth + 1), year: effectiveYear }
     : undefined;
 
-  const { response: transactionsResponse, isLoading, mutate: mutateTransactions } = useSWR<IResponse<TGetAccountResponse>>(
+  const {
+    response: transactionsResponse,
+    isLoading,
+    mutate: mutateTransactions,
+  } = useSWR<IResponse<TGetAccountResponse>>(
     canFetchTransactions ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
     transactionsParams,
   );
@@ -189,6 +193,19 @@ export default function Dashboard() {
     [acctid, mutateTransactions],
   );
 
+  const columns = useMemo(
+    () =>
+      canFetchTransactions
+        ? createColumns({
+            acctid,
+            month: effectiveMonth + 1,
+            year: Number(effectiveYear),
+            mutate: mutateTransactions,
+          })
+        : [],
+    [canFetchTransactions, acctid, effectiveMonth, effectiveYear, mutateTransactions],
+  );
+
   const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;
 
   return (
@@ -224,6 +241,7 @@ export default function Dashboard() {
         >
           {isUploading ? "Importando..." : "Importar OFC/OFX"}
         </Button>
+
         <div className="h-full overflow-auto">
           <div className="min-w-4xl">
             <Table
