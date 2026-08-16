@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
 import { cx } from "class-variance-authority";
+import { Loader2 } from "lucide-react";
 import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import Select from "@/components/Select";
@@ -8,7 +9,7 @@ import { buttonWrapperVariants, TRANSITION } from "./constants";
 import { useBalance } from "../providers/BalanceProvider";
 
 export default function SidebarHead(isCollapsed: boolean) {
-  const { accounts, banks, selectedAccount, selectedBank, acctid, setAcctid } = useBalance();
+  const { accounts, banks, selectedAccount, selectedBank, acctid, setAcctid, isLoadingBanks, isLoadingAccounts } = useBalance();
   const [pendingAcctId, setPendingAcctId] = useState<string | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
 
@@ -51,10 +52,24 @@ export default function SidebarHead(isCollapsed: boolean) {
         </Button>
       </div>
       <div className={cx(isCollapsed && "opacity-0", "w-full", TRANSITION)}>
-        <p className="truncate">{selectedBank?.name || "Select a bank"}</p>
+        {isLoadingBanks ? (
+          <p className="flex items-center gap-2 truncate">
+            <Loader2 className="animate-spin" size={14} />
+            Loading banks...
+          </p>
+        ) : (
+          <p className="truncate">{selectedBank?.name || "Select a bank"}</p>
+        )}
         <div className="whitespace-nowrap flex items-center justify-between gap-2">
-          <small>{selectedAccount ? `CC: ${selectedAccount.acctid} AG: ${selectedAccount.branchid}` : "CC: ---- AG: ----"}</small>
-          <Button variant="link" onClick={handleOpenModal}>
+          {isLoadingAccounts ? (
+            <small className="flex items-center gap-2">
+              <Loader2 className="animate-spin" size={12} />
+              Loading...
+            </small>
+          ) : (
+            <small>{selectedAccount ? `CC: ${selectedAccount.acctid} AG: ${selectedAccount.branchid}` : "CC: ---- AG: ----"}</small>
+          )}
+          <Button variant="link" onClick={handleOpenModal} disabled={isLoadingBanks || isLoadingAccounts}>
             Change
           </Button>
         </div>

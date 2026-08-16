@@ -18,7 +18,7 @@ import type { IResponse } from "@/app/api/types";
 import type { TTransactionWithSaldo } from "./columns";
 
 export default function Dashboard() {
-  const { balance, acctid } = useBalance();
+  const { balance, acctid, isLoadingBalance } = useBalance();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -208,52 +208,65 @@ export default function Dashboard() {
 
   const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;
 
+  const isInitialLoading = !!acctid && isLoadingBalance && !balance;
+
   return (
     <div className="m-8 bg-white w-full rounded-2xl overflow-hidden flex flex-col">
       <div className="flex items-center justify-between p-4">
         <h2>Extrato Bancário</h2>
         <Button variant="primary">Exportar CSV</Button>
       </div>
-      {yearOptions.length > 0 && (
-        <div className="p-4 flex justify-between gap-4 whitespace-nowrap">
-          <SegmentedControl items={monthItems} selected={effectiveMonth} onSelect={setMonth} />
-          <Select
-            value={effectiveYear}
-            onChange={setYear}
-            className="w-32!"
-            options={yearOptions}
-          />
-        </div>
-      )}
-      <div className="relative m-4 flex-1 min-h-0">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".ofc,.ofx"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <Button
-          className="absolute left-1 top-1 z-10"
-          variant="primary"
-          onClick={handleImportClick}
-          disabled={isUploading}
-        >
-          {isUploading ? "Importando..." : "Importar OFC/OFX"}
-        </Button>
-
-        <div className="h-full overflow-auto">
-          <div className="min-w-4xl">
-            <Table
-              columns={columns}
-              rows={transactionsWithSaldo}
-              caption={caption}
-              footerFirst={<BalanceDisplay value={currentBalance} prefix="Saldo:" />}
-              loading={isLoading}
-            />
+      {isInitialLoading ? (
+        <div className="flex-1 flex items-center justify-center text-neutral-400">
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-violet-600" />
+            Carregando dados da conta...
           </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {yearOptions.length > 0 && (
+            <div className="p-4 flex justify-between gap-4 whitespace-nowrap">
+              <SegmentedControl items={monthItems} selected={effectiveMonth} onSelect={setMonth} />
+              <Select
+                value={effectiveYear}
+                onChange={setYear}
+                className="w-32!"
+                options={yearOptions}
+              />
+            </div>
+          )}
+          <div className="relative m-4 flex-1 min-h-0">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".ofc,.ofx"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <Button
+              className="absolute left-1 top-1 z-10"
+              variant="primary"
+              onClick={handleImportClick}
+              disabled={isUploading}
+            >
+              {isUploading ? "Importando..." : "Importar OFC/OFX"}
+            </Button>
+
+            <div className="h-full overflow-auto">
+              <div className="min-w-4xl">
+                <Table
+                  columns={columns}
+                  rows={transactionsWithSaldo}
+                  caption={caption}
+                  footerFirst={<BalanceDisplay value={currentBalance} prefix="Saldo:" />}
+                  loading={isLoading}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

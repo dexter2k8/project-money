@@ -16,6 +16,9 @@ interface IBalanceContextData {
   balance: IResponse<TGetAccountResponse> | undefined;
   acctid: string | null;
   setAcctid: (value: string | null) => void;
+  isLoadingBanks: boolean;
+  isLoadingAccounts: boolean;
+  isLoadingBalance: boolean;
 }
 
 const BalanceContext = createContext<IBalanceContextData | null>(null);
@@ -23,13 +26,13 @@ const BalanceContext = createContext<IBalanceContextData | null>(null);
 export function BalanceProvider({ children }: PropsWithChildren) {
   const [acctid, setAcctid] = useLocalStorage<string | null>("account", null);
 
-  const { response: allAccounts } = useSWR<IResponse<TGetAccountResponse>>(
+  const { response: allAccounts, isLoading: isLoadingAccounts } = useSWR<IResponse<TGetAccountResponse>>(
     API.BALANCES.GET_BALANCES,
   );
 
-  const { response: banks } = useSWR<IResponse<TGetBankResponse>>(API.BANKS.GET_BANKS);
+  const { response: banks, isLoading: isLoadingBanks } = useSWR<IResponse<TGetBankResponse>>(API.BANKS.GET_BANKS);
 
-  const { response: balance } = useSWR<IResponse<TGetAccountResponse>>(
+  const { response: balance, isLoading: isLoadingBalance } = useSWR<IResponse<TGetAccountResponse>>(
     acctid ? API.BALANCES.GET_BALANCES : undefined,
     acctid ? { acctid } : undefined,
   );
@@ -63,8 +66,11 @@ export function BalanceProvider({ children }: PropsWithChildren) {
       balance,
       acctid,
       setAcctid: handleSetAcctid,
+      isLoadingBanks,
+      isLoadingAccounts,
+      isLoadingBalance,
     }),
-    [accounts, bankList, selectedAccount, selectedBank, balance, acctid, handleSetAcctid],
+    [accounts, bankList, selectedAccount, selectedBank, balance, acctid, handleSetAcctid, isLoadingBanks, isLoadingAccounts, isLoadingBalance],
   );
 
   return <BalanceContext.Provider value={values}>{children}</BalanceContext.Provider>;
