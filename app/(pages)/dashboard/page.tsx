@@ -193,6 +193,70 @@ export default function Dashboard() {
     [acctid, mutateTransactions],
   );
 
+  const handleExportCsv = useCallback(async () => {
+    if (!acctid) return;
+
+    try {
+      const params = new URLSearchParams({ acctid });
+      const response = await fetch(`${API.TRANSACTIONS.GET_TRANSACTIONS}?${params}`);
+
+      if (!response.ok) throw new Error("Erro ao buscar transações");
+
+      const result: IResponse<TGetAccountResponse> = await response.json();
+      const allTransactions = result.data?.[0]?.extratos ?? [];
+
+      if (allTransactions.length === 0) {
+        toast.info("Nenhuma transação para exportar.");
+        return;
+      }
+
+      const header = "ID;TRNTYPE;DTPOSTED;TRNAMT;CHKNUM;MEMO";
+      const rows = allTransactions.map(
+        (t) => `${t.id};${t.trntype};${t.dtposted.split("T")[0]};${t.trnamt};${t.chknum};${t.memo}`,
+      );
+      const csv = [header, ...rows].join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `extrato_${acctid}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${allTransactions.length} transação(ões) exportada(s) com sucesso!`);
+    } catch (error) {
+      console.error("Export CSV error:", error);
+      toast.error("Erro ao exportar CSV.");
+    }
+  }, [acctid]);
+
+  const handleExportBalanceCsv = useCallback(() => {
+    try {
+      if (allSaldos.length === 0) {
+        toast.info("Nenhum saldo para exportar.");
+        return;
+      }
+
+      const header = "ID;BALANCE;ENDDATE";
+      const rows = allSaldos.map(
+        (s) => `${s.id};${Number(s.balance).toFixed(2)};${s.enddate.split("T")[0]}`,
+      );
+      const csv = [header, ...rows].join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `saldos_${acctid}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${allSaldos.length} saldo(s) exportado(s) com sucesso!`);
+    } catch (error) {
+      console.error("Export balance CSV error:", error);
+      toast.error("Erro ao exportar saldos.");
+    }
+  }, [allSaldos, acctid]);
+
   const columns = useMemo(
     () =>
       canFetchTransactions
@@ -219,7 +283,14 @@ export default function Dashboard() {
     <div className="m-8 bg-white w-full rounded-2xl overflow-hidden flex flex-col">
       <div className="flex items-center justify-between p-4">
         <h2>Extrato Bancário</h2>
-        <Button variant="primary">Exportar CSV</Button>
+        <div className="flex items-center gap-2">
+          <Button variant="primary" onClick={handleExportCsv} disabled={!acctid}>
+            Exportar Transações
+          </Button>
+          <Button variant="primary" onClick={handleExportBalanceCsv} disabled={!acctid}>
+            Exportar Saldos
+          </Button>
+        </div>
       </div>
       {isInitialLoading ? (
         <div className="flex-1 flex items-center justify-center text-neutral-400">
