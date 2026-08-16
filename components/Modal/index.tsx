@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { cx } from "class-variance-authority";
 import { createPortal } from "react-dom";
 import { CONTENT, OVERLAY } from "./constants";
@@ -90,13 +90,15 @@ const ModalComponent: React.FC<IModalProps> = ({
   );
 };
 
-const Modal: React.FC<IModalWrapperProps> = ({ content, onClose, children, ...props }) => {
+const Modal: React.FC<IModalWrapperProps> = ({ content, onClose, closeRef, children, ...props }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     onClose?.();
     setIsOpen(false);
-  };
+  }, [onClose]);
+
+  useImperativeHandle(closeRef, () => ({ close: handleClose }), [handleClose]);
 
   return (
     <>
@@ -119,5 +121,4 @@ const Modal: React.FC<IModalWrapperProps> = ({ content, onClose, children, ...pr
   );
 };
 
-export { ModalComponent };
 export default Modal;

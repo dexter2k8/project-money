@@ -16,4 +16,5 @@ export interface IModalProps {
 
 export interface IModalWrapperProps extends Omit<IModalProps, "isOpen"> {
   content?: ReactNode;
+  closeRef?: React.RefObject<{ close: () => void } | null>;
 }
