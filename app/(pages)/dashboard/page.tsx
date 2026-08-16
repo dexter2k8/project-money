@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { mutate } from "swr";
 import { useSWR } from "@/app/hooks/useSWR";
@@ -208,7 +208,12 @@ export default function Dashboard() {
 
   const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;
 
-  const isInitialLoading = !!acctid && isLoadingBalance && !balance;
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    requestAnimationFrame(() => setHasMounted(true));
+  }, []);
+
+  const isInitialLoading = hasMounted && !!acctid && isLoadingBalance && !balance;
 
   return (
     <div className="m-8 bg-white w-full rounded-2xl overflow-hidden flex flex-col">
