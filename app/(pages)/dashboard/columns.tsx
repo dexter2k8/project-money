@@ -5,9 +5,12 @@ import { SquarePen } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { mutate as mutateSWR } from "swr";
+import { PostBalances } from "@/app/services/fetchers/balances";
 import {
   DeleteTransaction,
   DeleteTransactions,
+  PatchTransaction,
+  PostTransaction,
 } from "@/app/services/fetchers/transactions";
 import { API } from "@/app/utils/paths";
 import { transactionSchema } from "@/app/validations/transaction";
@@ -52,36 +55,27 @@ function AddTransactionButton({ acctid, onSuccess }: { acctid: string; onSuccess
   const handleApply = async (data: TTransactionFormValues) => {
     setLoading(true);
     try {
-      const response = await fetch(API.TRANSACTIONS.POST_TRANSACTION, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          acctid,
-          transactions: [
-            {
-              trntype: data.trntype || "OTHER",
-              dtposted: data.dtposted,
-              trnamt: data.trnamt,
-              memo: data.memo,
-              chknum: data.chknum || "",
-            },
-          ],
-        }),
+      const result = await PostTransaction({
+        acctid,
+        transactions: [
+          {
+            trntype: data.trntype || "OTHER",
+            dtposted: data.dtposted,
+            trnamt: data.trnamt,
+            memo: data.memo,
+            chknum: data.chknum || "",
+          },
+        ],
       });
 
-      if (!response.ok) throw new Error("Erro ao criar transação");
+      if (result.error) throw new Error(result.error);
 
-      const result = await response.json();
       if (result.count === 0) {
         toast.info("Transação já existe no sistema.");
         return false;
       }
 
-      await fetch(API.BALANCES.POST_BALANCES, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ acctid }),
-      });
+      await PostBalances(acctid);
 
       toast.success("Transação criada com sucesso!");
       reset();
@@ -185,28 +179,20 @@ function EditTransactionButton({
   const handleApply = async (data: TTransactionFormValues) => {
     setLoading(true);
     try {
-      const response = await fetch(API.TRANSACTIONS.PATCH_TRANSACTION, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          acctid,
-          transactionId: transaction.id,
-          data: {
-            dtposted: data.dtposted,
-            trnamt: data.trnamt,
-            memo: data.memo,
-            chknum: data.chknum || "",
-          },
-        }),
+      const result = await PatchTransaction({
+        acctid,
+        transactionId: transaction.id,
+        data: {
+          dtposted: data.dtposted,
+          trnamt: data.trnamt,
+          memo: data.memo,
+          chknum: data.chknum || "",
+        },
       });
 
-      if (!response.ok) throw new Error("Erro ao atualizar transação");
+      if (result.error) throw new Error(result.error);
 
-      await fetch(API.BALANCES.POST_BALANCES, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ acctid }),
-      });
+      await PostBalances(acctid);
 
       toast.success("Transação atualizada com sucesso!");
       reset();
@@ -227,11 +213,7 @@ function EditTransactionButton({
     try {
       await DeleteTransaction({ acctid, transactionId: transaction.id });
 
-      await fetch(API.BALANCES.POST_BALANCES, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ acctid }),
-      });
+      await PostBalances(acctid);
 
       toast.success("Transação excluída com sucesso!");
       mutateSWR(`${API.BALANCES.GET_BALANCES}?acctid=${acctid}`);
