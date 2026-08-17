@@ -32,7 +32,7 @@ export default function AddOrEditForm({ control, action, banks }: IAccountModalP
         render={({ field, fieldState: { error } }) => {
           const selectedValue = field.value != null ? String(field.value) : "";
           return (
-            <div className="flex flex-col gap-1">
+            <div className="relative flex flex-col gap-1 z-20">
               <Select
                 key={selectedValue}
                 options={bankOptions}
