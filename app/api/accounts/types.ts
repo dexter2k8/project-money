@@ -25,3 +25,13 @@ export type TPostAccountResponse = {
 };
 
 export type TGetAccountResponse = TPostAccountResponse;
+
+export type TPostAccountArgs = {
+  acctid: string;
+  accttype: string;
+  bankid: number;
+  branchid: string;
+  description: string;
+};
+
+export type TPatchAccountArgs = TPostAccountArgs;

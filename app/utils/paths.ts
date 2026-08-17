@@ -10,6 +10,13 @@ export const API = {
     REFRESH_TOKEN: "/api/auth/refresh-token",
   },
 
+  ACCOUNTS: {
+    GET_ACCOUNTS: "/api/balances/get-balances",
+    POST_ACCOUNT: "/api/accounts/post-account",
+    PATCH_ACCOUNT: "/api/accounts/patch-account/",
+    DELETE_ACCOUNT: "/api/accounts/delete-account/",
+  },
+
   BANKS: {
     GET_BANKS: "/api/banks/get-banks",
     GET_BANK: "/api/banks/get-bank/",
