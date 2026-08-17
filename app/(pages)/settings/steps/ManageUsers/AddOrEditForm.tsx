@@ -14,7 +14,7 @@ export default function AddOrEditForm({ control, action }: IUserModalProps) {
   const [checked, setChecked] = useState(false);
 
   return (
-    <form className="flex flex-col gap-4 p-4 w-100">
+    <form className="flex flex-col gap-4 p-4 w-full">
       <Input.Controlled label="Name" type="search" control={control} name="displayName" />
 
       <Input.Controlled label="Email" type="search" control={control} name="email" />

@@ -10,7 +10,7 @@ interface IUserModalProps {
 
 export default function AddOrEditForm({ control, action }: IUserModalProps) {
   return (
-    <form className="flex flex-col gap-4 p-4 w-100">
+    <form className="flex flex-col gap-4 p-4 w-full">
       {action === "add" && (
         <Input.Controlled label="ID" type="search" control={control} name="id" />
       )}

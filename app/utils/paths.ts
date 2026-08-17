@@ -11,7 +11,7 @@ export const API = {
   },
 
   ACCOUNTS: {
-    GET_ACCOUNTS: "/api/balances/get-balances",
+    GET_ACCOUNTS: "/api/balances/get-balances/",
     POST_ACCOUNT: "/api/accounts/post-account",
     PATCH_ACCOUNT: "/api/accounts/patch-account/",
     DELETE_ACCOUNT: "/api/accounts/delete-account/",
