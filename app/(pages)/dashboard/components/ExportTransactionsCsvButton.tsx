@@ -1,0 +1,45 @@
+"use client";
+import { useCallback } from "react";
+import { toast } from "react-toastify";
+import { API } from "@/app/utils/paths";
+import Button from "@/components/Button";
+import { exportCsv } from "../utils/exportCsv";
+import type { TGetAccountResponse } from "@/app/api/accounts/types";
+import type { IResponse } from "@/app/api/types";
+
+type TExportTransactionsCsvButtonProps = {
+  acctid: string;
+};
+
+export function ExportTransactionsCsvButton({ acctid }: TExportTransactionsCsvButtonProps) {
+  const handleClick = useCallback(async () => {
+    try {
+      const params = new URLSearchParams({ acctid });
+      const response = await fetch(`${API.TRANSACTIONS.GET_TRANSACTIONS}?${params}`);
+
+      if (!response.ok) throw new Error("Erro ao buscar transações");
+
+      const result: IResponse<TGetAccountResponse> = await response.json();
+      const allTransactions = result.data?.[0]?.extratos ?? [];
+
+      exportCsv({
+        header: "ID;TRNTYPE;DTPOSTED;TRNAMT;CHKNUM;MEMO",
+        rows: allTransactions.map(
+          (t) => `${t.id};${t.trntype};${t.dtposted.split("T")[0]};${t.trnamt};${t.chknum};${t.memo}`,
+        ),
+        filename: `extrato_${acctid}.csv`,
+        emptyMessage: "Nenhuma transação para exportar.",
+        successMessage: `${allTransactions.length} transação(ões) exportada(s) com sucesso!`,
+      });
+    } catch (error) {
+      console.error("Export CSV error:", error);
+      toast.error("Erro ao exportar CSV.");
+    }
+  }, [acctid]);
+
+  return (
+    <Button variant="primary" onClick={handleClick} disabled={!acctid}>
+      Exportar Transações
+    </Button>
+  );
+}

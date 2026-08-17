@@ -1,26 +1,23 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "react-toastify";
-import { mutate } from "swr";
+import { useEffect, useMemo, useState } from "react";
 import { useSWR } from "@/app/hooks/useSWR";
 import { useBalance } from "@/app/providers/BalanceProvider";
-import { parseOfxFile } from "@/app/utils/parseOfx";
 import { API } from "@/app/utils/paths";
 import BalanceDisplay from "@/components/BalanceDisplay";
-import Button from "@/components/Button";
 import SegmentedControl from "@/components/SegmentedControl";
 import Select from "@/components/Select";
 import Table from "@/components/Table";
 import { columns as createColumns } from "./columns";
 import { MONTH_ABBRS } from "./constants";
+import { ExportBalanceCsvButton } from "./components/ExportBalanceCsvButton";
+import { ExportTransactionsCsvButton } from "./components/ExportTransactionsCsvButton";
+import { ImportOfxButton } from "./components/ImportOfxButton";
 import type { TGetAccountResponse, TTransaction } from "@/app/api/accounts/types";
 import type { IResponse } from "@/app/api/types";
 import type { TTransactionWithSaldo } from "./columns";
 
 export default function Dashboard() {
   const { balance, acctid, isLoadingBalance } = useBalance();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
 
   const allSaldos = useMemo(() => balance?.data?.[0]?.saldos ?? [], [balance]);
   const saldos = useMemo(() => allSaldos.slice(1), [allSaldos]);
@@ -125,138 +122,6 @@ export default function Dashboard() {
     }, []);
   }, [transactions, previousBalance]);
 
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file || !acctid) return;
-
-      setIsUploading(true);
-
-      try {
-        const buffer = await file.arrayBuffer();
-        const decoder = new TextDecoder("iso-8859-1");
-        const content = decoder.decode(buffer);
-        const { transactions: parsed, accountInfo } = parseOfxFile(content);
-
-        if (accountInfo.acctid && accountInfo.acctid !== acctid) {
-          toast.error(
-            `Arquivo é da conta ${accountInfo.acctid}, mas a conta selecionada é ${acctid}.`,
-          );
-          return;
-        }
-
-        if (parsed.length === 0) {
-          toast.warning("Nenhuma transação encontrada no arquivo.");
-          return;
-        }
-
-        const response = await fetch(API.TRANSACTIONS.POST_TRANSACTION, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ acctid, transactions: parsed }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Erro ao salvar transações");
-        }
-
-        const result = await response.json();
-
-        if (result.count === 0) {
-          toast.info("Todas as transações já existem no sistema.");
-          return;
-        }
-
-        await fetch(API.BALANCES.POST_BALANCES, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ acctid }),
-        });
-
-        toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);
-        mutateTransactions();
-        mutate(`${API.BALANCES.GET_BALANCES}?acctid=${acctid}`);
-      } catch (error) {
-        console.error("Import error:", error);
-        toast.error("Erro ao importar arquivo. Verifique o formato.");
-      } finally {
-        setIsUploading(false);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      }
-    },
-    [acctid, mutateTransactions],
-  );
-
-  const handleExportCsv = useCallback(async () => {
-    if (!acctid) return;
-
-    try {
-      const params = new URLSearchParams({ acctid });
-      const response = await fetch(`${API.TRANSACTIONS.GET_TRANSACTIONS}?${params}`);
-
-      if (!response.ok) throw new Error("Erro ao buscar transações");
-
-      const result: IResponse<TGetAccountResponse> = await response.json();
-      const allTransactions = result.data?.[0]?.extratos ?? [];
-
-      if (allTransactions.length === 0) {
-        toast.info("Nenhuma transação para exportar.");
-        return;
-      }
-
-      const header = "ID;TRNTYPE;DTPOSTED;TRNAMT;CHKNUM;MEMO";
-      const rows = allTransactions.map(
-        (t) => `${t.id};${t.trntype};${t.dtposted.split("T")[0]};${t.trnamt};${t.chknum};${t.memo}`,
-      );
-      const csv = [header, ...rows].join("\n");
-
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `extrato_${acctid}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-      toast.success(`${allTransactions.length} transação(ões) exportada(s) com sucesso!`);
-    } catch (error) {
-      console.error("Export CSV error:", error);
-      toast.error("Erro ao exportar CSV.");
-    }
-  }, [acctid]);
-
-  const handleExportBalanceCsv = useCallback(() => {
-    try {
-      if (allSaldos.length === 0) {
-        toast.info("Nenhum saldo para exportar.");
-        return;
-      }
-
-      const header = "ID;BALANCE;ENDDATE";
-      const rows = allSaldos.map(
-        (s) => `${s.id};${Number(s.balance).toFixed(2)};${s.enddate.split("T")[0]}`,
-      );
-      const csv = [header, ...rows].join("\n");
-
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `saldos_${acctid}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-      toast.success(`${allSaldos.length} saldo(s) exportado(s) com sucesso!`);
-    } catch (error) {
-      console.error("Export balance CSV error:", error);
-      toast.error("Erro ao exportar saldos.");
-    }
-  }, [allSaldos, acctid]);
-
   const columns = useMemo(
     () =>
       canFetchTransactions
@@ -284,12 +149,8 @@ export default function Dashboard() {
       <div className="flex items-center justify-between p-4">
         <h2>Extrato Bancário</h2>
         <div className="flex items-center gap-2">
-          <Button variant="primary" onClick={handleExportCsv} disabled={!acctid}>
-            Exportar Transações
-          </Button>
-          <Button variant="primary" onClick={handleExportBalanceCsv} disabled={!acctid}>
-            Exportar Saldos
-          </Button>
+          {acctid && <ExportTransactionsCsvButton acctid={acctid} />}
+          {acctid && <ExportBalanceCsvButton acctid={acctid} saldos={allSaldos} />}
         </div>
       </div>
       {isInitialLoading ? (
@@ -313,21 +174,12 @@ export default function Dashboard() {
             </div>
           )}
           <div className="relative m-4 flex-1 min-h-0">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".ofc,.ofx"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <Button
-              className="absolute left-1 top-1 z-10"
-              variant="primary"
-              onClick={handleImportClick}
-              disabled={isUploading}
-            >
-              {isUploading ? "Importando..." : "Importar OFC/OFX"}
-            </Button>
+            {acctid && (
+              <ImportOfxButton
+                acctid={acctid}
+                onSuccess={mutateTransactions}
+              />
+            )}
 
             <div className="h-full overflow-auto">
               <div className="min-w-4xl">
