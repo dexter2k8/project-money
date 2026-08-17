@@ -6,6 +6,7 @@ import { API } from "@/app/utils/paths";
 import BalanceDisplay from "@/components/BalanceDisplay";
 import SegmentedControl from "@/components/SegmentedControl";
 import Select from "@/components/Select";
+import Switch from "@/components/Switch";
 import Table from "@/components/Table";
 import { columns as createColumns } from "./columns";
 import { MONTH_ABBRS } from "./constants";
@@ -122,6 +123,8 @@ export default function Dashboard() {
     }, []);
   }, [transactions, previousBalance]);
 
+  const [showControls, setShowControls] = useState(false);
+
   const columns = useMemo(
     () =>
       canFetchTransactions
@@ -130,9 +133,10 @@ export default function Dashboard() {
             month: effectiveMonth + 1,
             year: Number(effectiveYear),
             mutate: mutateTransactions,
+            showControls,
           })
         : [],
-    [canFetchTransactions, acctid, effectiveMonth, effectiveYear, mutateTransactions],
+    [canFetchTransactions, acctid, effectiveMonth, effectiveYear, mutateTransactions, showControls],
   );
 
   const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;
@@ -149,8 +153,8 @@ export default function Dashboard() {
       <div className="flex items-center justify-between p-4">
         <h2>Extrato Bancário</h2>
         <div className="flex items-center gap-2">
-          {acctid && <ExportTransactionsCsvButton acctid={acctid} />}
-          {acctid && <ExportBalanceCsvButton acctid={acctid} saldos={allSaldos} />}
+          {hasMounted && acctid && <ExportTransactionsCsvButton acctid={acctid} />}
+          {hasMounted && acctid && <ExportBalanceCsvButton acctid={acctid} saldos={allSaldos} />}
         </div>
       </div>
       {isInitialLoading ? (
@@ -174,12 +178,15 @@ export default function Dashboard() {
             </div>
           )}
           <div className="relative m-4 flex-1 min-h-0">
-            {acctid && (
-              <ImportOfxButton
-                acctid={acctid}
-                onSuccess={mutateTransactions}
-              />
-            )}
+            <div className="flex items-center justify-between mb-2">
+              {hasMounted && acctid && (
+                <ImportOfxButton
+                  acctid={acctid}
+                  onSuccess={mutateTransactions}
+                />
+              )}
+              <Switch checked={showControls} onChange={setShowControls} label="Show controls" />
+            </div>
 
             <div className="h-full overflow-auto">
               <div className="min-w-4xl">

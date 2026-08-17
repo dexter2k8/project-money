@@ -13,6 +13,7 @@ type TColumnsArgs = {
   month: number;
   year: number;
   mutate: () => void;
+  showControls: boolean;
 };
 
 export const columns = ({
@@ -20,8 +21,9 @@ export const columns = ({
   month,
   year,
   mutate,
-}: TColumnsArgs): IGridColDef<TTransactionWithSaldo>[] => [
-  {
+  showControls,
+}: TColumnsArgs): IGridColDef<TTransactionWithSaldo>[] => {
+  const actionsColumn: IGridColDef<TTransactionWithSaldo> = {
     field: "id",
     header: "UID",
     className: "text-center w-10",
@@ -43,32 +45,37 @@ export const columns = ({
         onSuccess={mutate}
       />
     ),
-  },
-  {
-    field: "dtposted",
-    header: "Data",
-    className: "text-left w-28",
-    render: (value) => {
-      if (!value) return "";
-      const date = new Date(value);
-      const day = String(date.getDate()).padStart(2, "0");
-      const m = String(date.getMonth() + 1).padStart(2, "0");
-      const y = date.getFullYear();
-      return `${day}/${m}/${y}`;
+  };
+
+  const baseColumns: IGridColDef<TTransactionWithSaldo>[] = [
+    {
+      field: "dtposted",
+      header: "Data",
+      className: "text-left w-28",
+      render: (value) => {
+        if (!value) return "";
+        const date = new Date(value);
+        const day = String(date.getDate()).padStart(2, "0");
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const y = date.getFullYear();
+        return `${day}/${m}/${y}`;
+      },
     },
-  },
-  { field: "memo", className: "text-left max-w-80 truncate", header: "Descrição" },
-  { field: "chknum", className: "text-right w-28", header: "Documento" },
-  {
-    field: "trnamt",
-    header: "Valor",
-    className: "text-right",
-    render: (value) => <BalanceDisplay value={Number(value)} />,
-  },
-  {
-    field: "saldo",
-    header: "Saldo",
-    className: "text-right",
-    render: (value) => <BalanceDisplay value={Number(value)} />,
-  },
-];
+    { field: "memo", className: "text-left max-w-80 truncate", header: "Descrição" },
+    { field: "chknum", className: "text-right w-28", header: "Documento" },
+    {
+      field: "trnamt",
+      header: "Valor",
+      className: "text-right",
+      render: (value) => <BalanceDisplay value={Number(value)} />,
+    },
+    {
+      field: "saldo",
+      header: "Saldo",
+      className: "text-right",
+      render: (value) => <BalanceDisplay value={Number(value)} />,
+    },
+  ];
+
+  return showControls ? [actionsColumn, ...baseColumns] : baseColumns;
+};
