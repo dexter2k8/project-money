@@ -177,18 +177,15 @@ export default function Dashboard() {
               />
             </div>
           )}
-          <div className="relative m-4 flex-1 min-h-0">
+          <div className="relative m-4 flex-1 min-h-0 flex flex-col">
             <div className="flex items-center justify-between mb-2">
               {hasMounted && acctid && (
-                <ImportOfxButton
-                  acctid={acctid}
-                  onSuccess={mutateTransactions}
-                />
+                <ImportOfxButton acctid={acctid} onSuccess={mutateTransactions} />
               )}
               <Switch checked={showControls} onChange={setShowControls} label="Show controls" />
             </div>
 
-            <div className="h-full overflow-auto">
+            <div className="flex-1 min-h-0 overflow-auto">
               <div className="min-w-4xl">
                 <Table
                   columns={columns}
