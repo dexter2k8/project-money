@@ -1,5 +1,5 @@
 import { cx } from "class-variance-authority";
-import { switchThumbVariants, switchTrackVariants } from "./constants";
+import { switchLabelVariants, switchThumbVariants, switchTrackVariants } from "./constants";
 
 export interface ISwitchProps {
   checked: boolean;
@@ -12,11 +12,7 @@ export interface ISwitchProps {
 export default function Switch({ checked, onChange, label, disabled = false, className }: ISwitchProps) {
   return (
     <label
-      className={cx(
-        "flex items-center gap-2 select-none",
-        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
-        className,
-      )}
+      className={cx(switchLabelVariants({ disabled }), className)}
       onClick={() => !disabled && onChange(!checked)}
     >
       {label && <span className="text-sm text-neutral-700">{label}</span>}

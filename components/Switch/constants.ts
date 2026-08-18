@@ -20,6 +20,21 @@ export const switchTrackVariants = cva(
   },
 );
 
+export const switchLabelVariants = cva(
+  cx("flex items-center gap-2 select-none"),
+  {
+    variants: {
+      disabled: {
+        true: "opacity-50 cursor-not-allowed",
+        false: "cursor-pointer",
+      },
+    },
+    defaultVariants: {
+      disabled: false,
+    },
+  },
+);
+
 export const switchThumbVariants = cva(
   cx(
     "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out",
