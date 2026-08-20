@@ -1,5 +1,6 @@
 "use client";
 
+import AllPeriodLineChart from "./components/AllPeriodLineChart";
 import MonthlyBarChart from "./components/MonthlyBarChart";
 import YearlyBarChart from "./components/YearlyBarChart";
 
@@ -14,7 +15,9 @@ export default function Analytics() {
         <div className="col-span-1 row-span-2 rounded min-h-0">
           <YearlyBarChart title="Análise anual" />
         </div>
-        <div className="bg-blue-300 col-span-2 row-span-3 rounded">Análise geral</div>
+        <div className="col-span-2 row-span-3 rounded min-h-0">
+          <AllPeriodLineChart title="Análise geral" />
+        </div>
       </div>
     </div>
   );
