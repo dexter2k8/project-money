@@ -48,7 +48,10 @@ export function SessionTimerProvider({ children }: PropsWithChildren) {
     isSigningOutRef.current = true;
     const result = await SignOut();
     if (result) {
-      const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+      const params = new URLSearchParams(window.location.search);
+      params.delete("returnTo");
+      const query = params.toString();
+      const returnTo = encodeURIComponent(window.location.pathname + (query ? `?${query}` : ""));
       window.location.href = `/?returnTo=${returnTo}`;
     }
   }, []);

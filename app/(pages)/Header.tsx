@@ -14,7 +14,9 @@ function HeaderContent() {
   const handleSignOut = async () => {
     const result = await SignOut();
     if (result) {
-      const query = searchParams.toString();
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("returnTo");
+      const query = params.toString();
       const returnTo = encodeURIComponent(pathname + (query ? `?${query}` : ""));
       router.replace(`/?returnTo=${returnTo}`);
     }
