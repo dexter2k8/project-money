@@ -4,15 +4,13 @@ import Select from "@/components/Select";
 import type { Control } from "react-hook-form";
 import type { TPostAccountArgs } from "@/app/api/accounts/types";
 import type { TGetBankResponse } from "@/app/api/banks/types";
-import type { TAction } from "./types";
 
 interface IAccountModalProps {
   control: Control<TPostAccountArgs>;
-  action?: TAction;
   banks: TGetBankResponse[];
 }
 
-export default function AddOrEditForm({ control, action, banks }: IAccountModalProps) {
+export default function AddOrEditForm({ control, banks }: IAccountModalProps) {
   const bankOptions = banks.map((b) => ({
     value: String(Number(b.id)),
     label: `${b.id} - ${b.name}`,
@@ -20,9 +18,7 @@ export default function AddOrEditForm({ control, action, banks }: IAccountModalP
 
   return (
     <form className="flex flex-col gap-4 p-4 w-full">
-      {action === "add" && (
-        <Input.Controlled label="Account ID" type="search" control={control} name="acctid" />
-      )}
+      <Input.Controlled label="Account ID" type="search" control={control} name="acctid" />
 
       <Input.Controlled label="Account Type" type="search" control={control} name="accttype" />
 

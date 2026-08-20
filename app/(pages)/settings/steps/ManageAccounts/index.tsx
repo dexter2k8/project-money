@@ -139,7 +139,7 @@ export function ManageAccounts() {
         className="w-96"
         onApply={handleApply}
         onClose={handleCancel}
-        content={<AddOrEditForm control={control} action={action?.action} banks={banks} />}
+        content={<AddOrEditForm control={control} banks={banks} />}
         loadingApply={loading}
         disabledApply={!isDirty}
       >
