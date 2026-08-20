@@ -37,6 +37,9 @@ export const API = {
   BALANCES: {
     GET_BALANCES: "/api/balances/get-balances/",
     POST_BALANCES: "/api/balances/post-balances",
+    POST_BALANCE: "/api/balances/post-balance",
+    PATCH_BALANCE: "/api/balances/patch-balances/",
+    DELETE_BALANCE: "/api/balances/delete-balances/",
   },
 };
 

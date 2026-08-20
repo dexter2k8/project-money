@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     await admin.auth().verifyIdToken(token);
 
     const body = await request.json();
-    const { acctid } = body as { acctid: string };
+    const { acctid, startDate } = body as { acctid: string; startDate?: string };
 
     if (!acctid) {
       return NextResponse.json({ error: "acctid is required" }, { status: 400 });
@@ -55,8 +55,28 @@ export async function POST(request: NextRequest) {
 
     allTransactions.sort((a, b) => a.dtposted.getTime() - b.dtposted.getTime());
 
+    const startFilter = startDate ? new Date(startDate) : null;
+
+    const filteredTransactions = startFilter
+      ? allTransactions.filter((txn) => txn.dtposted >= startFilter)
+      : allTransactions;
+
+    let previousBalance = 0;
+
+    if (startFilter) {
+      const saldosSnapshot = await saldosRef.orderBy("enddate").get();
+      const previousSaldos = saldosSnapshot.docs.filter((doc) => {
+        const enddate = doc.data().enddate?.toDate?.();
+        return enddate && enddate < startFilter;
+      });
+      if (previousSaldos.length > 0) {
+        const lastSaldo = previousSaldos[previousSaldos.length - 1];
+        previousBalance = (lastSaldo.data().balance as number) ?? 0;
+      }
+    }
+
     const transactionsByMonth = new Map<string, { dtposted: Date; trnamt: number }[]>();
-    for (const txn of allTransactions) {
+    for (const txn of filteredTransactions) {
       const monthKey = getMonthKey(txn.dtposted);
       if (!transactionsByMonth.has(monthKey)) {
         transactionsByMonth.set(monthKey, []);
@@ -76,7 +96,6 @@ export async function POST(request: NextRequest) {
     }
 
     const batch = db.batch();
-    let previousBalance = 0;
 
     const sortedMonths = Array.from(transactionsByMonth.keys()).sort();
     for (const monthKey of sortedMonths) {

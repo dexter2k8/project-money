@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
 
     const db = admin.firestore();
     const acctid = request.nextUrl.searchParams.get("acctid");
+    const flatten = request.nextUrl.searchParams.get("flatten") === "true";
 
     let snapshot: FirebaseFirestore.QuerySnapshot;
 
@@ -25,6 +26,35 @@ export async function GET(request: NextRequest) {
       snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
     } else {
       snapshot = await db.collection("contas").get();
+    }
+
+    if (flatten) {
+      const allBalances: {
+        id: string;
+        acctid: string;
+        description: string;
+        balance: number;
+        enddate: string;
+        accountId: string;
+      }[] = [];
+
+      for (const doc of snapshot.docs) {
+        const accountData = doc.data();
+        const saldosSnapshot = await doc.ref.collection("saldos").orderBy("enddate").get();
+        for (const saldoDoc of saldosSnapshot.docs) {
+          const saldoData = saldoDoc.data();
+          allBalances.push({
+            id: saldoDoc.id,
+            acctid: accountData.acctid,
+            description: accountData.description ?? "",
+            balance: saldoData.balance ?? 0,
+            enddate: saldoData.enddate?.toDate?.().toISOString?.() ?? saldoData.enddate ?? "",
+            accountId: doc.id,
+          });
+        }
+      }
+
+      return NextResponse.json({ data: allBalances, count: allBalances.length }, { status: 200 });
     }
 
     const data = await Promise.all(
