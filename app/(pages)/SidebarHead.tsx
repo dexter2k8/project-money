@@ -2,6 +2,7 @@
 import { useMemo, useRef, useState } from "react";
 import { cx } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
+import { useLocalStorage } from "@/app/hooks/useLocalStorage";
 import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import Select from "@/components/Select";
@@ -12,17 +13,20 @@ export default function SidebarHead(isCollapsed: boolean) {
   const { accounts, banks, selectedAccount, selectedBank, acctid, setAcctid, isLoadingBanks, isLoadingAccounts } = useBalance();
   const [pendingAcctId, setPendingAcctId] = useState<string | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
+  const [hiddenAccounts] = useLocalStorage<string[]>("hidden-accounts", []);
 
   const accountOptions = useMemo(() => {
     const bankMap = new Map(banks.map((b) => [Number(b.id), b]));
-    return accounts.map((account) => {
-      const bank = bankMap.get(account.bankid);
-      return {
-        value: account.acctid,
-        label: `${account.acctid} - ${bank?.name ?? "Unknown"}`,
-      };
-    });
-  }, [accounts, banks]);
+    return accounts
+      .filter((account) => !hiddenAccounts.includes(account.acctid))
+      .map((account) => {
+        const bank = bankMap.get(account.bankid);
+        return {
+          value: account.acctid,
+          label: `${account.acctid} - ${bank?.name ?? "Unknown"}`,
+        };
+      });
+  }, [accounts, banks, hiddenAccounts]);
 
   const handleOpenModal = () => {
     setPendingAcctId(acctid);

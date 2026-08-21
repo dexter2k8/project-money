@@ -18,7 +18,7 @@ import type { IResponse } from "@/app/api/types";
 import type { IActionsProps } from "./types";
 
 export function ManageBalances() {
-  const { acctid } = useBalance();
+  const { acctid, selectedAccount } = useBalance();
   const [action, setAction] = useState<IActionsProps>();
   const [loading, setLoading] = useState(false);
 
@@ -125,7 +125,7 @@ export function ManageBalances() {
           <SquarePlus
             className="cursor-pointer"
             size="2rem"
-            onClick={() => setAction({ action: "create", id: undefined })}
+            onClick={() => setAction({ action: "create", id: undefined, accountId: selectedAccount?.id })}
           />
         )}
       </div>

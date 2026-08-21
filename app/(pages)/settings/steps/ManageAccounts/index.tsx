@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SquarePlus } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useLocalStorage } from "@/app/hooks/useLocalStorage";
 import { useSWR } from "@/app/hooks/useSWR";
 import { DeleteAccount, PatchAccount, PostAccount } from "@/app/services/fetchers/accounts";
 import { API } from "@/app/utils/paths";
@@ -20,6 +21,7 @@ import type { IActionsProps } from "./types";
 export function ManageAccounts() {
   const [action, setAction] = useState<IActionsProps>();
   const [loading, setLoading] = useState(false);
+  const [hiddenAccounts, setHiddenAccounts] = useLocalStorage<string[]>("hidden-accounts", []);
 
   const deleteTriggerRef = useRef<HTMLSpanElement>(null);
   const addOrEditTriggerRef = useRef<HTMLSpanElement>(null);
@@ -58,7 +60,10 @@ export function ManageAccounts() {
 
   const banks = useMemo(() => banksResponse?.data ?? [], [banksResponse]);
 
-  const columns = useMemo(() => getColumns({ onAction: handleAction, banks }), [handleAction, banks]);
+  const columns = useMemo(
+    () => getColumns({ onAction: handleAction, banks, hiddenAccounts, setHiddenAccounts }),
+    [handleAction, banks, hiddenAccounts, setHiddenAccounts],
+  );
 
   const accountData = useMemo(
     () => response?.data.find((t) => t.id === action?.id),
