@@ -69,8 +69,7 @@ function ChartLineAllPeriod({ title, labels, credits, debits, saldo }: IChartLin
         },
         {
           name: "Saldo",
-          type: "line",
-          stack: "Total",
+          type: "bar",
           data: saldo.map((v) => (v === 0 ? 0.01 : v)),
           color: "#3B82F6",
         },
