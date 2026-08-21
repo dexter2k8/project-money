@@ -1,9 +1,7 @@
 import { useMemo } from "react";
-import { useSWR } from "@/app/hooks/useSWR";
-import { useBalance } from "@/app/providers/BalanceProvider";
-import { API } from "@/app/utils/paths";
-import type { TGetAccountResponse, TTransaction } from "@/app/api/accounts/types";
-import type { IResponse } from "@/app/api/types";
+import { useTransactionsAndSaldos } from "@/app/hooks/useTransactionsAndSaldos";
+import { MONTH_NAMES,parseDateUTC } from "@/app/utils/dates";
+import type { TTransaction } from "@/app/api/accounts/types";
 
 interface IYearlyChartData {
   months: string[];
@@ -13,54 +11,33 @@ interface IYearlyChartData {
   isLoading: boolean;
 }
 
-const MONTH_NAMES = [
-  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
-];
-
 export function useYearlyChartData(): IYearlyChartData {
-  const { balance, acctid } = useBalance();
-
-  const canFetch = acctid != null;
-  const params = canFetch ? { acctid } : undefined;
-
-  const { response } = useSWR<IResponse<TGetAccountResponse>>(
-    canFetch ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
-    params,
-  );
-
-  const allSaldos = useMemo(() => balance?.data?.[0]?.saldos ?? [], [balance]);
+  const { transactions: allTxn, allSaldos, isLoading } = useTransactionsAndSaldos();
 
   const transactions: TTransaction[] = useMemo(() => {
-    const all = response?.data?.[0]?.extratos ?? [];
-    if (all.length === 0) return [];
+    if (allTxn.length === 0) return [];
 
-    const latestDate = all.reduce((max, t) => {
-      const d = new Date(t.dtposted);
+    const latestDate = allTxn.reduce((max, t) => {
+      const d = parseDateUTC(t.dtposted);
       return d > max ? d : max;
     }, new Date(0));
 
-    const latestYear = latestDate.getFullYear();
+    const latestYear = latestDate.getUTCFullYear();
 
-    return all
-      .filter((t) => new Date(t.dtposted).getFullYear() === latestYear)
-      .sort((a, b) => new Date(a.dtposted).getTime() - new Date(b.dtposted).getTime());
-  }, [response]);
+    return allTxn
+      .filter((t) => parseDateUTC(t.dtposted).getUTCFullYear() === latestYear)
+      .sort((a, b) => parseDateUTC(a.dtposted).getTime() - parseDateUTC(b.dtposted).getTime());
+  }, [allTxn]);
 
   const previousBalance = useMemo(() => {
     if (allSaldos.length === 0 || transactions.length === 0) return 0;
-
-    const firstDate = new Date(transactions[0].dtposted);
-    const currentYear = firstDate.getFullYear();
-
-    const prevMonth = 11;
+    const firstDate = parseDateUTC(transactions[0].dtposted);
+    const currentYear = firstDate.getUTCFullYear();
     const prevYear = currentYear - 1;
-
     const prevEntry = allSaldos.find((s) => {
-      const date = new Date(s.enddate);
-      return date.getMonth() === prevMonth && date.getFullYear() === prevYear;
+      const date = parseDateUTC(s.enddate);
+      return date.getUTCMonth() === 11 && date.getUTCFullYear() === prevYear;
     });
-
     return prevEntry?.balance ?? 0;
   }, [allSaldos, transactions]);
 
@@ -72,7 +49,7 @@ export function useYearlyChartData(): IYearlyChartData {
     let running = previousBalance;
 
     for (const t of transactions) {
-      const month = new Date(t.dtposted).getMonth();
+      const month = parseDateUTC(t.dtposted).getUTCMonth();
       monthSet.add(month);
       running += t.trnamt;
 
@@ -90,8 +67,6 @@ export function useYearlyChartData(): IYearlyChartData {
       saldo: sortedMonths.map((m) => saldoMap[m] ?? 0),
     };
   }, [transactions, previousBalance]);
-
-  const isLoading = !response && canFetch;
 
   return { months, credits, debits, saldo, isLoading };
 }

@@ -50,57 +50,23 @@ function parseOfxAccountInfo(content: string): TAccountInfo {
   return { acctid, bankid, accttype };
 }
 
-function parseOfxTransaction(stmtrs: string): TParsedTransaction[] {
+function parseTransactions(stmtrs: string, format: "ofx" | "ofc"): TParsedTransaction[] {
   const transactions: TParsedTransaction[] = [];
-
   const txnRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
   let txnMatch;
 
   while ((txnMatch = txnRegex.exec(stmtrs)) !== null) {
     const txnContent = txnMatch[1];
-
     const trntype = extractTag(txnContent, "TRNTYPE");
     const dtposted = parseOfxDate(extractTag(txnContent, "DTPOSTED"));
     const trnamtStr = extractTag(txnContent, "TRNAMT");
     const trnamt = parseFloat(trnamtStr) || 0;
-    const memo = extractTag(txnContent, "MEMO");
+    const memo = format === "ofc"
+      ? extractTag(txnContent, "NAME") || extractTag(txnContent, "MEMO")
+      : extractTag(txnContent, "MEMO");
     const chknum = extractTag(txnContent, "CHECKNUM");
 
-    transactions.push({
-      trntype,
-      dtposted,
-      trnamt,
-      memo,
-      chknum,
-    });
-  }
-
-  return transactions;
-}
-
-function parseOfcTransaction(stmtrs: string): TParsedTransaction[] {
-  const transactions: TParsedTransaction[] = [];
-
-  const txnRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
-  let txnMatch;
-
-  while ((txnMatch = txnRegex.exec(stmtrs)) !== null) {
-    const txnContent = txnMatch[1];
-
-    const trntype = extractTag(txnContent, "TRNTYPE");
-    const dtposted = parseOfxDate(extractTag(txnContent, "DTPOSTED"));
-    const trnamtStr = extractTag(txnContent, "TRNAMT");
-    const trnamt = parseFloat(trnamtStr) || 0;
-    const memo = extractTag(txnContent, "NAME") || extractTag(txnContent, "MEMO");
-    const chknum = extractTag(txnContent, "CHECKNUM");
-
-    transactions.push({
-      trntype,
-      dtposted,
-      trnamt,
-      memo,
-      chknum,
-    });
+    transactions.push({ trntype, dtposted, trnamt, memo, chknum });
   }
 
   return transactions;
@@ -115,18 +81,7 @@ export function parseOfxFile(fileContent: string): TParsedFileResult {
   }
 
   const accountInfo = parseOfxAccountInfo(fileContent);
-
-  const bankTransList = fileContent.includes("<BANKTRANLIST>")
-    ? fileContent
-    : fileContent;
-
-  let transactions: TParsedTransaction[];
-
-  if (isOfx) {
-    transactions = parseOfxTransaction(bankTransList);
-  } else {
-    transactions = parseOfcTransaction(bankTransList);
-  }
+  const transactions = parseTransactions(fileContent, isOfx ? "ofx" : "ofc");
 
   return { transactions, accountInfo };
 }

@@ -1,9 +1,7 @@
 import { useMemo } from "react";
-import { useSWR } from "@/app/hooks/useSWR";
-import { useBalance } from "@/app/providers/BalanceProvider";
-import { API } from "@/app/utils/paths";
-import type { TGetAccountResponse, TTransaction } from "@/app/api/accounts/types";
-import type { IResponse } from "@/app/api/types";
+import { findPreviousBalance,useTransactionsAndSaldos } from "@/app/hooks/useTransactionsAndSaldos";
+import { parseDateUTC } from "@/app/utils/dates";
+import type { TTransaction } from "@/app/api/accounts/types";
 
 interface IMonthlyChartData {
   days: number[];
@@ -14,55 +12,30 @@ interface IMonthlyChartData {
 }
 
 export function useMonthlyChartData(): IMonthlyChartData {
-  const { balance, acctid } = useBalance();
-
-  const canFetch = acctid != null;
-  const params = canFetch ? { acctid } : undefined;
-
-  const { response } = useSWR<IResponse<TGetAccountResponse>>(
-    canFetch ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
-    params,
-  );
-
-  const allSaldos = useMemo(() => balance?.data?.[0]?.saldos ?? [], [balance]);
+  const { transactions: allTxn, allSaldos, isLoading } = useTransactionsAndSaldos();
 
   const transactions: TTransaction[] = useMemo(() => {
-    const all = response?.data?.[0]?.extratos ?? [];
-    if (all.length === 0) return [];
+    if (allTxn.length === 0) return [];
 
-    const latestDate = all.reduce((max, t) => {
-      const d = new Date(t.dtposted);
+    const latestDate = allTxn.reduce((max, t) => {
+      const d = parseDateUTC(t.dtposted);
       return d > max ? d : max;
     }, new Date(0));
 
-    const latestYear = latestDate.getFullYear();
-    const latestMonth = latestDate.getMonth();
+    const latestYear = latestDate.getUTCFullYear();
+    const latestMonth = latestDate.getUTCMonth();
 
-    return all
+    return allTxn
       .filter((t) => {
-        const d = new Date(t.dtposted);
-        return d.getFullYear() === latestYear && d.getMonth() === latestMonth;
+        const d = parseDateUTC(t.dtposted);
+        return d.getUTCFullYear() === latestYear && d.getUTCMonth() === latestMonth;
       })
-      .sort((a, b) => new Date(a.dtposted).getTime() - new Date(b.dtposted).getTime());
-  }, [response]);
+      .sort((a, b) => parseDateUTC(a.dtposted).getTime() - parseDateUTC(b.dtposted).getTime());
+  }, [allTxn]);
 
   const previousBalance = useMemo(() => {
     if (allSaldos.length === 0 || transactions.length === 0) return 0;
-
-    const firstDate = new Date(transactions[0].dtposted);
-    let prevMonth = firstDate.getMonth() - 1;
-    let prevYear = firstDate.getFullYear();
-    if (prevMonth < 0) {
-      prevMonth = 11;
-      prevYear -= 1;
-    }
-
-    const prevEntry = allSaldos.find((s) => {
-      const date = new Date(s.enddate);
-      return date.getMonth() === prevMonth && date.getFullYear() === prevYear;
-    });
-
-    return prevEntry?.balance ?? 0;
+    return findPreviousBalance(allSaldos, parseDateUTC(transactions[0].dtposted));
   }, [allSaldos, transactions]);
 
   const { days, credits, debits, saldo } = useMemo(() => {
@@ -73,7 +46,7 @@ export function useMonthlyChartData(): IMonthlyChartData {
     let running = previousBalance;
 
     for (const t of transactions) {
-      const day = new Date(t.dtposted).getDate();
+      const day = parseDateUTC(t.dtposted).getUTCDate();
       daySet.add(day);
       running += t.trnamt;
 
@@ -91,8 +64,6 @@ export function useMonthlyChartData(): IMonthlyChartData {
       saldo: sortedDays.map((d) => saldoMap[d] ?? 0),
     };
   }, [transactions, previousBalance]);
-
-  const isLoading = !response && canFetch;
 
   return { days, credits, debits, saldo, isLoading };
 }

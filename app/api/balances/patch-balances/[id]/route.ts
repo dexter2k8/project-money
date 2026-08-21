@@ -1,22 +1,18 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import type { TPatchBalanceArgs } from "../../types";
 
 export const runtime = "nodejs";
 
-export async function PATCH(req: NextRequest) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
+    await requireAuth();
 
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
-
-    const id = req.nextUrl.pathname.split("/").pop() ?? "";
+    const { id } = await params;
     const body: TPatchBalanceArgs = await req.json();
     const accountId = req.nextUrl.searchParams.get("accountId");
 
@@ -33,8 +29,9 @@ export async function PATCH(req: NextRequest) {
       enddate: admin.firestore.Timestamp.fromDate(new Date(body.enddate)),
     });
 
-    return NextResponse.json("Balance updated successfully", { status: 200 });
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Update balance error:", error);
     return NextResponse.json({ error: "Failed to update balance" }, { status: 500 });
   }

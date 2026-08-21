@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { findAccountByAcctid } from "@/app/api/utils/account";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
@@ -15,14 +16,7 @@ type TTransactionUpdate = {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
+    await requireAuth();
 
     const body = await request.json();
     const { acctid, transactionId, data } = body as {
@@ -39,14 +33,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "data is required" }, { status: 400 });
     }
 
-    const db = admin.firestore();
-    const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
-
-    if (snapshot.empty) {
+    const accountDoc = await findAccountByAcctid(acctid);
+    if (!accountDoc) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 
-    const accountDoc = snapshot.docs[0];
     const extratosRef = accountDoc.ref.collection("extratos");
     const docRef = extratosRef.doc(transactionId);
     const doc = await docRef.get();
@@ -68,6 +59,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Patch transaction error:", error);
     return NextResponse.json({ error: "Failed to update transaction" }, { status: 500 });
   }

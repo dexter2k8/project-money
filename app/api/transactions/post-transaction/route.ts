@@ -1,6 +1,8 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { findAccountByAcctid } from "@/app/api/utils/account";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
+import { createTransactionKey } from "@/app/utils/duplicateCheck";
 import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
@@ -13,43 +15,9 @@ type TTransactionInput = {
   chknum: string;
 };
 
-function normalizeString(value: string | undefined | null): string {
-  return (value ?? "").trim().toLowerCase();
-}
-
-function normalizeDate(dateStr: string): string {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr;
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function normalizeAmount(value: number): string {
-  return Number(value).toFixed(2);
-}
-
-function createTransactionKey(t: TTransactionInput | { trntype: string; dtposted: string; trnamt: number; memo: string; chknum: string }): string {
-  const trntype = normalizeString(t.trntype);
-  const dtposted = normalizeDate(t.dtposted);
-  const trnamt = normalizeAmount(t.trnamt);
-  const memo = normalizeString(t.memo);
-  const chknum = normalizeString(t.chknum);
-  return `${trntype}|${dtposted}|${trnamt}|${memo}|${chknum}`;
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
+    await requireAuth();
 
     const body = await request.json();
     const { acctid, transactions } = body as {
@@ -65,24 +33,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "transactions array is required" }, { status: 400 });
     }
 
-    const db = admin.firestore();
-    const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
-
-    if (snapshot.empty) {
+    const accountDoc = await findAccountByAcctid(acctid);
+    if (!accountDoc) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 
-    const accountDoc = snapshot.docs[0];
     const extratosRef = accountDoc.ref.collection("extratos");
-
     const extratosSnapshot = await extratosRef.get();
     const existingKeys = new Set(
       extratosSnapshot.docs.map((doc) => {
         const data = doc.data();
-        const dtposted = data.dtposted?.toDate?.().toISOString?.() ?? data.dtposted ?? "";
         return createTransactionKey({
           trntype: data.trntype ?? "",
-          dtposted,
+          dtposted: String(data.dtposted ?? ""),
           trnamt: data.trnamt ?? 0,
           memo: data.memo ?? "",
           chknum: data.chknum ?? "",
@@ -90,10 +53,9 @@ export async function POST(request: NextRequest) {
       }),
     );
 
-    const uniqueTransactions = transactions.filter((txn) => {
-      const key = createTransactionKey(txn);
-      return !existingKeys.has(key);
-    });
+    const uniqueTransactions = transactions.filter(
+      (txn) => !existingKeys.has(createTransactionKey(txn)),
+    );
 
     if (uniqueTransactions.length === 0) {
       return NextResponse.json(
@@ -102,7 +64,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const batch = db.batch();
+    const batch = admin.firestore().batch();
     const docRefs: FirebaseFirestore.DocumentReference[] = [];
 
     for (const txn of uniqueTransactions) {
@@ -129,6 +91,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Post transaction error:", error);
     return NextResponse.json({ error: "Failed to create transactions" }, { status: 500 });
   }

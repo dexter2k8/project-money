@@ -8,21 +8,24 @@ function normalizeString(value: string | undefined | null): string {
 function normalizeDate(dateStr: string): string {
   if (!dateStr) return "";
 
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr;
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[1]}-${match[2]}-${match[3]}`;
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const clean = dateStr.replace(/[^0-9]/g, "");
+  if (clean.length >= 8) {
+    return `${clean.substring(0, 4)}-${clean.substring(4, 6)}-${clean.substring(6, 8)}`;
+  }
 
-  return `${year}-${month}-${day}`;
+  return dateStr;
 }
 
 function normalizeAmount(value: number): string {
   return Number(value).toFixed(2);
 }
 
-function createTransactionKey(t: TParsedTransaction | TTransaction): string {
+export function createTransactionKey(
+  t: TParsedTransaction | TTransaction | { trntype: string; dtposted: string; trnamt: number; memo: string; chknum: string },
+): string {
   const trntype = normalizeString(t.trntype);
   const dtposted = normalizeDate(t.dtposted);
   const trnamt = normalizeAmount(t.trnamt);

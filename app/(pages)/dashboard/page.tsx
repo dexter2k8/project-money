@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSWR } from "@/app/hooks/useSWR";
 import { useBalance } from "@/app/providers/BalanceProvider";
+import { parseDateUTC } from "@/app/utils/dates";
 import { API } from "@/app/utils/paths";
 import BalanceDisplay from "@/components/BalanceDisplay";
 import SegmentedControl from "@/components/SegmentedControl";
@@ -22,9 +23,10 @@ export default function Dashboard() {
 
   const allSaldos = useMemo(() => balance?.data?.[0]?.saldos ?? [], [balance]);
   const saldos = useMemo(() => allSaldos.slice(1), [allSaldos]);
+  const saldosForDate = saldos.length > 0 ? saldos : allSaldos;
 
-  const latest = useMemo(() => (saldos.length > 0 ? saldos[saldos.length - 1] : null), [saldos]);
-  const latestDate = useMemo(() => (latest ? new Date(latest.enddate) : null), [latest]);
+  const latest = useMemo(() => (saldosForDate.length > 0 ? saldosForDate[saldosForDate.length - 1] : null), [saldosForDate]);
+  const latestDate = useMemo(() => (latest ? parseDateUTC(latest.enddate) : null), [latest]);
 
   const [selections, setSelections] = useState<Record<string, { year?: string; month?: number }>>(
     {},
@@ -34,25 +36,27 @@ export default function Dashboard() {
   const currentSelection = selections[selectionKey];
 
   const yearOptions = useMemo(() => {
-    const years = [...new Set(saldos.map((s) => new Date(s.enddate).getFullYear()))];
+    const years = [...new Set(saldosForDate.map((s) => parseDateUTC(s.enddate).getUTCFullYear()))];
     return years.sort((a, b) => b - a).map((y) => ({ value: String(y), label: String(y) }));
-  }, [saldos]);
+  }, [saldosForDate]);
 
   const effectiveYear =
-    currentSelection?.year ??
-    (latestDate ? String(latestDate.getFullYear()) : yearOptions[0]?.value);
+    yearOptions.some((y) => y.value === currentSelection?.year)
+      ? currentSelection?.year
+      : (latestDate ? String(latestDate.getFullYear()) : yearOptions[0]?.value);
 
   const monthItems = useMemo(() => {
     const filtered = effectiveYear
-      ? saldos.filter((s) => String(new Date(s.enddate).getFullYear()) === effectiveYear)
-      : saldos;
-    const months = [...new Set(filtered.map((s) => new Date(s.enddate).getMonth()))];
+      ? saldosForDate.filter((s) => String(parseDateUTC(s.enddate).getUTCFullYear()) === effectiveYear)
+      : saldosForDate;
+    const months = [...new Set(filtered.map((s) => parseDateUTC(s.enddate).getUTCMonth()))];
     return months.sort((a, b) => a - b).map((m) => ({ key: m, label: MONTH_ABBRS[m] }));
-  }, [saldos, effectiveYear]);
+  }, [saldosForDate, effectiveYear]);
 
   const effectiveMonth =
-    currentSelection?.month ??
-    (monthItems.length > 0 ? monthItems[monthItems.length - 1].key : undefined);
+    monthItems.some((m) => m.key === currentSelection?.month)
+      ? currentSelection?.month
+      : (monthItems.length > 0 ? monthItems[monthItems.length - 1].key : undefined);
 
   const setYear = (year: string) => {
     setSelections((prev) => ({
@@ -98,8 +102,8 @@ export default function Dashboard() {
     }
 
     const prevEntry = allSaldos.find((s) => {
-      const date = new Date(s.enddate);
-      return date.getMonth() === prevMonth && date.getFullYear() === prevYear;
+      const date = parseDateUTC(s.enddate);
+      return date.getUTCMonth() === prevMonth && date.getUTCFullYear() === prevYear;
     });
 
     return prevEntry?.balance ?? 0;
@@ -109,8 +113,8 @@ export default function Dashboard() {
     if (effectiveMonth == null || !effectiveYear) return 0;
 
     const currentEntry = allSaldos.find((s) => {
-      const date = new Date(s.enddate);
-      return date.getMonth() === effectiveMonth && date.getFullYear() === Number(effectiveYear);
+      const date = parseDateUTC(s.enddate);
+      return date.getUTCMonth() === effectiveMonth && date.getUTCFullYear() === Number(effectiveYear);
     });
 
     return currentEntry?.balance ?? 0;

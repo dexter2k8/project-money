@@ -1,9 +1,6 @@
 import { useMemo } from "react";
-import { useSWR } from "@/app/hooks/useSWR";
-import { useBalance } from "@/app/providers/BalanceProvider";
-import { API } from "@/app/utils/paths";
-import type { TGetAccountResponse, TTransaction } from "@/app/api/accounts/types";
-import type { IResponse } from "@/app/api/types";
+import { findPreviousBalance,useTransactionsAndSaldos } from "@/app/hooks/useTransactionsAndSaldos";
+import { MONTH_NAMES,parseDateUTC } from "@/app/utils/dates";
 
 interface IAllPeriodChartData {
   months: string[];
@@ -13,50 +10,12 @@ interface IAllPeriodChartData {
   isLoading: boolean;
 }
 
-const MONTH_NAMES = [
-  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
-];
-
 export function useAllPeriodChartData(): IAllPeriodChartData {
-  const { balance, acctid } = useBalance();
-
-  const canFetch = acctid != null;
-  const params = canFetch ? { acctid } : undefined;
-
-  const { response } = useSWR<IResponse<TGetAccountResponse>>(
-    canFetch ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
-    params,
-  );
-
-  const allSaldos = useMemo(() => balance?.data?.[0]?.saldos ?? [], [balance]);
-
-  const transactions: TTransaction[] = useMemo(() => {
-    const all = response?.data?.[0]?.extratos ?? [];
-    if (all.length === 0) return [];
-
-    return [...all].sort(
-      (a, b) => new Date(a.dtposted).getTime() - new Date(b.dtposted).getTime(),
-    );
-  }, [response]);
+  const { transactions, allSaldos, isLoading } = useTransactionsAndSaldos();
 
   const previousBalance = useMemo(() => {
     if (allSaldos.length === 0 || transactions.length === 0) return 0;
-
-    const firstDate = new Date(transactions[0].dtposted);
-    let prevMonth = firstDate.getMonth() - 1;
-    let prevYear = firstDate.getFullYear();
-    if (prevMonth < 0) {
-      prevMonth = 11;
-      prevYear -= 1;
-    }
-
-    const prevEntry = allSaldos.find((s) => {
-      const date = new Date(s.enddate);
-      return date.getMonth() === prevMonth && date.getFullYear() === prevYear;
-    });
-
-    return prevEntry?.balance ?? 0;
+    return findPreviousBalance(allSaldos, parseDateUTC(transactions[0].dtposted));
   }, [allSaldos, transactions]);
 
   const { months, credits, debits, saldo } = useMemo(() => {
@@ -64,8 +23,8 @@ export function useAllPeriodChartData(): IAllPeriodChartData {
     let running = previousBalance;
 
     for (const t of transactions) {
-      const d = new Date(t.dtposted);
-      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const d = parseDateUTC(t.dtposted);
+      const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
 
       if (!monthMap.has(key)) {
         monthMap.set(key, { credits: 0, debits: 0, saldo: 0 });
@@ -95,8 +54,6 @@ export function useAllPeriodChartData(): IAllPeriodChartData {
       saldo: sortedKeys.map((key) => monthMap.get(key)!.saldo),
     };
   }, [transactions, previousBalance]);
-
-  const isLoading = !response && canFetch;
 
   return { months, credits, debits, saldo, isLoading };
 }

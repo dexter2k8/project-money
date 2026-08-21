@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { findAccountByAcctid } from "@/app/api/utils/account";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
@@ -17,14 +18,7 @@ function getLastDayOfMonth(year: number, month: number): Date {
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
+    await requireAuth();
 
     const body = await request.json();
     const { acctid, startDate } = body as { acctid: string; startDate?: string };
@@ -33,22 +27,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "acctid is required" }, { status: 400 });
     }
 
-    const db = admin.firestore();
-    const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
-
-    if (snapshot.empty) {
+    const accountDoc = await findAccountByAcctid(acctid);
+    if (!accountDoc) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 
-    const accountDoc = snapshot.docs[0];
     const extratosRef = accountDoc.ref.collection("extratos");
     const saldosRef = accountDoc.ref.collection("saldos");
 
     const extratosSnapshot = await extratosRef.get();
     const allTransactions = extratosSnapshot.docs.map((doc) => {
       const data = doc.data();
+      const raw = data.dtposted;
+      let date: Date;
+      if (raw && typeof raw === "object" && "toDate" in raw && typeof raw.toDate === "function") {
+        date = raw.toDate();
+      } else if (typeof raw === "string") {
+        date = new Date(raw);
+      } else {
+        date = new Date(0);
+      }
       return {
-        dtposted: data.dtposted?.toDate?.() as Date,
+        dtposted: date,
         trnamt: (data.trnamt as number) ?? 0,
       };
     });
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const batch = db.batch();
+    const batch = admin.firestore().batch();
 
     const sortedMonths = Array.from(transactionsByMonth.keys()).sort();
     for (const monthKey of sortedMonths) {
@@ -130,6 +130,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Post balances error:", error);
     return NextResponse.json({ error: "Failed to update balances" }, { status: 500 });
   }

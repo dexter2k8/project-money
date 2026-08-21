@@ -1,39 +1,28 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import type { TPatchBankArgs } from "../../types";
 
 export const runtime = "nodejs";
 
-export async function PATCH(req: NextRequest) {
-  const body: TPatchBankArgs = await req.json();
-
-  const parsedBody: TPatchBankArgs = {
-    id: body.id,
-    name: body.name,
-    alias: body.alias,
-  };
-
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
+    await requireAuth();
 
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
-
-    const id = req.nextUrl.pathname.split("/").pop() ?? "";
-
-    const { id: _, ...updateData } = parsedBody;
+    const { id } = await params;
+    const body: TPatchBankArgs = await req.json();
+    const { id: _, ...updateData } = body;
     void _;
 
     const db = admin.firestore();
     await db.collection("bancos").doc(id).update(updateData);
 
-    return NextResponse.json("Bank updated successfully", { status: 200 });
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Update bank error:", error);
     return NextResponse.json({ error: "Failed to update bank" }, { status: 500 });
   }

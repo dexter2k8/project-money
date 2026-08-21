@@ -1,20 +1,13 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import type { TPostSingleBalanceArgs } from "../types";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
+    await requireAuth();
 
     const body: TPostSingleBalanceArgs = await req.json();
     const { accountId, balance, enddate } = body;
@@ -34,6 +27,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ id: saldoRef.id, balance, enddate }, { status: 201 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Create balance error:", error);
     return NextResponse.json({ error: "Failed to create balance" }, { status: 500 });
   }

@@ -1,27 +1,24 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
 
 export const runtime = "nodejs";
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
+    await requireAuth();
 
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
-
-    const id = req.nextUrl.pathname.split("/").pop() ?? "";
+    const { id } = await params;
 
     const db = admin.firestore();
     await db.collection("bancos").doc(id).delete();
 
-    return NextResponse.json("Bank deleted successfully", { status: 200 });
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Delete bank error:", error);
     return NextResponse.json({ error: "Failed to delete bank" }, { status: 500 });
   }

@@ -54,10 +54,13 @@ export const columns = ({
       className: "text-left w-28",
       render: (value) => {
         if (!value) return "";
-        const date = new Date(value);
-        const day = String(date.getDate()).padStart(2, "0");
-        const m = String(date.getMonth() + 1).padStart(2, "0");
-        const y = date.getFullYear();
+        const str = String(value);
+        const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+        const date = new Date(str);
+        const day = String(date.getUTCDate()).padStart(2, "0");
+        const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+        const y = date.getUTCFullYear();
         return `${day}/${m}/${y}`;
       },
     },

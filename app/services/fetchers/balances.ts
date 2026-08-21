@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { API } from "@/app/utils/paths";
 import type { TPatchBalanceArgs, TPostSingleBalanceArgs } from "@/app/api/balances/types";
 
-async function PostBalances(acctid: string) {
+async function PostBalances(acctid: string, startDate?: string) {
   try {
     const response = await fetch(API.BALANCES.POST_BALANCES, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ acctid }),
+      body: JSON.stringify({ acctid, startDate }),
     });
     return response.json();
   } catch (error) {

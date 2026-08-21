@@ -1,20 +1,14 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
+import { firestoreDateToString } from "@/app/utils/dates";
 import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
+    await requireAuth();
 
     const acctid = request.nextUrl.searchParams.get("acctid");
     const month = request.nextUrl.searchParams.get("month");
@@ -28,8 +22,8 @@ export async function GET(request: NextRequest) {
     let endTimestamp: admin.firestore.Timestamp | null = null;
 
     if (month && year) {
-      const startDate = new Date(Number(year), Number(month) - 1, 1);
-      const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59);
+      const startDate = new Date(Date.UTC(Number(year), Number(month) - 1, 1, 0, 0, 0));
+      const endDate = new Date(Date.UTC(Number(year), Number(month), 0, 23, 59, 59));
       startTimestamp = admin.firestore.Timestamp.fromDate(startDate);
       endTimestamp = admin.firestore.Timestamp.fromDate(endDate);
     }
@@ -53,7 +47,7 @@ export async function GET(request: NextRequest) {
         const extratos = extratosSnapshot.docs.map((e) => ({
           id: e.id,
           ...e.data(),
-          dtposted: e.data().dtposted?.toDate?.().toISOString?.() ?? e.data().dtposted,
+          dtposted: firestoreDateToString(e.data().dtposted),
         }));
 
         return {
@@ -68,6 +62,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data, count }, { status: 200 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Get transactions error:", error);
     return NextResponse.json({ error: "Failed to fetch transactions" }, { status: 500 });
   }

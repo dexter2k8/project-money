@@ -61,10 +61,14 @@ export function ImportOfxButton({ acctid, onSuccess }: TImportOfxButtonProps) {
           return;
         }
 
+        const earliestDate = parsed.reduce((min, t) => {
+          return t.dtposted < min ? t.dtposted : min;
+        }, parsed[0].dtposted);
+
         await fetch(API.BALANCES.POST_BALANCES, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ acctid }),
+          body: JSON.stringify({ acctid, startDate: earliestDate }),
         });
 
         toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);

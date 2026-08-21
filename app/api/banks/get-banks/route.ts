@@ -1,20 +1,13 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import type { TGetBankResponse } from "../types";
 
 export const runtime = "nodejs";
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
+    await requireAuth();
 
     const db = admin.firestore();
     const snapshot = await db.collection("bancos").get();
@@ -28,6 +21,7 @@ export async function GET() {
 
     return NextResponse.json({ data, count }, { status: 200 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Get banks error:", error);
     return NextResponse.json({ error: "Failed to fetch banks" }, { status: 500 });
   }
