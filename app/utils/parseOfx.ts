@@ -64,7 +64,7 @@ function parseTransactions(stmtrs: string, format: "ofx" | "ofc"): TParsedTransa
     const memo = format === "ofc"
       ? extractTag(txnContent, "NAME") || extractTag(txnContent, "MEMO")
       : extractTag(txnContent, "MEMO");
-    const chknum = extractTag(txnContent, "CHECKNUM");
+    const chknum = extractTag(txnContent, "CHECKNUM") || extractTag(txnContent, "CHKNUM");
 
     transactions.push({ trntype, dtposted, trnamt, memo, chknum });
   }

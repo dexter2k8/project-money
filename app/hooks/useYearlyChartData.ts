@@ -1,6 +1,9 @@
 import { useMemo } from "react";
-import { useTransactionsAndSaldos } from "@/app/hooks/useTransactionsAndSaldos";
-import { MONTH_NAMES,parseDateUTC } from "@/app/utils/dates";
+import {
+  findPreviousBalance,
+  useTransactionsAndSaldos,
+} from "@/app/hooks/useTransactionsAndSaldos";
+import { MONTH_NAMES, parseDateUTC } from "@/app/utils/dates";
 import type { TTransaction } from "@/app/api/accounts/types";
 
 interface IYearlyChartData {
@@ -32,13 +35,7 @@ export function useYearlyChartData(): IYearlyChartData {
   const previousBalance = useMemo(() => {
     if (allSaldos.length === 0 || transactions.length === 0) return 0;
     const firstDate = parseDateUTC(transactions[0].dtposted);
-    const currentYear = firstDate.getUTCFullYear();
-    const prevYear = currentYear - 1;
-    const prevEntry = allSaldos.find((s) => {
-      const date = parseDateUTC(s.enddate);
-      return date.getUTCMonth() === 11 && date.getUTCFullYear() === prevYear;
-    });
-    return prevEntry?.balance ?? 0;
+    return findPreviousBalance(allSaldos, firstDate);
   }, [allSaldos, transactions]);
 
   const { months, credits, debits, saldo } = useMemo(() => {

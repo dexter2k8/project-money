@@ -24,10 +24,12 @@ function ChartVerticalBar({ title, days, credits, debits, saldo }: IChartBarProp
           const dayLabel = days[dayIndex] ?? "";
           let html = `<div style="font-size:12px"><strong>Dia ${dayLabel}</strong><br/>`;
           list.forEach((p) => {
+            const raw = Number(p.value);
+            const displayValue = raw <= 0.01 ? 0 : raw;
             const value =
               p.seriesName === "Saldo"
-                ? Number(p.value).toFixed(2)
-                : Number(p.value).toLocaleString("pt-BR", {
+                ? displayValue.toFixed(2)
+                : displayValue.toLocaleString("pt-BR", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   });
@@ -45,7 +47,7 @@ function ChartVerticalBar({ title, days, credits, debits, saldo }: IChartBarProp
       },
       yAxis: {
         type: "log",
-        min: 1,
+        min: 0.01,
         axisLabel: {
           fontSize: 10,
           formatter: (v: number) =>
@@ -58,14 +60,14 @@ function ChartVerticalBar({ title, days, credits, debits, saldo }: IChartBarProp
           name: "Débitos",
           type: "bar",
           stack: "total",
-          data: debits,
+          data: debits.map((v) => (v === 0 ? 0.01 : v)),
           color: "#E3595A",
         },
         {
           name: "Créditos",
           type: "bar",
           stack: "total",
-          data: credits,
+          data: credits.map((v) => (v === 0 ? 0.01 : v)),
           color: "#8AD562",
         },
         ...(saldo

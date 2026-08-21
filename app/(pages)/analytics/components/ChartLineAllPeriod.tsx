@@ -23,7 +23,9 @@ function ChartLineAllPeriod({ title, labels, credits, debits, saldo }: IChartLin
           const label = labels[labelIndex] ?? "";
           let html = `<div style="font-size:12px"><strong>${label}</strong><br/>`;
           list.forEach((p) => {
-            const value = Number(p.value).toLocaleString("pt-BR", {
+            const raw = Number(p.value);
+            const displayValue = raw <= 0.01 ? 0 : raw;
+            const value = displayValue.toLocaleString("pt-BR", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             });
@@ -41,7 +43,8 @@ function ChartLineAllPeriod({ title, labels, credits, debits, saldo }: IChartLin
         axisLabel: { fontSize: 10, rotate: 45 },
       },
       yAxis: {
-        type: "value",
+        type: "log",
+        min: 0.01,
         axisLabel: {
           fontSize: 10,
           formatter: (v: number) =>
@@ -54,21 +57,21 @@ function ChartLineAllPeriod({ title, labels, credits, debits, saldo }: IChartLin
           name: "Débitos",
           type: "line",
           stack: "Total",
-          data: debits,
+          data: debits.map((v) => (v === 0 ? 0.01 : v)),
           color: "#E3595A",
         },
         {
           name: "Créditos",
           type: "line",
           stack: "Total",
-          data: credits,
+          data: credits.map((v) => (v === 0 ? 0.01 : v)),
           color: "#8AD562",
         },
         {
           name: "Saldo",
           type: "line",
           stack: "Total",
-          data: saldo,
+          data: saldo.map((v) => (v === 0 ? 0.01 : v)),
           color: "#3B82F6",
         },
       ],

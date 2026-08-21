@@ -8,7 +8,7 @@ export function getColumns({ onAction }: IActions) {
     {
       field: "balance",
       header: "BALANCE",
-      render: (value) => Number(value).toFixed(2),
+      render: (value) => Number(value).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     },
     {
       field: "enddate",
