@@ -73,7 +73,7 @@ export function ImportOfxButton({ acctid, onSuccess }: TImportOfxButtonProps) {
 
         toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);
         onSuccess();
-        mutate(`${API.BALANCES.GET_BALANCES}?acctid=${acctid}`);
+        mutate(`${API.BALANCES.GET_BALANCES}?acctid=${encodeURIComponent(acctid)}`);
       } catch (error) {
         console.error("Import error:", error);
         toast.error("Erro ao importar arquivo. Verifique o formato.");
