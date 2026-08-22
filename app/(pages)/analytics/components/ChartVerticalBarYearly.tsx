@@ -47,7 +47,7 @@ function ChartVerticalBarYearly({ title, labels, credits, debits, saldo }: IChar
       },
       yAxis: {
         type: "log",
-        min: 0.01,
+        min: 1,
         axisLabel: {
           fontSize: 10,
           formatter: (v: number) =>

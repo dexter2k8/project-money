@@ -47,7 +47,7 @@ function ChartVerticalBar({ title, days, credits, debits, saldo }: IChartBarProp
       },
       yAxis: {
         type: "log",
-        min: 0.01,
+        min: 1,
         axisLabel: {
           fontSize: 10,
           formatter: (v: number) =>

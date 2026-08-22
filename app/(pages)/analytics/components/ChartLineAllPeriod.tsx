@@ -42,35 +42,46 @@ function ChartLineAllPeriod({ title, labels, credits, debits, saldo }: IChartLin
         data: labels,
         axisLabel: { fontSize: 10, rotate: 45 },
       },
-      yAxis: {
-        type: "log",
-        min: 0.01,
-        axisLabel: {
-          fontSize: 10,
-          formatter: (v: number) =>
-            v.toLocaleString("pt-BR", { notation: "compact", compactDisplay: "short" }),
+      yAxis: [
+        {
+          type: "value",
+          min: 0,
+          axisLabel: {
+            fontSize: 10,
+            formatter: (v: number) =>
+              v.toLocaleString("pt-BR", { notation: "compact", compactDisplay: "short" }),
+          },
+          splitLine: { lineStyle: { type: "dashed" } },
         },
-        splitLine: { lineStyle: { type: "dashed" } },
-      },
+        {
+          type: "value",
+          min: 1,
+          axisLabel: {
+            fontSize: 10,
+            formatter: (v: number) =>
+              v.toLocaleString("pt-BR", { notation: "compact", compactDisplay: "short" }),
+          },
+          splitLine: { show: false },
+        },
+      ],
       series: [
         {
           name: "Débitos",
           type: "line",
-          stack: "Total",
           data: debits.map((v) => (v === 0 ? 0.01 : v)),
           color: "#E3595A",
         },
         {
           name: "Créditos",
           type: "line",
-          stack: "Total",
           data: credits.map((v) => (v === 0 ? 0.01 : v)),
           color: "#8AD562",
         },
         {
           name: "Saldo",
           type: "bar",
-          data: saldo.map((v) => (v === 0 ? 0.01 : v)),
+          yAxisIndex: 1,
+          data: saldo,
           color: "#3B82F6",
         },
       ],
