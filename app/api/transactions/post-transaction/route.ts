@@ -2,6 +2,7 @@ import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import { findAccountByAcctid } from "@/app/api/utils/account";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
+import { firestoreDateToString } from "@/app/utils/dates";
 import { createTransactionKey } from "@/app/utils/duplicateCheck";
 import type { NextRequest } from "next/server";
 
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
         const data = doc.data();
         return createTransactionKey({
           trntype: data.trntype ?? "",
-          dtposted: String(data.dtposted ?? ""),
+          dtposted: firestoreDateToString(data.dtposted),
           trnamt: data.trnamt ?? 0,
           memo: data.memo ?? "",
           chknum: data.chknum ?? "",
