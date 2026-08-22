@@ -48,19 +48,19 @@ export function getColumns({ onAction, banks, hiddenAccounts, setHiddenAccounts 
       header: "DESCRIPTION",
     },
     {
-      field: "acctid",
+      field: "id",
       header: "HIDDEN",
       render: (value) => {
-        const acctid = value as string;
-        const isHidden = hiddenAccounts.includes(acctid);
+        const id = value as string;
+        const isHidden = hiddenAccounts.includes(id);
         return (
           <Switch
             checked={isHidden}
             onChange={(checked) => {
               if (checked) {
-                setHiddenAccounts([...hiddenAccounts, acctid]);
+                setHiddenAccounts([...hiddenAccounts, id]);
               } else {
-                setHiddenAccounts(hiddenAccounts.filter((id) => id !== acctid));
+                setHiddenAccounts(hiddenAccounts.filter((hiddenId) => hiddenId !== id));
               }
             }}
           />

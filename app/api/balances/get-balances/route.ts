@@ -12,14 +12,20 @@ export async function GET(request: NextRequest) {
 
     const db = admin.firestore();
     const acctid = request.nextUrl.searchParams.get("acctid");
+    const accountId = request.nextUrl.searchParams.get("accountId");
     const flatten = request.nextUrl.searchParams.get("flatten") === "true";
 
-    let snapshot: FirebaseFirestore.QuerySnapshot;
+    let accountDocs: FirebaseFirestore.DocumentSnapshot[] = [];
 
-    if (acctid) {
-      snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
+    if (accountId) {
+      const doc = await db.collection("contas").doc(accountId).get();
+      if (doc.exists) accountDocs = [doc];
+    } else if (acctid) {
+      const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
+      accountDocs = snapshot.docs;
     } else {
-      snapshot = await db.collection("contas").get();
+      const snapshot = await db.collection("contas").get();
+      accountDocs = snapshot.docs;
     }
 
     if (flatten) {
@@ -32,8 +38,9 @@ export async function GET(request: NextRequest) {
         accountId: string;
       }[] = [];
 
-      for (const doc of snapshot.docs) {
+      for (const doc of accountDocs) {
         const accountData = doc.data();
+        if (!accountData) continue;
         const saldosSnapshot = await doc.ref.collection("saldos").orderBy("enddate").get();
         for (const saldoDoc of saldosSnapshot.docs) {
           const saldoData = saldoDoc.data();
@@ -52,24 +59,17 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await Promise.all(
-      snapshot.docs.map(async (doc) => {
-        if (acctid) {
-          const saldosSnapshot = await doc.ref.collection("saldos").orderBy("enddate").get();
-          const saldos = saldosSnapshot.docs.map((s) => ({
-            id: s.id,
-            ...s.data(),
-            enddate: firestoreDateToString(s.data().enddate),
-          }));
-          return {
-            id: doc.id,
-            ...doc.data(),
-            saldos,
-          };
-        }
+      accountDocs.map(async (doc) => {
+        const saldosSnapshot = await doc.ref.collection("saldos").orderBy("enddate").get();
+        const saldos = saldosSnapshot.docs.map((s) => ({
+          id: s.id,
+          ...s.data(),
+          enddate: firestoreDateToString(s.data().enddate),
+        }));
         return {
           id: doc.id,
           ...doc.data(),
-          saldos: [],
+          saldos,
         };
       }),
     );

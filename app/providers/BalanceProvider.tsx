@@ -14,8 +14,9 @@ interface IBalanceContextData {
   selectedAccount: TGetAccountResponse | null;
   selectedBank: TGetBankResponse | null;
   balance: IResponse<TGetAccountResponse> | undefined;
+  accountId: string | null;
   acctid: string | null;
-  setAcctid: (value: string | null) => void;
+  setAccountId: (value: string | null) => void;
   isLoadingBanks: boolean;
   isLoadingAccounts: boolean;
   isLoadingBalance: boolean;
@@ -24,7 +25,7 @@ interface IBalanceContextData {
 const BalanceContext = createContext<IBalanceContextData | null>(null);
 
 export function BalanceProvider({ children }: PropsWithChildren) {
-  const [acctid, setAcctid] = useLocalStorage<string | null>("account", null);
+  const [accountId, setAccountIdState] = useLocalStorage<string | null>("account", null);
 
   const { response: allAccounts, isLoading: isLoadingAccounts } = useSWR<IResponse<TGetAccountResponse>>(
     API.BALANCES.GET_BALANCES,
@@ -32,17 +33,19 @@ export function BalanceProvider({ children }: PropsWithChildren) {
 
   const { response: banks, isLoading: isLoadingBanks } = useSWR<IResponse<TGetBankResponse>>(API.BANKS.GET_BANKS);
 
-  const { response: balance, isLoading: isLoadingBalance } = useSWR<IResponse<TGetAccountResponse>>(
-    acctid ? API.BALANCES.GET_BALANCES : undefined,
-    acctid ? { acctid } : undefined,
-  );
-
   const accounts = useMemo(() => allAccounts?.data ?? [], [allAccounts]);
   const bankList = useMemo(() => banks?.data ?? [], [banks]);
 
   const selectedAccount = useMemo(
-    () => accounts.find((a) => a.acctid === acctid) ?? null,
-    [accounts, acctid],
+    () => accounts.find((a) => a.id === accountId) ?? null,
+    [accounts, accountId],
+  );
+
+  const acctid = selectedAccount?.acctid ?? null;
+
+  const { response: balance, isLoading: isLoadingBalance } = useSWR<IResponse<TGetAccountResponse>>(
+    acctid ? API.BALANCES.GET_BALANCES : undefined,
+    acctid ? { acctid } : undefined,
   );
 
   const selectedBank = useMemo(
@@ -50,11 +53,11 @@ export function BalanceProvider({ children }: PropsWithChildren) {
     [bankList, selectedAccount],
   );
 
-  const handleSetAcctid = useCallback(
+  const handleSetAccountId = useCallback(
     (value: string | null) => {
-      setAcctid(value);
+      setAccountIdState(value);
     },
-    [setAcctid],
+    [setAccountIdState],
   );
 
   const values = useMemo(
@@ -64,13 +67,14 @@ export function BalanceProvider({ children }: PropsWithChildren) {
       selectedAccount,
       selectedBank,
       balance,
+      accountId,
       acctid,
-      setAcctid: handleSetAcctid,
+      setAccountId: handleSetAccountId,
       isLoadingBanks,
       isLoadingAccounts,
       isLoadingBalance,
     }),
-    [accounts, bankList, selectedAccount, selectedBank, balance, acctid, handleSetAcctid, isLoadingBanks, isLoadingAccounts, isLoadingBalance],
+    [accounts, bankList, selectedAccount, selectedBank, balance, accountId, acctid, handleSetAccountId, isLoadingBanks, isLoadingAccounts, isLoadingBalance],
   );
 
   return <BalanceContext.Provider value={values}>{children}</BalanceContext.Provider>;

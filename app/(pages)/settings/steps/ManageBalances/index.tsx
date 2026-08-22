@@ -18,7 +18,7 @@ import type { IResponse } from "@/app/api/types";
 import type { IActionsProps } from "./types";
 
 export function ManageBalances() {
-  const { acctid, selectedAccount } = useBalance();
+  const { selectedAccount } = useBalance();
   const [action, setAction] = useState<IActionsProps>();
   const [loading, setLoading] = useState(false);
 
@@ -49,7 +49,7 @@ export function ManageBalances() {
   });
 
   const { response, isLoading, mutate } = useSWR<IResponse<TFlatBalanceResponse>>(
-    acctid ? API.BALANCES.GET_BALANCES + "?flatten=true&acctid=" + acctid : undefined,
+    selectedAccount?.id ? API.BALANCES.GET_BALANCES + "?flatten=true&accountId=" + selectedAccount.id : undefined,
   );
 
   const columns = useMemo(() => getColumns({ onAction: handleAction }), [handleAction]);
@@ -121,7 +121,7 @@ export function ManageBalances() {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between py-1 px-4 shrink-0">
         <h4>Balances</h4>
-        {acctid && (
+        {selectedAccount?.id && (
           <SquarePlus
             className="cursor-pointer"
             size="2rem"
@@ -130,7 +130,7 @@ export function ManageBalances() {
         )}
       </div>
       <div className="h-0 flex-1 min-h-0 overflow-auto">
-        {!acctid ? (
+        {!selectedAccount?.id ? (
           <p className="text-sm text-gray-500 p-4">Select an account in the sidebar to view balances.</p>
         ) : (
           <Table<TFlatBalanceResponse> loading={isLoading} columns={columns} rows={response?.data || []} />

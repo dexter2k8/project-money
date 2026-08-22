@@ -10,39 +10,39 @@ import { buttonWrapperVariants, TRANSITION } from "./constants";
 import { useBalance } from "../providers/BalanceProvider";
 
 export default function SidebarHead(isCollapsed: boolean) {
-  const { accounts, banks, selectedAccount, selectedBank, acctid, setAcctid, isLoadingBanks, isLoadingAccounts } = useBalance();
-  const [pendingAcctId, setPendingAcctId] = useState<string | null>(null);
+  const { accounts, banks, selectedAccount, selectedBank, accountId, setAccountId, isLoadingBanks, isLoadingAccounts } = useBalance();
+  const [pendingAccountId, setPendingAccountId] = useState<string | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const [hiddenAccounts] = useLocalStorage<string[]>("hidden-accounts", []);
 
   const accountOptions = useMemo(() => {
     const bankMap = new Map(banks.map((b) => [Number(b.id), b]));
     return accounts
-      .filter((account) => !hiddenAccounts.includes(account.acctid))
+      .filter((account) => !hiddenAccounts.includes(account.id))
       .map((account) => {
         const bank = bankMap.get(account.bankid);
         return {
-          value: account.acctid,
+          value: account.id,
           label: `${account.acctid} - ${bank?.name ?? "Unknown"}`,
         };
       });
   }, [accounts, banks, hiddenAccounts]);
 
   const handleOpenModal = () => {
-    setPendingAcctId(acctid);
+    setPendingAccountId(accountId);
     triggerRef.current?.click();
   };
 
   const handleApply = () => {
-    setAcctid(pendingAcctId);
+    setAccountId(pendingAccountId);
   };
 
   const modalContent = (
     <div className="p-4">
       <Select
         options={accountOptions}
-        value={pendingAcctId ?? ""}
-        onChange={(id) => setPendingAcctId(id)}
+        value={pendingAccountId ?? ""}
+        onChange={(id) => setPendingAccountId(id)}
         placeholder="Choose an account"
       />
     </div>
