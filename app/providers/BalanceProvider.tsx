@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useCallback, useContext, useMemo } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { useSWR } from "../hooks/useSWR";
 import { API } from "../utils/paths";
@@ -25,7 +25,7 @@ interface IBalanceContextData {
 const BalanceContext = createContext<IBalanceContextData | null>(null);
 
 export function BalanceProvider({ children }: PropsWithChildren) {
-  const [accountId, setAccountIdState] = useLocalStorage<string | null>("account", null);
+  const [storedValue, setStoredValue] = useLocalStorage<string | null>("account", null);
 
   const { response: allAccounts, isLoading: isLoadingAccounts } = useSWR<IResponse<TGetAccountResponse>>(
     API.BALANCES.GET_BALANCES,
@@ -36,11 +36,20 @@ export function BalanceProvider({ children }: PropsWithChildren) {
   const accounts = useMemo(() => allAccounts?.data ?? [], [allAccounts]);
   const bankList = useMemo(() => banks?.data ?? [], [banks]);
 
-  const selectedAccount = useMemo(
-    () => accounts.find((a) => a.id === accountId) ?? null,
-    [accounts, accountId],
-  );
+  const selectedAccount = useMemo(() => {
+    if (!accounts.length || !storedValue) return null;
+    return accounts.find((a) => a.id === storedValue)
+      ?? accounts.find((a) => a.acctid === storedValue)
+      ?? null;
+  }, [accounts, storedValue]);
 
+  useEffect(() => {
+    if (selectedAccount && storedValue && selectedAccount.id !== storedValue) {
+      setStoredValue(selectedAccount.id);
+    }
+  }, [selectedAccount, storedValue, setStoredValue]);
+
+  const accountId = selectedAccount?.id ?? null;
   const acctid = selectedAccount?.acctid ?? null;
 
   const { response: balance, isLoading: isLoadingBalance } = useSWR<IResponse<TGetAccountResponse>>(
@@ -55,9 +64,9 @@ export function BalanceProvider({ children }: PropsWithChildren) {
 
   const handleSetAccountId = useCallback(
     (value: string | null) => {
-      setAccountIdState(value);
+      setStoredValue(value);
     },
-    [setAccountIdState],
+    [setStoredValue],
   );
 
   const values = useMemo(

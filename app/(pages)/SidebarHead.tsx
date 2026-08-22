@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cx } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { useLocalStorage } from "@/app/hooks/useLocalStorage";
@@ -13,7 +13,18 @@ export default function SidebarHead(isCollapsed: boolean) {
   const { accounts, banks, selectedAccount, selectedBank, accountId, setAccountId, isLoadingBanks, isLoadingAccounts } = useBalance();
   const [pendingAccountId, setPendingAccountId] = useState<string | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
-  const [hiddenAccounts] = useLocalStorage<string[]>("hidden-accounts", []);
+  const [hiddenAccounts, setHiddenAccounts] = useLocalStorage<string[]>("hidden-accounts", []);
+
+  useEffect(() => {
+    if (!accounts.length || !hiddenAccounts.length) return;
+    const idSet = new Set(accounts.map((a) => a.id));
+    const needsMigration = hiddenAccounts.some((v) => !idSet.has(v));
+    if (!needsMigration) return;
+    const migrated = hiddenAccounts
+      .map((v) => accounts.find((a) => a.id === v)?.id ?? accounts.find((a) => a.acctid === v)?.id ?? v)
+      .filter((v): v is string => v !== undefined);
+    setHiddenAccounts(migrated);
+  }, [accounts, hiddenAccounts, setHiddenAccounts]);
 
   const accountOptions = useMemo(() => {
     const bankMap = new Map(banks.map((b) => [Number(b.id), b]));

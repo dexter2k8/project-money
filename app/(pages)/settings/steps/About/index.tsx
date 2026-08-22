@@ -8,6 +8,7 @@ export default function About() {
         CSV format. If you have any questions or suggestions, please send me an email to
         neimestre@yahoo.com.br with the subject &quot;Funds Explorer&quot;.
       </p>
+      <p className="font-semibold mt-4">Copyright © 2019 - 2021 - 2026 - @neimestre</p>
     </div>
   );
 }
