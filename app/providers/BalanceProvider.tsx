@@ -59,7 +59,7 @@ export function BalanceProvider({ children }: PropsWithChildren) {
 
   const { response: balance, isLoading: isLoadingBalance } = useSWR<IResponse<TGetAccountResponse>>(
     accountId ? API.BALANCES.GET_BALANCES : undefined,
-    accountId ? { accountId } : undefined,
+    accountId ? { accountId, years: "2" } : undefined,
   );
 
   const selectedBank = useMemo(

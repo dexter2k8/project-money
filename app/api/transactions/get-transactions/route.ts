@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const accountId = request.nextUrl.searchParams.get("accountId");
     const month = request.nextUrl.searchParams.get("month");
     const year = request.nextUrl.searchParams.get("year");
+    const years = request.nextUrl.searchParams.get("years");
 
     if (!acctid && !accountId) {
       return NextResponse.json({ error: "acctid or accountId is required" }, { status: 400 });
@@ -44,6 +45,17 @@ export async function GET(request: NextRequest) {
     const data = await Promise.all(
       accountDocs.map(async (doc) => {
         let extratosQuery: FirebaseFirestore.Query = doc.ref.collection("extratos");
+
+        if (years && !startTimestamp) {
+          const latestSnapshot = await doc.ref.collection("extratos").orderBy("dtposted", "desc").limit(1).get();
+          const latestDoc = latestSnapshot.docs[0];
+          if (latestDoc) {
+            const latestDate = latestDoc.data().dtposted.toDate();
+            const filterDate = new Date(latestDate);
+            filterDate.setUTCFullYear(filterDate.getUTCFullYear() - Number(years));
+            startTimestamp = admin.firestore.Timestamp.fromDate(filterDate);
+          }
+        }
 
         if (startTimestamp) {
           extratosQuery = extratosQuery.where("dtposted", ">=", startTimestamp);
