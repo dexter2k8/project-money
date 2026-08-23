@@ -16,7 +16,7 @@ type TTransactionUpdate = {
 
 export async function PATCH(request: NextRequest) {
   try {
-    await requireAuth();
+    const userId = await requireAuth();
 
     const body = await request.json();
     const { acctid, transactionId, data } = body as {
@@ -33,7 +33,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "data is required" }, { status: 400 });
     }
 
-    const accountDoc = await findAccountByAcctid(acctid);
+    const accountDoc = await findAccountByAcctid(acctid, userId);
     if (!accountDoc) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }

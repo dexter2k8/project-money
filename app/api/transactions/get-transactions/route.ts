@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAuth();
+    const userId = await requireAuth();
 
     const acctid = request.nextUrl.searchParams.get("acctid");
     const accountId = request.nextUrl.searchParams.get("accountId");
@@ -36,9 +36,9 @@ export async function GET(request: NextRequest) {
 
     if (accountId) {
       const doc = await db.collection("contas").doc(accountId).get();
-      if (doc.exists) accountDocs = [doc];
+      if (doc.exists && doc.data()?.userId === userId) accountDocs = [doc];
     } else {
-      const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
+      const snapshot = await db.collection("contas").where("acctid", "==", acctid).where("userId", "==", userId).get();
       accountDocs = snapshot.docs;
     }
 

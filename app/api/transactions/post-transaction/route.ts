@@ -18,7 +18,7 @@ type TTransactionInput = {
 
 export async function POST(request: NextRequest) {
   try {
-    await requireAuth();
+    const userId = await requireAuth();
 
     const body = await request.json();
     const { acctid, transactions } = body as {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "transactions array is required" }, { status: 400 });
     }
 
-    const accountDoc = await findAccountByAcctid(acctid);
+    const accountDoc = await findAccountByAcctid(acctid, userId);
     if (!accountDoc) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }

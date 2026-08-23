@@ -1,20 +1,14 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
+import type { NextRequest } from "next/server";
 import type { TPostAccountArgs } from "../types";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
+    const userId = await requireAuth();
 
     const body: TPostAccountArgs = await req.json();
 
@@ -25,10 +19,12 @@ export async function POST(req: NextRequest) {
       bankid: body.bankid,
       branchid: body.branchid,
       description: body.description,
+      userId,
     });
 
     return NextResponse.json({ id: docRef.id, ...body }, { status: 201 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Create account error:", error);
     return NextResponse.json({ error: "Failed to create account" }, { status: 500 });
   }

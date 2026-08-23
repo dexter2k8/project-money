@@ -18,7 +18,7 @@ function getLastDayOfMonth(year: number, month: number): Date {
 
 export async function POST(request: NextRequest) {
   try {
-    await requireAuth();
+    const userId = await requireAuth();
 
     const body = await request.json();
     const { acctid, startDate } = body as { acctid: string; startDate?: string };
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "acctid is required" }, { status: 400 });
     }
 
-    const accountDoc = await findAccountByAcctid(acctid);
+    const accountDoc = await findAccountByAcctid(acctid, userId);
     if (!accountDoc) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }

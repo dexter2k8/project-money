@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth();
+    const userId = await requireAuth();
 
     const body: TPostSingleBalanceArgs = await req.json();
     const { accountId, balance, enddate } = body;
@@ -17,6 +17,12 @@ export async function POST(req: NextRequest) {
     }
 
     const db = admin.firestore();
+    const accountDoc = await db.collection("contas").doc(accountId).get();
+
+    if (!accountDoc.exists || accountDoc.data()?.userId !== userId) {
+      return NextResponse.json({ error: "Account not found" }, { status: 404 });
+    }
+
     const accountRef = db.collection("contas").doc(accountId);
     const saldoRef = accountRef.collection("saldos").doc();
 

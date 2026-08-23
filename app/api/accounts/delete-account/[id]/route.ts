@@ -1,27 +1,28 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
+import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
 export async function DELETE(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
+    const userId = await requireAuth();
 
     const id = req.nextUrl.pathname.split("/").pop() ?? "";
 
     const db = admin.firestore();
+    const doc = await db.collection("contas").doc(id).get();
+
+    if (!doc.exists || doc.data()?.userId !== userId) {
+      return NextResponse.json({ error: "Account not found" }, { status: 404 });
+    }
+
     await db.collection("contas").doc(id).delete();
 
     return NextResponse.json("Account deleted successfully", { status: 200 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Delete account error:", error);
     return NextResponse.json({ error: "Failed to delete account" }, { status: 500 });
   }

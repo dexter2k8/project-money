@@ -1,25 +1,25 @@
 import admin from "firebase-admin";
-import { cookies } from "next/headers";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { AuthError, requireAuth } from "@/app/api/utils/auth";
+import type { NextRequest } from "next/server";
 import type { TPatchAccountArgs } from "../../types";
 
 export const runtime = "nodejs";
 
 export async function PATCH(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("project-money-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    await admin.auth().verifyIdToken(token);
+    const userId = await requireAuth();
 
     const id = req.nextUrl.pathname.split("/").pop() ?? "";
     const body: TPatchAccountArgs = await req.json();
 
     const db = admin.firestore();
+    const doc = await db.collection("contas").doc(id).get();
+
+    if (!doc.exists || doc.data()?.userId !== userId) {
+      return NextResponse.json({ error: "Account not found" }, { status: 404 });
+    }
+
     await db.collection("contas").doc(id).update({
       acctid: body.acctid,
       accttype: body.accttype,
@@ -30,6 +30,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json("Account updated successfully", { status: 200 });
   } catch (error) {
+    if (error instanceof AuthError) return error.response;
     console.error("Update account error:", error);
     return NextResponse.json({ error: "Failed to update account" }, { status: 500 });
   }

@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 export async function DELETE(request: NextRequest) {
   try {
-    await requireAuth();
+    const userId = await requireAuth();
 
     const body = await request.json();
     const { acctid, transactionId } = body as {
@@ -22,7 +22,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const accountDoc = await findAccountByAcctid(acctid);
+    const accountDoc = await findAccountByAcctid(acctid, userId);
     if (!accountDoc) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
