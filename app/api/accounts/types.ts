@@ -20,8 +20,8 @@ export type TPostAccountResponse = {
   branchid: string;
   description: string;
   id: string;
-  extratos: TTransaction[];
-  saldos: TBalance[];
+  extratos?: TTransaction[];
+  saldos?: TBalance[];
 };
 
 export type TGetAccountResponse = TPostAccountResponse;

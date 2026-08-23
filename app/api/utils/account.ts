@@ -7,6 +7,7 @@ export async function findAccountByAcctid(
   const snapshot = await db
     .collection("contas")
     .where("acctid", "==", acctid)
+    .limit(1)
     .get();
   return snapshot.empty ? null : snapshot.docs[0];
 }

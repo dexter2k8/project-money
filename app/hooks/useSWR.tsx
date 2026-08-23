@@ -26,6 +26,8 @@ export function useSWR<T extends object, P extends Record<string, string> = Reco
 
   const { data: response, error, isLoading, mutate } = useSWRCore<T>(fullURL ?? null, fetcher, {
     revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 60_000,
     ...config,
   });
 

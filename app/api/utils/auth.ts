@@ -22,6 +22,13 @@ export async function requireAuth(): Promise<string> {
     );
   }
 
-  const decoded = await admin.auth().verifyIdToken(token);
-  return decoded.uid;
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    return decoded.uid;
+  } catch {
+    throw new AuthError(
+      "Invalid or expired token",
+      NextResponse.json({ error: "Invalid or expired token" }, { status: 401 }),
+    );
+  }
 }

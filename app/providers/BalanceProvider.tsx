@@ -29,9 +29,14 @@ export function BalanceProvider({ children }: PropsWithChildren) {
 
   const { response: allAccounts, isLoading: isLoadingAccounts } = useSWR<IResponse<TGetAccountResponse>>(
     API.BALANCES.GET_BALANCES,
+    { fields: "metadata" },
   );
 
-  const { response: banks, isLoading: isLoadingBanks } = useSWR<IResponse<TGetBankResponse>>(API.BANKS.GET_BANKS);
+  const { response: banks, isLoading: isLoadingBanks } = useSWR<IResponse<TGetBankResponse>>(
+    API.BANKS.GET_BANKS,
+    undefined,
+    { dedupingInterval: 300_000 },
+  );
 
   const accounts = useMemo(() => allAccounts?.data ?? [], [allAccounts]);
   const bankList = useMemo(() => banks?.data ?? [], [banks]);
@@ -53,8 +58,8 @@ export function BalanceProvider({ children }: PropsWithChildren) {
   const acctid = selectedAccount?.acctid ?? null;
 
   const { response: balance, isLoading: isLoadingBalance } = useSWR<IResponse<TGetAccountResponse>>(
-    acctid ? API.BALANCES.GET_BALANCES : undefined,
-    acctid ? { acctid } : undefined,
+    accountId ? API.BALANCES.GET_BALANCES : undefined,
+    accountId ? { accountId } : undefined,
   );
 
   const selectedBank = useMemo(

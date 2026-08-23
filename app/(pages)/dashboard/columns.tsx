@@ -10,6 +10,7 @@ export type TTransactionWithSaldo = TTransaction & { saldo: number };
 
 type TColumnsArgs = {
   acctid: string;
+  accountId: string;
   month: number;
   year: number;
   mutate: () => void;
@@ -18,6 +19,7 @@ type TColumnsArgs = {
 
 export const columns = ({
   acctid,
+  accountId,
   month,
   year,
   mutate,
@@ -28,11 +30,12 @@ export const columns = ({
     header: "UID",
     className: "text-center w-10",
     renderHeader() {
-      return <AddTransactionButton acctid={acctid} onSuccess={mutate} />;
+      return <AddTransactionButton acctid={acctid} accountId={accountId} onSuccess={mutate} />;
     },
     render: (_value, row) => (
       <EditTransactionButton
         acctid={acctid}
+        accountId={accountId}
         transaction={row}
         onSuccess={mutate}
       />
@@ -40,9 +43,9 @@ export const columns = ({
     renderFooter: () => (
       <DeleteMonthButton
         acctid={acctid}
+        accountId={accountId}
         month={month}
         year={year}
-        onSuccess={mutate}
       />
     ),
   };

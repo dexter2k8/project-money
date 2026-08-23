@@ -40,7 +40,9 @@ export async function POST(request: NextRequest) {
     }
 
     const extratosRef = accountDoc.ref.collection("extratos");
-    const extratosSnapshot = await extratosRef.get();
+    const extratosSnapshot = await extratosRef
+      .select("trntype", "dtposted", "trnamt", "memo", "chknum")
+      .get();
     const existingKeys = new Set(
       extratosSnapshot.docs.map((doc) => {
         const data = doc.data();

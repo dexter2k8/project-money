@@ -13,10 +13,10 @@ export interface ITransactionsAndSaldos {
 }
 
 export function useTransactionsAndSaldos(): ITransactionsAndSaldos {
-  const { balance, acctid } = useBalance();
+  const { balance, accountId } = useBalance();
 
-  const canFetch = acctid != null;
-  const params = canFetch ? { acctid } : undefined;
+  const canFetch = accountId != null;
+  const params = canFetch ? { accountId } : undefined;
 
   const { response } = useSWR<IResponse<TGetAccountResponse>>(
     canFetch ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,

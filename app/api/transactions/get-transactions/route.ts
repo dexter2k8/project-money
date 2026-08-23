@@ -11,11 +11,12 @@ export async function GET(request: NextRequest) {
     await requireAuth();
 
     const acctid = request.nextUrl.searchParams.get("acctid");
+    const accountId = request.nextUrl.searchParams.get("accountId");
     const month = request.nextUrl.searchParams.get("month");
     const year = request.nextUrl.searchParams.get("year");
 
-    if (!acctid) {
-      return NextResponse.json({ error: "acctid is required" }, { status: 400 });
+    if (!acctid && !accountId) {
+      return NextResponse.json({ error: "acctid or accountId is required" }, { status: 400 });
     }
 
     let startTimestamp: admin.firestore.Timestamp | null = null;
@@ -29,10 +30,19 @@ export async function GET(request: NextRequest) {
     }
 
     const db = admin.firestore();
-    const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
+
+    let accountDocs: FirebaseFirestore.DocumentSnapshot[] = [];
+
+    if (accountId) {
+      const doc = await db.collection("contas").doc(accountId).get();
+      if (doc.exists) accountDocs = [doc];
+    } else {
+      const snapshot = await db.collection("contas").where("acctid", "==", acctid).get();
+      accountDocs = snapshot.docs;
+    }
 
     const data = await Promise.all(
-      snapshot.docs.map(async (doc) => {
+      accountDocs.map(async (doc) => {
         let extratosQuery: FirebaseFirestore.Query = doc.ref.collection("extratos");
 
         if (startTimestamp) {

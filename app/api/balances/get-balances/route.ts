@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const acctid = request.nextUrl.searchParams.get("acctid");
     const accountId = request.nextUrl.searchParams.get("accountId");
     const flatten = request.nextUrl.searchParams.get("flatten") === "true";
+    const fields = request.nextUrl.searchParams.get("fields");
 
     let accountDocs: FirebaseFirestore.DocumentSnapshot[] = [];
 
@@ -26,6 +27,14 @@ export async function GET(request: NextRequest) {
     } else {
       const snapshot = await db.collection("contas").get();
       accountDocs = snapshot.docs;
+    }
+
+    if (fields === "metadata") {
+      const data = accountDocs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return NextResponse.json({ data, count: data.length }, { status: 200 });
     }
 
     if (flatten) {

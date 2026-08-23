@@ -63,8 +63,9 @@ export async function POST(request: NextRequest) {
 
     let previousBalance = 0;
 
+    const saldosSnapshot = await saldosRef.orderBy("enddate").get();
+
     if (startFilter) {
-      const saldosSnapshot = await saldosRef.orderBy("enddate").get();
       const previousSaldos = saldosSnapshot.docs.filter((doc) => {
         const enddate = doc.data().enddate?.toDate?.();
         return enddate && enddate < startFilter;
@@ -84,7 +85,6 @@ export async function POST(request: NextRequest) {
       transactionsByMonth.get(monthKey)!.push(txn);
     }
 
-    const saldosSnapshot = await saldosRef.get();
     const existingSaldos = new Map<string, string>();
     for (const doc of saldosSnapshot.docs) {
       const data = doc.data();

@@ -19,7 +19,7 @@ import type { IResponse } from "@/app/api/types";
 import type { TTransactionWithSaldo } from "./columns";
 
 export default function Dashboard() {
-  const { balance, acctid, isLoadingBalance } = useBalance();
+  const { balance, accountId, acctid, isLoadingBalance } = useBalance();
 
   const allSaldos = useMemo(() => balance?.data?.[0]?.saldos ?? [], [balance]);
   const saldos = useMemo(() => allSaldos.slice(1), [allSaldos]);
@@ -72,9 +72,9 @@ export default function Dashboard() {
     }));
   };
 
-  const canFetchTransactions = acctid && effectiveYear && effectiveMonth != null;
+  const canFetchTransactions = accountId && effectiveYear && effectiveMonth != null;
   const transactionsParams = canFetchTransactions
-    ? { acctid, month: String(effectiveMonth + 1), year: effectiveYear }
+    ? { accountId, month: String(effectiveMonth + 1), year: effectiveYear }
     : undefined;
 
   const {
@@ -133,14 +133,15 @@ export default function Dashboard() {
     () =>
       canFetchTransactions
         ? createColumns({
-            acctid,
+            acctid: acctid ?? "",
+            accountId,
             month: effectiveMonth + 1,
             year: Number(effectiveYear),
             mutate: mutateTransactions,
             showControls,
           })
         : [],
-    [canFetchTransactions, acctid, effectiveMonth, effectiveYear, mutateTransactions, showControls],
+    [canFetchTransactions, acctid, accountId, effectiveMonth, effectiveYear, mutateTransactions, showControls],
   );
 
   const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;
@@ -157,7 +158,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between p-4">
         <h2>Extrato Bancário</h2>
         <div className="flex items-center gap-2">
-          {hasMounted && acctid && <ExportTransactionsCsvButton acctid={acctid} />}
+          {hasMounted && accountId && <ExportTransactionsCsvButton accountId={accountId} />}
           {hasMounted && acctid && <ExportBalanceCsvButton acctid={acctid} saldos={allSaldos} />}
         </div>
       </div>
@@ -184,7 +185,7 @@ export default function Dashboard() {
           <div className="relative m-4 flex-1 min-h-0 flex flex-col">
             <div className="flex items-center justify-between mb-2">
               {hasMounted && acctid && (
-                <ImportOfxButton acctid={acctid} onSuccess={mutateTransactions} />
+                <ImportOfxButton acctid={acctid} accountId={accountId ?? ""} />
               )}
               <Switch checked={showControls} onChange={setShowControls} label="Show controls" />
             </div>

@@ -8,10 +8,10 @@ import Button from "@/components/Button";
 
 type TImportOfxButtonProps = {
   acctid: string;
-  onSuccess: () => void;
+  accountId: string;
 };
 
-export function ImportOfxButton({ acctid, onSuccess }: TImportOfxButtonProps) {
+export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -72,8 +72,7 @@ export function ImportOfxButton({ acctid, onSuccess }: TImportOfxButtonProps) {
         });
 
         toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);
-        onSuccess();
-        mutate(`${API.BALANCES.GET_BALANCES}?acctid=${encodeURIComponent(acctid)}`);
+        mutate(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}`);
       } catch (error) {
         console.error("Import error:", error);
         toast.error("Erro ao importar arquivo. Verifique o formato.");
@@ -84,7 +83,7 @@ export function ImportOfxButton({ acctid, onSuccess }: TImportOfxButtonProps) {
         }
       }
     },
-    [acctid, onSuccess],
+    [acctid, accountId],
   );
 
   return (

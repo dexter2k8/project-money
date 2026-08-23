@@ -55,7 +55,10 @@ export function ManageAccounts() {
     defaultValues,
   });
 
-  const { response, isLoading, mutate } = useSWR<IResponse<TGetAccountResponse>>(API.ACCOUNTS.GET_ACCOUNTS);
+  const { response, isLoading, mutate } = useSWR<IResponse<TGetAccountResponse>>(
+    API.ACCOUNTS.GET_ACCOUNTS,
+    { fields: "metadata" },
+  );
   const { response: banksResponse } = useSWR<IResponse<TGetBankResponse>>(API.BANKS.GET_BANKS);
 
   const banks = useMemo(() => banksResponse?.data ?? [], [banksResponse]);

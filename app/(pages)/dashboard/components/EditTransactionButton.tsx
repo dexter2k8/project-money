@@ -6,12 +6,14 @@ import type { TTransaction } from "@/app/api/accounts/types";
 
 type TEditTransactionButtonProps = {
   acctid: string;
+  accountId: string;
   transaction: TTransaction;
   onSuccess: () => void;
 };
 
 export function EditTransactionButton({
   acctid,
+  accountId,
   transaction,
   onSuccess,
 }: TEditTransactionButtonProps) {
@@ -19,6 +21,7 @@ export function EditTransactionButton({
     <TransactionForm
       mode="edit"
       acctid={acctid}
+      accountId={accountId}
       transaction={transaction}
       onSuccess={onSuccess}
       trigger={

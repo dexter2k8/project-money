@@ -22,6 +22,7 @@ import type { TTransactionFormValues } from "@/app/validations/transaction";
 type TTransactionFormProps = {
   mode: "add" | "edit";
   acctid: string;
+  accountId: string;
   transaction?: TTransaction;
   onSuccess: () => void;
   trigger: React.ReactNode;
@@ -30,6 +31,7 @@ type TTransactionFormProps = {
 export function TransactionForm({
   mode,
   acctid,
+  accountId,
   transaction,
   onSuccess,
   trigger,
@@ -66,7 +68,7 @@ export function TransactionForm({
 
   const refreshBalances = async (startDate?: string) => {
     await PostBalances(acctid, startDate);
-    mutateSWR(`${API.BALANCES.GET_BALANCES}?acctid=${acctid}`);
+    mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}`);
   };
 
   const handleApply = async (data: TTransactionFormValues) => {
@@ -124,7 +126,7 @@ export function TransactionForm({
       await DeleteTransaction({ acctid, transactionId: transaction!.id });
       await refreshBalances(transaction!.dtposted);
       toast.success("Transação excluída com sucesso!");
-      mutateSWR(`${API.BALANCES.GET_BALANCES}?acctid=${acctid}`);
+      mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}`);
       closeRef.current?.close();
       onSuccess();
     } catch (error) {

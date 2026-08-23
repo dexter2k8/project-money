@@ -9,12 +9,12 @@ import Modal from "@/components/Modal";
 
 type TDeleteMonthButtonProps = {
   acctid: string;
+  accountId: string;
   month: number;
   year: number;
-  onSuccess: () => void;
 };
 
-export function DeleteMonthButton({ acctid, month, year, onSuccess }: TDeleteMonthButtonProps) {
+export function DeleteMonthButton({ acctid, accountId, month, year }: TDeleteMonthButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handleApply = async () => {
@@ -22,8 +22,7 @@ export function DeleteMonthButton({ acctid, month, year, onSuccess }: TDeleteMon
     try {
       await DeleteTransactions({ acctid, month, year });
       toast.success("Transações excluídas com sucesso!");
-      mutateSWR(`${API.BALANCES.GET_BALANCES}?acctid=${acctid}`);
-      onSuccess();
+      mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}`);
     } catch {
       toast.error("Erro ao excluir transações.");
     } finally {

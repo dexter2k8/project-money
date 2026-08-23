@@ -8,13 +8,13 @@ import type { TGetAccountResponse } from "@/app/api/accounts/types";
 import type { IResponse } from "@/app/api/types";
 
 type TExportTransactionsCsvButtonProps = {
-  acctid: string;
+  accountId: string;
 };
 
-export function ExportTransactionsCsvButton({ acctid }: TExportTransactionsCsvButtonProps) {
+export function ExportTransactionsCsvButton({ accountId }: TExportTransactionsCsvButtonProps) {
   const handleClick = useCallback(async () => {
     try {
-      const params = new URLSearchParams({ acctid });
+      const params = new URLSearchParams({ accountId });
       const response = await fetch(`${API.TRANSACTIONS.GET_TRANSACTIONS}?${params}`);
 
       if (!response.ok) throw new Error("Erro ao buscar transações");
@@ -27,7 +27,7 @@ export function ExportTransactionsCsvButton({ acctid }: TExportTransactionsCsvBu
         rows: allTransactions.map(
           (t) => `${t.id};${t.trntype};${t.dtposted.split("T")[0]};${t.trnamt};${t.chknum};${t.memo}`,
         ),
-        filename: `extrato_${acctid}.csv`,
+        filename: `extrato_${accountId}.csv`,
         emptyMessage: "Nenhuma transação para exportar.",
         successMessage: `${allTransactions.length} transação(ões) exportada(s) com sucesso!`,
       });
@@ -35,10 +35,10 @@ export function ExportTransactionsCsvButton({ acctid }: TExportTransactionsCsvBu
       console.error("Export CSV error:", error);
       toast.error("Erro ao exportar CSV.");
     }
-  }, [acctid]);
+  }, [accountId]);
 
   return (
-    <Button variant="primary" onClick={handleClick} disabled={!acctid}>
+    <Button variant="primary" onClick={handleClick} disabled={!accountId}>
       Exportar Transações
     </Button>
   );
