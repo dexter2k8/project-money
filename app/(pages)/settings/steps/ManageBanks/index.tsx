@@ -4,19 +4,24 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { SquarePlus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useSWR } from "@/app/hooks/useSWR";
+import { useAuth } from "@/app/providers/AuthProvider";
 import { DeleteBank, PatchBank, PostBank } from "@/app/services/fetchers/banks";
+import { DEMO_USER_ID } from "@/app/utils/paths";
 import { API } from "@/app/utils/paths";
 import { editBankSchema, postBankSchema } from "@/app/validations/banks";
 import Modal from "@/components/Modal";
 import Table from "@/components/Table";
 import AddOrEditForm from "./AddOrEditForm";
 import { getColumns } from "./columns";
+import { containerVariants } from "./constants";
 import type { Resolver, SubmitHandler } from "react-hook-form";
 import type { TPostBankArgs } from "@/app/api/banks/types";
 import type { IResponse } from "@/app/api/types";
 import type { IActionsProps } from "./types";
 
 export function ManageBanks() {
+  const { selfUser } = useAuth();
+  const isDemoUser = selfUser?.uid === DEMO_USER_ID;
   const [action, setAction] = useState<IActionsProps>();
   const [loading, setLoading] = useState(false);
 
@@ -112,7 +117,7 @@ export function ManageBanks() {
   }, [bankData]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={containerVariants({ isDemoUser })}>
       <div className="flex items-center justify-between py-1 px-4 shrink-0">
         <h4>Banks</h4>
         <SquarePlus
