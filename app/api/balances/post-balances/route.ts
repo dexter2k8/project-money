@@ -2,6 +2,7 @@ import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import { findAccountByAcctid } from "@/app/api/utils/account";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
+import { classifyError } from "@/app/api/utils/firebase-error";
 import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
@@ -132,6 +133,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof AuthError) return error.response;
     console.error("Post balances error:", error);
-    return NextResponse.json({ error: "Failed to update balances" }, { status: 500 });
+    const { status, message } = classifyError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }

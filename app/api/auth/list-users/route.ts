@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { classifyError } from "@/app/api/utils/firebase-error";
 import type { IUser } from "../get-self-user/types";
 
 export async function GET() {
@@ -28,7 +29,8 @@ export async function GET() {
     return NextResponse.json(users, { status: 200 });
   } catch (error) {
     console.error("List users error:", error);
-    return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+    const { status, message } = classifyError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }
 // This line indicates that this function should be executed in Node.js environment.

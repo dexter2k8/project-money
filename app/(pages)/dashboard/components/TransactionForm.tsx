@@ -114,7 +114,8 @@ export function TransactionForm({
       return true;
     } catch (error) {
       console.error("Error saving transaction:", error);
-      toast.error(mode === "add" ? "Erro ao criar transação." : "Erro ao atualizar transação.");
+      const message = error instanceof Error ? error.message : (mode === "add" ? "Erro ao criar transação." : "Erro ao atualizar transação.");
+      toast.error(message);
       return false;
     } finally {
       setLoading(false);
@@ -131,7 +132,8 @@ export function TransactionForm({
       onSuccess();
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      toast.error("Erro ao excluir transação.");
+      const message = error instanceof Error ? error.message : "Erro ao excluir transação.";
+      toast.error(message);
     } finally {
       setLoading(false);
     }

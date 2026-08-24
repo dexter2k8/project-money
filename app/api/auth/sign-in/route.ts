@@ -2,6 +2,7 @@ import { signInWithCustomToken, signInWithEmailAndPassword, updateProfile } from
 import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { classifyError } from "@/app/api/utils/firebase-error";
 import { auth } from "@/app/services/firebase";
 import type { NextRequest } from "next/server";
 import type { TSignInArgs } from "./types";
@@ -41,6 +42,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(auth.currentUser, { status: 200 });
   } catch (error) {
     console.error("Sign-in error:", error);
-    return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+    const { status, message } = classifyError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }

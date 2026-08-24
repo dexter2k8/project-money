@@ -51,7 +51,8 @@ export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
         });
 
         if (!response.ok) {
-          throw new Error("Erro ao salvar transações");
+          const json = await response.json().catch(() => ({}));
+          throw new Error(json.error || "Erro ao salvar transações");
         }
 
         const result = await response.json();
@@ -77,7 +78,8 @@ export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
         mutate((key: string) => typeof key === "string" && key.startsWith(API.TRANSACTIONS.GET_TRANSACTIONS));
       } catch (error) {
         console.error("Import error:", error);
-        toast.error("Erro ao importar arquivo. Verifique o formato.");
+        const message = error instanceof Error ? error.message : "Erro ao importar arquivo. Verifique o formato.";
+        toast.error(message);
       } finally {
         setIsUploading(false);
         if (fileInputRef.current) {

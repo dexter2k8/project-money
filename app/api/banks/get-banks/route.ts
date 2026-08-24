@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
+import { classifyError } from "@/app/api/utils/firebase-error";
 import type { TGetBankResponse } from "../types";
 
 export const runtime = "nodejs";
@@ -23,6 +24,7 @@ export async function GET() {
   } catch (error) {
     if (error instanceof AuthError) return error.response;
     console.error("Get banks error:", error);
-    return NextResponse.json({ error: "Failed to fetch banks" }, { status: 500 });
+    const { status, message } = classifyError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }

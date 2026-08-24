@@ -1,3 +1,6 @@
+"use client";
+import { useEffect, useRef } from "react";
+import { toast } from "react-toastify";
 import useSWRCore from "swr";
 import type { KeyedMutator, SWRConfiguration } from "swr";
 
@@ -11,8 +14,8 @@ interface IResponse<T> {
 const fetcher = async (url: string) => {
   const response = await fetch(url);
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error(body || response.statusText);
+    const body = await response.json().catch(() => ({ error: response.statusText }));
+    throw new Error(body.error || response.statusText);
   }
   return response.json();
 };
@@ -30,6 +33,18 @@ export function useSWR<T extends object, P extends Record<string, string> = Reco
     dedupingInterval: 60_000,
     ...config,
   });
+
+  const lastErrorRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (error && error.message !== lastErrorRef.current) {
+      lastErrorRef.current = error.message;
+      toast.error(error.message);
+    }
+    if (!error) {
+      lastErrorRef.current = undefined;
+    }
+  }, [error]);
 
   return { response, error, isLoading, mutate };
 }

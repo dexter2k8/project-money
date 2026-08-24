@@ -11,41 +11,41 @@ async function SignIn(data: TSignInArgs) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-
-    if (response.ok) {
-      toast.success("Welcome back!");
-      return response.ok;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    toast.error(error?.message);
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || "Erro ao autenticar");
+    toast.success("Welcome back!");
+    return true;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Erro ao autenticar";
+    toast.error(message);
+    return false;
   }
-  return false;
 }
 
 async function SignOut() {
   try {
     const response = await fetch(API.AUTH.SIGN_OUT, { method: "POST" });
-    if (response.ok) return true;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || "Erro ao sair");
+    return true;
+  } catch (error: unknown) {
     console.error(error);
-    toast.error(error?.message);
+    const message = error instanceof Error ? error.message : "Erro ao sair";
+    toast.error(message);
+    return false;
   }
-  return false;
 }
 
 async function GetSelfUser() {
   try {
     const response = await fetch(API.AUTH.GET_SELF_USER, { method: "GET" });
-    if (response.ok) return response.json();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || "Erro ao buscar usuário");
+    return json;
+  } catch (error: unknown) {
     console.error(error);
-    toast.error(error?.message);
+    return null;
   }
-  return null;
 }
 
 async function PostUser(data: TPostUserArgs) {
@@ -57,18 +57,16 @@ async function PostUser(data: TPostUserArgs) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-
-    if (response.ok) {
-      toast.success("Account created successfully!");
-      return response.ok;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || "Erro ao criar conta");
+    toast.success("Account created successfully!");
+    return true;
+  } catch (error: unknown) {
     console.error(error);
-    toast.error(error?.message);
+    const message = error instanceof Error ? error.message : "Erro ao criar conta";
+    toast.error(message);
+    return false;
   }
-  return false;
 }
 
 async function PatchUser(uid: string, data: TPatchUserArgs) {
@@ -80,43 +78,43 @@ async function PatchUser(uid: string, data: TPatchUserArgs) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (response.ok) {
-      toast.success("Account updated successfully!");
-      return response.json();
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || "Erro ao atualizar perfil");
+    toast.success("Account updated successfully!");
+    return json;
+  } catch (error: unknown) {
     console.error(error);
-    toast.error(error?.message);
+    const message = error instanceof Error ? error.message : "Erro ao atualizar perfil";
+    toast.error(message);
+    return null;
   }
-  return null;
 }
 
 async function DeleteUser(uid: string) {
   try {
     const response = await fetch(API.AUTH.DELETE_USER + uid, { method: "DELETE" });
-    if (response.ok) {
-      toast.success("Account deleted successfully!");
-      return response.json();
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || "Erro ao excluir conta");
+    toast.success("Account deleted successfully!");
+    return json;
+  } catch (error: unknown) {
     console.error(error);
-    toast.error(error?.message);
+    const message = error instanceof Error ? error.message : "Erro ao excluir conta";
+    toast.error(message);
+    return null;
   }
-  return null;
 }
 
 async function RefreshSession() {
   try {
     const response = await fetch(API.AUTH.REFRESH_TOKEN, { method: "POST" });
-    if (response.ok) return response.json();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || "Erro ao atualizar sessão");
+    return json;
+  } catch (error: unknown) {
     console.error(error);
-    toast.error(error?.message);
+    return null;
   }
-  return null;
 }
 
 export { SignIn, SignOut, GetSelfUser, PostUser, PatchUser, DeleteUser, RefreshSession };

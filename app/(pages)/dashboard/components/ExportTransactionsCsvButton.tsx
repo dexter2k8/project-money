@@ -17,7 +17,10 @@ export function ExportTransactionsCsvButton({ accountId }: TExportTransactionsCs
       const params = new URLSearchParams({ accountId });
       const response = await fetch(`${API.TRANSACTIONS.GET_TRANSACTIONS}?${params}`);
 
-      if (!response.ok) throw new Error("Erro ao buscar transações");
+      if (!response.ok) {
+        const json = await response.json().catch(() => ({}));
+        throw new Error(json.error || "Erro ao buscar transações");
+      }
 
       const result: IResponse<TGetAccountResponse> = await response.json();
       const allTransactions = result.data?.[0]?.extratos ?? [];
@@ -33,7 +36,8 @@ export function ExportTransactionsCsvButton({ accountId }: TExportTransactionsCs
       });
     } catch (error) {
       console.error("Export CSV error:", error);
-      toast.error("Erro ao exportar CSV.");
+      const message = error instanceof Error ? error.message : "Erro ao exportar CSV.";
+      toast.error(message);
     }
   }, [accountId]);
 

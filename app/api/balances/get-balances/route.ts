@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
+import { classifyError } from "@/app/api/utils/firebase-error";
 import { firestoreDateToString } from "@/app/utils/dates";
 import type { NextRequest } from "next/server";
 
@@ -125,6 +126,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     if (error instanceof AuthError) return error.response;
     console.error("Get balances error:", error);
-    return NextResponse.json({ error: "Failed to fetch balances" }, { status: 500 });
+    const { status, message } = classifyError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }

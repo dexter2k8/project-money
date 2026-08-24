@@ -47,8 +47,9 @@ export default function EditProfile() {
       await PatchUser(selfUser.uid, payload);
       mutate();
       toast.success("Profile updated successfully");
-    } catch {
-      toast.error("Failed to update profile");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to update profile";
+      toast.error(message);
     } finally {
       setLoading(false);
     }

@@ -24,7 +24,8 @@ export function ExportBalanceCsvButton({ acctid, saldos }: TExportBalanceCsvButt
       });
     } catch (error) {
       console.error("Export balance CSV error:", error);
-      toast.error("Erro ao exportar saldos.");
+      const message = error instanceof Error ? error.message : "Erro ao exportar saldos.";
+      toast.error(message);
     }
   }, [saldos, acctid]);
 
