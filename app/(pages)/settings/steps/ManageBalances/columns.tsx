@@ -1,4 +1,5 @@
 import ColumnActions from "@/app/(pages)/settings/steps/ManageUsers/ColumnActions";
+import { formatDateBR } from "@/app/utils/dates";
 import type { TFlatBalanceResponse } from "@/app/api/balances/types";
 import type { IGridColDef } from "@/components/Table";
 import type { IActions, IActionsProps } from "./types";
@@ -13,11 +14,7 @@ export function getColumns({ onAction }: IActions) {
     {
       field: "enddate",
       header: "END DATE",
-      render: (value) => {
-        if (!value) return "";
-        const date = new Date(String(value));
-        return date.toLocaleDateString("pt-BR");
-      },
+      render: (value) => formatDateBR(value),
     },
     {
       field: "id",

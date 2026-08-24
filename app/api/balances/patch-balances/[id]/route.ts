@@ -2,6 +2,7 @@ import admin from "firebase-admin";
 import { type NextRequest, NextResponse } from "next/server";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import { classifyError } from "@/app/api/utils/firebase-error";
+import { parseDateLocal } from "@/app/utils/dates";
 import type { TPatchBalanceArgs } from "../../types";
 
 export const runtime = "nodejs";
@@ -33,7 +34,7 @@ export async function PATCH(
 
     await saldoRef.update({
       balance: body.balance,
-      enddate: admin.firestore.Timestamp.fromDate(new Date(body.enddate)),
+      enddate: admin.firestore.Timestamp.fromDate(parseDateLocal(body.enddate)),
     });
 
     return NextResponse.json({ success: true }, { status: 200 });

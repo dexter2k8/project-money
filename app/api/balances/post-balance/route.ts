@@ -2,6 +2,7 @@ import admin from "firebase-admin";
 import { type NextRequest, NextResponse } from "next/server";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import { classifyError } from "@/app/api/utils/firebase-error";
+import { parseDateLocal } from "@/app/utils/dates";
 import type { TPostSingleBalanceArgs } from "../types";
 
 export const runtime = "nodejs";
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     await saldoRef.set({
       balance: balance,
-      enddate: admin.firestore.Timestamp.fromDate(new Date(enddate)),
+      enddate: admin.firestore.Timestamp.fromDate(parseDateLocal(enddate)),
     });
 
     return NextResponse.json({ id: saldoRef.id, balance, enddate }, { status: 201 });

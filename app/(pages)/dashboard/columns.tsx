@@ -1,4 +1,5 @@
 "use client";
+import { formatDateBR } from "@/app/utils/dates";
 import BalanceDisplay from "@/components/BalanceDisplay";
 import { AddTransactionButton } from "./components/AddTransactionButton";
 import { DeleteMonthButton } from "./components/DeleteMonthButton";
@@ -55,17 +56,7 @@ export const columns = ({
       field: "dtposted",
       header: "Data",
       className: "text-left w-28",
-      render: (value) => {
-        if (!value) return "";
-        const str = String(value);
-        const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-        if (match) return `${match[3]}/${match[2]}/${match[1]}`;
-        const date = new Date(str);
-        const day = String(date.getUTCDate()).padStart(2, "0");
-        const m = String(date.getUTCMonth() + 1).padStart(2, "0");
-        const y = date.getUTCFullYear();
-        return `${day}/${m}/${y}`;
-      },
+      render: (value) => formatDateBR(value),
     },
     { field: "memo", className: "text-left max-w-80 truncate", header: "Descrição" },
     { field: "chknum", className: "text-right w-28", header: "Documento" },

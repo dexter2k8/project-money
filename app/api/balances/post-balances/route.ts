@@ -8,13 +8,13 @@ import type { NextRequest } from "next/server";
 export const runtime = "nodejs";
 
 function getMonthKey(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
   return `${year}-${month}`;
 }
 
 function getLastDayOfMonth(year: number, month: number): Date {
-  return new Date(year, month, 0);
+  return new Date(Date.UTC(year, month, 0, 3, 0, 0));
 }
 
 export async function POST(request: NextRequest) {

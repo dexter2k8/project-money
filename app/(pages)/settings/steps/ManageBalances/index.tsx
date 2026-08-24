@@ -112,7 +112,7 @@ export function ManageBalances() {
     if (action?.action !== "edit" || !balanceData) return reset(defaultValues);
     if (balanceData.balance != null) setValue("balance", balanceData.balance);
     if (balanceData.enddate) {
-      setValue("enddate", new Date(balanceData.enddate).toISOString().split("T")[0]);
+      setValue("enddate", balanceData.enddate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [balanceData]);

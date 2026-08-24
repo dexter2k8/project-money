@@ -1,7 +1,3 @@
-export type TPostBalanceArgs = {
-  acctid: string;
-};
-
 export type TPostSingleBalanceArgs = {
   accountId: string;
   balance: number;

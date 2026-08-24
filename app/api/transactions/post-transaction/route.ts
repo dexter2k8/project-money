@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { findAccountByAcctid } from "@/app/api/utils/account";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import { classifyError } from "@/app/api/utils/firebase-error";
-import { firestoreDateToString } from "@/app/utils/dates";
+import { firestoreDateToString, parseDateLocal } from "@/app/utils/dates";
 import { createTransactionKey } from "@/app/utils/duplicateCheck";
 import type { NextRequest } from "next/server";
 
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       docRefs.push(docRef);
       batch.set(docRef, {
         trntype: txn.trntype,
-        dtposted: admin.firestore.Timestamp.fromDate(new Date(txn.dtposted)),
+        dtposted: admin.firestore.Timestamp.fromDate(parseDateLocal(txn.dtposted)),
         trnamt: txn.trnamt,
         memo: txn.memo,
         chknum: txn.chknum,

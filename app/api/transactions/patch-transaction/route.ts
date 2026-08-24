@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { findAccountByAcctid } from "@/app/api/utils/account";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import { classifyError } from "@/app/api/utils/firebase-error";
+import { parseDateLocal } from "@/app/utils/dates";
 import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
@@ -49,7 +50,7 @@ export async function PATCH(request: NextRequest) {
 
     const updateData: Record<string, unknown> = {};
     if (data.dtposted !== undefined) {
-      updateData.dtposted = admin.firestore.Timestamp.fromDate(new Date(data.dtposted));
+      updateData.dtposted = admin.firestore.Timestamp.fromDate(parseDateLocal(data.dtposted));
     }
     if (data.trnamt !== undefined) updateData.trnamt = data.trnamt;
     if (data.memo !== undefined) updateData.memo = data.memo;

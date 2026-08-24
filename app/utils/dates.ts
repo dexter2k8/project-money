@@ -1,3 +1,32 @@
+export function formatDateBR(value: unknown): string {
+  if (!value) return "";
+  const str = String(value);
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+  const date = new Date(str);
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const y = date.getUTCFullYear();
+  return `${day}/${m}/${y}`;
+}
+
+export function parseDateLocal(dateStr: string): Date {
+  const dateOnly = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateOnly) {
+    return new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]), 3, 0, 0));
+  }
+  const clean = String(dateStr).replace(/[^0-9]/g, "");
+  if (clean.length === 8) {
+    return new Date(Date.UTC(
+      Number(clean.substring(0, 4)),
+      Number(clean.substring(4, 6)) - 1,
+      Number(clean.substring(6, 8)),
+      3, 0, 0,
+    ));
+  }
+  return new Date(dateStr);
+}
+
 export function parseDateUTC(dateStr: string): Date {
   const match = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (match) {
