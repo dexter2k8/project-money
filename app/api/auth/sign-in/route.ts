@@ -1,5 +1,4 @@
-import { signInWithCustomToken, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
-import admin from "firebase-admin";
+import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { classifyError } from "@/app/api/utils/firebase-error";
@@ -12,33 +11,27 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, name, avatar }: TSignInArgs = body;
 
-    await signInWithEmailAndPassword(auth, email, password);
-    const uid = auth.currentUser?.uid as string;
-    const token = await admin.auth().createCustomToken(uid);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const idToken = await userCredential.user.getIdToken();
 
-    const idToken = await signInWithCustomToken(auth, token)
-      .then((userCredential) => userCredential.user.getIdToken())
-      .catch((error) => {
-        console.error("Authentication failed:", error);
-      });
-
-    if (auth.currentUser) {
-      if (name) {
-        updateProfile(auth.currentUser, {
-          displayName: name,
-          photoURL: avatar,
-        });
-      }
-
-      const cookieStore = await cookies();
-      cookieStore.set({
-        name: "project-money-token",
-        value: idToken as string,
-        httpOnly: true,
-        maxAge: 60 * 60 * 24, // 1 day
-        path: "/",
+    if (auth.currentUser && name) {
+      updateProfile(auth.currentUser, {
+        displayName: name,
+        photoURL: avatar,
       });
     }
+
+    const cookieStore = await cookies();
+    cookieStore.set({
+      name: "project-money-token",
+      value: idToken,
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24,
+      path: "/",
+    });
+
     return NextResponse.json(auth.currentUser, { status: 200 });
   } catch (error) {
     console.error("Sign-in error:", error);

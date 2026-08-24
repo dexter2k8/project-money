@@ -1,7 +1,7 @@
-import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { classifyError } from "@/app/api/utils/firebase-error";
+import admin from "@/app/services/firebase-admin";
 import type { IUser } from "./types";
 
 export async function GET() {

@@ -1,6 +1,6 @@
-import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import admin from "@/app/services/firebase-admin";
 
 export class AuthError extends Error {
   response: NextResponse;

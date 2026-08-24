@@ -1,9 +1,7 @@
-import { signInWithCustomToken } from "firebase/auth";
-import admin from "firebase-admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { classifyError } from "@/app/api/utils/firebase-error";
-import { auth } from "@/app/services/firebase";
+import admin from "@/app/services/firebase-admin";
 
 export async function POST() {
   try {
@@ -15,29 +13,8 @@ export async function POST() {
     }
 
     const decoded = await admin.auth().verifyIdToken(token);
-    const customToken = await admin.auth().createCustomToken(decoded.uid);
 
-    const idToken = await signInWithCustomToken(auth, customToken)
-      .then((cred) => cred.user.getIdToken())
-      .catch((error) => {
-        console.error("Token refresh failed:", error);
-      });
-
-    if (!idToken) {
-      return NextResponse.json({ error: "Failed to refresh token" }, { status: 500 });
-    }
-
-    cookieStore.set({
-      name: "project-money-token",
-      value: idToken,
-      httpOnly: true,
-      maxAge: 60 * 60 * 24,
-      path: "/",
-    });
-
-    const newDecoded = await admin.auth().verifyIdToken(idToken);
-
-    return NextResponse.json({ exp: newDecoded.exp }, { status: 200 });
+    return NextResponse.json({ exp: decoded.exp }, { status: 200 });
   } catch (error) {
     console.error("Refresh token error:", error);
     const { status, message } = classifyError(error);

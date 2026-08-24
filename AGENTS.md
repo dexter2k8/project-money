@@ -42,7 +42,7 @@ app/
   utils/                  # Helpers (paths, OFX parser, duplicate check)
   validations/            # Yup schemas
 components/               # Shared UI components (Button, Input, Modal, Sidebar, Table, etc.)
-proxy.ts                  # Middleware — auth guard for protected routes (/dashboard, /analytics, /settings)
+proxy.ts                  # Proxy — auth guard for protected routes (/dashboard, /analytics, /settings)
 ```
 
 ## Key Conventions
@@ -67,7 +67,7 @@ Components use `components/<Name>/index.tsx` with `constants.ts` for variants an
 - Auth token stored in `project-money-token` httpOnly cookie.
 
 ### Auth Flow
-`proxy.ts` (middleware) verifies Firebase ID token on protected routes. Unauthenticated users redirect to `/`; authenticated users on `/` redirect to `/dashboard`.
+`proxy.ts` verifies Firebase ID token on protected routes. Unauthenticated users redirect to `/`; authenticated users on `/` redirect to `/dashboard`.
 
 ### Provider Nesting
 Authenticated pages wrap with `AuthProvider → SessionTimerProvider → BalanceProvider`.
@@ -75,7 +75,7 @@ Authenticated pages wrap with `AuthProvider → SessionTimerProvider → Balance
 ## Gotchas
 
 - **No `tailwind.config.*`** — Tailwind v4 is configured entirely via PostCSS. Custom theme values live in `app/globals.css`.
-- **`proxy.ts` is the middleware** despite not being named `middleware.ts` — it exports `config.matcher` for route matching.
+- **`proxy.ts` is the proxy** — Named `proxy` per Next.js 16 convention. Exports `proxy` function and `config.matcher` for route matching.
 - **Firebase private key** in env vars contains escaped `\n` — must `.replace(/\\n/g, "\n")` before use.
 - **SWR usage**: Import from `@/app/hooks/useSWR` (custom wrapper), not directly from `swr`.
 - **Next.js 16 breaking changes**: APIs may have shifted. Verify against `node_modules/next/dist/docs/` before assuming defaults.

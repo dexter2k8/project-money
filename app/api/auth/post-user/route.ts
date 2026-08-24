@@ -1,8 +1,8 @@
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import { classifyError } from "@/app/api/utils/firebase-error";
 import { auth } from "@/app/services/firebase";
+import admin from "@/app/services/firebase-admin";
 import type { NextRequest } from "next/server";
 import type { TPostUserArgs } from "./types";
 
