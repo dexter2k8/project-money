@@ -10,7 +10,6 @@ import type { IGridColDef } from "@/components/Table";
 export type TTransactionWithSaldo = TTransaction & { saldo: number };
 
 type TColumnsArgs = {
-  acctid: string;
   accountId: string;
   month: number;
   year: number;
@@ -19,7 +18,6 @@ type TColumnsArgs = {
 };
 
 export const columns = ({
-  acctid,
   accountId,
   month,
   year,
@@ -31,11 +29,10 @@ export const columns = ({
     header: "UID",
     className: "text-center w-10",
     renderHeader() {
-      return <AddTransactionButton acctid={acctid} accountId={accountId} onSuccess={mutate} />;
+      return <AddTransactionButton accountId={accountId} onSuccess={mutate} />;
     },
     render: (_value, row) => (
       <EditTransactionButton
-        acctid={acctid}
         accountId={accountId}
         transaction={row}
         onSuccess={mutate}
@@ -43,7 +40,6 @@ export const columns = ({
     ),
     renderFooter: () => (
       <DeleteMonthButton
-        acctid={acctid}
         accountId={accountId}
         month={month}
         year={year}

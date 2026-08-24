@@ -1,6 +1,5 @@
 import admin from "firebase-admin";
 import { NextResponse } from "next/server";
-import { findAccountByAcctid } from "@/app/api/utils/account";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import { classifyError } from "@/app/api/utils/firebase-error";
 import { firestoreDateToString, parseDateLocal } from "@/app/utils/dates";
@@ -22,21 +21,23 @@ export async function POST(request: NextRequest) {
     const userId = await requireAuth();
 
     const body = await request.json();
-    const { acctid, transactions } = body as {
-      acctid: string;
+    const { accountId, transactions } = body as {
+      accountId: string;
       transactions: TTransactionInput[];
     };
 
-    if (!acctid) {
-      return NextResponse.json({ error: "acctid is required" }, { status: 400 });
+    if (!accountId) {
+      return NextResponse.json({ error: "accountId is required" }, { status: 400 });
     }
 
     if (!transactions || !Array.isArray(transactions) || transactions.length === 0) {
       return NextResponse.json({ error: "transactions array is required" }, { status: 400 });
     }
 
-    const accountDoc = await findAccountByAcctid(acctid, userId);
-    if (!accountDoc) {
+    const db = admin.firestore();
+    const accountDoc = await db.collection("contas").doc(accountId).get();
+
+    if (!accountDoc.exists || accountDoc.data()?.userId !== userId) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 

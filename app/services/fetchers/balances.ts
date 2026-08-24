@@ -1,11 +1,11 @@
 import { API } from "@/app/utils/paths";
 import type { TPatchBalanceArgs, TPostSingleBalanceArgs } from "@/app/api/balances/types";
 
-async function PostBalances(acctid: string, startDate?: string) {
+async function PostBalances(accountId: string, startDate?: string) {
   const response = await fetch(API.BALANCES.POST_BALANCES, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ acctid, startDate }),
+    body: JSON.stringify({ accountId, startDate }),
   });
   const json = await response.json();
   if (!response.ok) throw new Error(json.error || "Erro ao atualizar saldos");

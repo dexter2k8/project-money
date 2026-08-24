@@ -1,7 +1,7 @@
 import { API } from "@/app/utils/paths";
 
 type TPostTransactionArgs = {
-  acctid: string;
+  accountId: string;
   transactions: {
     trntype: string;
     dtposted: string;
@@ -11,11 +11,11 @@ type TPostTransactionArgs = {
   }[];
 };
 
-async function PostTransaction({ acctid, transactions }: TPostTransactionArgs) {
+async function PostTransaction({ accountId, transactions }: TPostTransactionArgs) {
   const response = await fetch(API.TRANSACTIONS.POST_TRANSACTION, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ acctid, transactions }),
+    body: JSON.stringify({ accountId, transactions }),
   });
   const json = await response.json();
   if (!response.ok) throw new Error(json.error || "Erro ao criar transação");
@@ -23,7 +23,7 @@ async function PostTransaction({ acctid, transactions }: TPostTransactionArgs) {
 }
 
 type TPatchTransactionArgs = {
-  acctid: string;
+  accountId: string;
   transactionId: string;
   data: {
     dtposted: string;
@@ -34,11 +34,11 @@ type TPatchTransactionArgs = {
   };
 };
 
-async function PatchTransaction({ acctid, transactionId, data }: TPatchTransactionArgs) {
+async function PatchTransaction({ accountId, transactionId, data }: TPatchTransactionArgs) {
   const response = await fetch(API.TRANSACTIONS.PATCH_TRANSACTION, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ acctid, transactionId, data }),
+    body: JSON.stringify({ accountId, transactionId, data }),
   });
   const json = await response.json();
   if (!response.ok) throw new Error(json.error || "Erro ao atualizar transação");
@@ -46,15 +46,15 @@ async function PatchTransaction({ acctid, transactionId, data }: TPatchTransacti
 }
 
 type TDeleteTransactionArgs = {
-  acctid: string;
+  accountId: string;
   transactionId: string;
 };
 
-async function DeleteTransaction({ acctid, transactionId }: TDeleteTransactionArgs) {
+async function DeleteTransaction({ accountId, transactionId }: TDeleteTransactionArgs) {
   const response = await fetch(API.TRANSACTIONS.DELETE_TRANSACTION, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ acctid, transactionId }),
+    body: JSON.stringify({ accountId, transactionId }),
   });
   const json = await response.json();
   if (!response.ok) throw new Error(json.error || "Erro ao excluir transação");
@@ -62,16 +62,16 @@ async function DeleteTransaction({ acctid, transactionId }: TDeleteTransactionAr
 }
 
 type TDeleteTransactionsArgs = {
-  acctid: string;
+  accountId: string;
   month: number;
   year: number;
 };
 
-async function DeleteTransactions({ acctid, month, year }: TDeleteTransactionsArgs) {
+async function DeleteTransactions({ accountId, month, year }: TDeleteTransactionsArgs) {
   const response = await fetch(API.TRANSACTIONS.DELETE_TRANSACTIONS, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ acctid, month, year }),
+    body: JSON.stringify({ accountId, month, year }),
   });
   const json = await response.json();
   if (!response.ok) throw new Error(json.error || "Erro ao excluir transações");

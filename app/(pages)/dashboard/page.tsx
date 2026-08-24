@@ -133,15 +133,14 @@ export default function Dashboard() {
     () =>
       canFetchTransactions
         ? createColumns({
-            acctid: acctid ?? "",
-            accountId,
+            accountId: accountId ?? "",
             month: effectiveMonth + 1,
             year: Number(effectiveYear),
             mutate: mutateTransactions,
             showControls,
           })
         : [],
-    [canFetchTransactions, acctid, accountId, effectiveMonth, effectiveYear, mutateTransactions, showControls],
+    [canFetchTransactions, accountId, effectiveMonth, effectiveYear, mutateTransactions, showControls],
   );
 
   const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;

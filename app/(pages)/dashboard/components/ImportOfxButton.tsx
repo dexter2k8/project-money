@@ -22,7 +22,7 @@ export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
   const handleChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (!file || !acctid) return;
+      if (!file || !accountId) return;
 
       setIsUploading(true);
 
@@ -47,7 +47,7 @@ export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
         const response = await fetch(API.TRANSACTIONS.POST_TRANSACTION, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ acctid, transactions: parsed }),
+          body: JSON.stringify({ accountId, transactions: parsed }),
         });
 
         if (!response.ok) {
@@ -69,7 +69,7 @@ export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
         await fetch(API.BALANCES.POST_BALANCES, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ acctid, startDate: earliestDate }),
+          body: JSON.stringify({ accountId, startDate: earliestDate }),
         });
 
         toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);

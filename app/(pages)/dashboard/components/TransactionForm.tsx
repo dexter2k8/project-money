@@ -21,7 +21,6 @@ import type { TTransactionFormValues } from "@/app/validations/transaction";
 
 type TTransactionFormProps = {
   mode: "add" | "edit";
-  acctid: string;
   accountId: string;
   transaction?: TTransaction;
   onSuccess: () => void;
@@ -30,7 +29,6 @@ type TTransactionFormProps = {
 
 export function TransactionForm({
   mode,
-  acctid,
   accountId,
   transaction,
   onSuccess,
@@ -67,7 +65,7 @@ export function TransactionForm({
   });
 
   const refreshBalances = async (startDate?: string) => {
-    await PostBalances(acctid, startDate);
+    await PostBalances(accountId, startDate);
     mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}&years=2`);
     mutateSWR((key: string) => typeof key === "string" && key.startsWith(API.TRANSACTIONS.GET_TRANSACTIONS));
   };
@@ -77,7 +75,7 @@ export function TransactionForm({
     try {
       if (mode === "add") {
         const result = await PostTransaction({
-          acctid,
+          accountId,
           transactions: [
             {
               trntype: data.trntype || "OTHER",
@@ -95,7 +93,7 @@ export function TransactionForm({
         }
       } else {
         const result = await PatchTransaction({
-          acctid,
+          accountId,
           transactionId: transaction!.id,
           data: {
             dtposted: data.dtposted,
@@ -125,7 +123,7 @@ export function TransactionForm({
   const handleDelete = async () => {
     setLoading(true);
     try {
-      await DeleteTransaction({ acctid, transactionId: transaction!.id });
+      await DeleteTransaction({ accountId, transactionId: transaction!.id });
       await refreshBalances(transaction!.dtposted);
       toast.success("Transação excluída com sucesso!");
       closeRef.current?.close();

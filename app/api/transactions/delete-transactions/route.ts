@@ -1,6 +1,5 @@
 import admin from "firebase-admin";
 import { NextResponse } from "next/server";
-import { findAccountByAcctid } from "@/app/api/utils/account";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import { classifyError } from "@/app/api/utils/firebase-error";
 import type { NextRequest } from "next/server";
@@ -12,18 +11,20 @@ export async function DELETE(request: NextRequest) {
     const userId = await requireAuth();
 
     const body = await request.json();
-    const { acctid, month, year } = body as {
-      acctid: string;
+    const { accountId, month, year } = body as {
+      accountId: string;
       month: number;
       year: number;
     };
 
-    if (!acctid || month == null || !year) {
-      return NextResponse.json({ error: "acctid, month, and year are required" }, { status: 400 });
+    if (!accountId || month == null || !year) {
+      return NextResponse.json({ error: "accountId, month, and year are required" }, { status: 400 });
     }
 
-    const accountDoc = await findAccountByAcctid(acctid, userId);
-    if (!accountDoc) {
+    const db = admin.firestore();
+    const accountDoc = await db.collection("contas").doc(accountId).get();
+
+    if (!accountDoc.exists || accountDoc.data()?.userId !== userId) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 

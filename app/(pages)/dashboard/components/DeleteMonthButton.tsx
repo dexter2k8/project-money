@@ -8,19 +8,18 @@ import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 
 type TDeleteMonthButtonProps = {
-  acctid: string;
   accountId: string;
   month: number;
   year: number;
 };
 
-export function DeleteMonthButton({ acctid, accountId, month, year }: TDeleteMonthButtonProps) {
+export function DeleteMonthButton({ accountId, month, year }: TDeleteMonthButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handleApply = async () => {
     setLoading(true);
     try {
-      await DeleteTransactions({ acctid, month, year });
+      await DeleteTransactions({ accountId, month, year });
       toast.success("Transações excluídas com sucesso!");
       mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}&years=2`);
       mutateSWR((key: string) => typeof key === "string" && key.startsWith(API.TRANSACTIONS.GET_TRANSACTIONS));
