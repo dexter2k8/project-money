@@ -75,7 +75,11 @@ export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
         toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);
 
         mutate(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}&years=2`);
-        mutate((key: string) => typeof key === "string" && key.startsWith(API.TRANSACTIONS.GET_TRANSACTIONS));
+
+        const date = new Date(earliestDate);
+        const month = date.getUTCMonth() + 1;
+        const year = date.getUTCFullYear();
+        mutate(`${API.TRANSACTIONS.GET_TRANSACTIONS}?accountId=${accountId}&month=${month}&year=${year}`);
       } catch (error) {
         console.error("Import error:", error);
         const message = error instanceof Error ? error.message : "Erro ao importar arquivo. Verifique o formato.";
