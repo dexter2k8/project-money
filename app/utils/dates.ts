@@ -10,10 +10,14 @@ export function formatDateBR(value: unknown): string {
   return `${day}/${m}/${y}`;
 }
 
-export function parseDateLocal(dateStr: string): Date {
+export function parseDateLocal(dateStr: string, utcOffset = -3): Date {
+  if (/[+-]\d{2}:\d{2}$/.test(dateStr)) {
+    return new Date(dateStr);
+  }
+  const hours = -utcOffset;
   const dateOnly = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (dateOnly) {
-    return new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]), 3, 0, 0));
+    return new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]), hours, 0, 0));
   }
   const clean = String(dateStr).replace(/[^0-9]/g, "");
   if (clean.length === 8) {
@@ -21,7 +25,7 @@ export function parseDateLocal(dateStr: string): Date {
       Number(clean.substring(0, 4)),
       Number(clean.substring(4, 6)) - 1,
       Number(clean.substring(6, 8)),
-      3, 0, 0,
+      hours, 0, 0,
     ));
   }
   return new Date(dateStr);

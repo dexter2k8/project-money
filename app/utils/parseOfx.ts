@@ -24,22 +24,38 @@ function extractTag(content: string, tag: string): string {
 }
 
 function parseOfxDate(dateStr: string): string {
-  if (!dateStr) return new Date().toISOString();
+  const defaultOffset = "-03:00";
+
+  if (!dateStr) {
+    const now = new Date();
+    return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}T00:00:00${defaultOffset}`;
+  }
+
+  const offsetMatch = dateStr.match(/\[([+-]?\d+):/);
+  const tzOffset = offsetMatch ? parseInt(offsetMatch[1], 10) : -3;
+  const sign = tzOffset >= 0 ? "+" : "-";
+  const absOffset = Math.abs(tzOffset);
+  const offsetStr = `${sign}${String(absOffset).padStart(2, "0")}:00`;
 
   const clean = dateStr.replace(/[^0-9]/g, "");
 
   if (clean.length >= 8) {
-    const year = clean.substring(0, 4);
-    const month = clean.substring(4, 6);
-    const day = clean.substring(6, 8);
-    const hour = clean.length >= 10 ? clean.substring(8, 10) : "00";
-    const min = clean.length >= 12 ? clean.substring(10, 12) : "00";
-    const sec = clean.length >= 14 ? clean.substring(12, 14) : "00";
+    const y = clean.substring(0, 4);
+    const m = clean.substring(4, 6);
+    const d = clean.substring(6, 8);
 
-    return `${year}-${month}-${day}T${hour}:${min}:${sec}`;
+    if (clean.length >= 14) {
+      const h = clean.substring(8, 10);
+      const min = clean.substring(10, 12);
+      const s = clean.substring(12, 14);
+      return `${y}-${m}-${d}T${h}:${min}:${s}${offsetStr}`;
+    }
+
+    return `${y}-${m}-${d}T00:00:00${offsetStr}`;
   }
 
-  return new Date().toISOString();
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}T00:00:00${defaultOffset}`;
 }
 
 function parseOfxAccountInfo(content: string): TAccountInfo {
