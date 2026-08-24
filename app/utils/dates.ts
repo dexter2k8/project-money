@@ -11,8 +11,14 @@ export function formatDateBR(value: unknown): string {
 }
 
 export function parseDateLocal(dateStr: string, utcOffset = -3): Date {
-  if (/[+-]\d{2}:\d{2}$/.test(dateStr)) {
-    return new Date(dateStr);
+  const isoMatch = dateStr.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-])(\d{2}):(\d{2})$/,
+  );
+  if (isoMatch) {
+    const [, y, m, d, h, min, s, sign, offH, offM] = isoMatch;
+    const offsetMs = (sign === "+" ? 1 : -1) * (Number(offH) * 3600000 + Number(offM) * 60000);
+    const localMs = Date.UTC(Number(y), Number(m) - 1, Number(d), Number(h), Number(min), Number(s));
+    return new Date(localMs - offsetMs);
   }
   const hours = -utcOffset;
   const dateOnly = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})$/);
