@@ -1,3 +1,10 @@
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export function formatDateBR(value: unknown): string {
   if (!value) return "";
   const str = String(value);
@@ -10,31 +17,13 @@ export function formatDateBR(value: unknown): string {
   return `${day}/${m}/${y}`;
 }
 
-export function parseDateLocal(dateStr: string, utcOffset = -3): Date {
-  const isoMatch = dateStr.match(
-    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-])(\d{2}):(\d{2})$/,
-  );
-  if (isoMatch) {
-    const [, y, m, d, h, min, s, sign, offH, offM] = isoMatch;
-    const offsetMs = (sign === "+" ? 1 : -1) * (Number(offH) * 3600000 + Number(offM) * 60000);
-    const localMs = Date.UTC(Number(y), Number(m) - 1, Number(d), Number(h), Number(min), Number(s));
-    return new Date(localMs - offsetMs);
+const BRT_TZ = "America/Sao_Paulo";
+
+export function parseDateLocal(dateStr: string): Date {
+  if (/[+-]\d{2}:\d{2}$/.test(dateStr)) {
+    return dayjs(dateStr).toDate();
   }
-  const hours = -utcOffset;
-  const dateOnly = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (dateOnly) {
-    return new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]), hours, 0, 0));
-  }
-  const clean = String(dateStr).replace(/[^0-9]/g, "");
-  if (clean.length === 8) {
-    return new Date(Date.UTC(
-      Number(clean.substring(0, 4)),
-      Number(clean.substring(4, 6)) - 1,
-      Number(clean.substring(6, 8)),
-      hours, 0, 0,
-    ));
-  }
-  return new Date(dateStr);
+  return dayjs.tz(dateStr, BRT_TZ).toDate();
 }
 
 export function parseDateUTC(dateStr: string): Date {

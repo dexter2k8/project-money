@@ -1,19 +1,27 @@
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { NextResponse } from "next/server";
 import { AuthError, requireAuth } from "@/app/api/utils/auth";
 import { classifyError } from "@/app/api/utils/firebase-error";
 import admin from "@/app/services/firebase-admin";
 import type { NextRequest } from "next/server";
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export const runtime = "nodejs";
 
+const BRT_TZ = "America/Sao_Paulo";
+
 function getMonthKey(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  return `${year}-${month}`;
+  const brt = dayjs(date).tz(BRT_TZ);
+  return brt.format("YYYY-MM");
 }
 
 function getLastDayOfMonth(year: number, month: number): Date {
-  return new Date(Date.UTC(year, month, 0, 3, 0, 0));
+  const lastDay = dayjs.tz(`${year}-${String(month).padStart(2, "0")}-01`, BRT_TZ).endOf("month");
+  return lastDay.startOf("day").toDate();
 }
 
 export async function POST(request: NextRequest) {
