@@ -16,7 +16,7 @@ export default function Analytics() {
           <YearlyBarChart title="Análise anual" />
         </div>
         <div className="col-span-2 row-span-3 rounded min-h-0">
-          <AllPeriodLineChart title="Análise geral" />
+          <AllPeriodLineChart title="Análise dos últimos 2 anos" />
         </div>
       </div>
     </div>

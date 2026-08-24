@@ -11,6 +11,7 @@ interface IYearlyChartData {
   credits: number[];
   debits: number[];
   saldo: number[];
+  year: number;
   isLoading: boolean;
 }
 
@@ -65,5 +66,14 @@ export function useYearlyChartData(): IYearlyChartData {
     };
   }, [transactions, previousBalance]);
 
-  return { months, credits, debits, saldo, isLoading };
+  const year = useMemo(() => {
+    if (allTxn.length === 0) return new Date().getUTCFullYear();
+    const latestDate = allTxn.reduce((max, t) => {
+      const d = parseDateUTC(t.dtposted);
+      return d > max ? d : max;
+    }, new Date(0));
+    return latestDate.getUTCFullYear();
+  }, [allTxn]);
+
+  return { months, credits, debits, saldo, year, isLoading };
 }

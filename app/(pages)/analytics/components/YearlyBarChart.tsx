@@ -7,7 +7,7 @@ interface IYearlyBarChartProps {
 }
 
 export default function YearlyBarChart({ title }: IYearlyBarChartProps) {
-  const { months, credits, debits, saldo, isLoading } = useYearlyChartData();
+  const { months, credits, debits, saldo, year, isLoading } = useYearlyChartData();
   const mounted = useMounted();
 
   if (mounted && isLoading) {
@@ -18,9 +18,11 @@ export default function YearlyBarChart({ title }: IYearlyBarChartProps) {
     );
   }
 
+  const chartTitle = year ? `${title} - ${year}` : title;
+
   return (
     <ChartVerticalBarYearly
-      title={title}
+      title={chartTitle}
       labels={months}
       credits={credits}
       debits={debits}

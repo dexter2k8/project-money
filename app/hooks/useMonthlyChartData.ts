@@ -8,30 +8,33 @@ interface IMonthlyChartData {
   credits: number[];
   debits: number[];
   saldo: number[];
+  month: number;
+  year: number;
   isLoading: boolean;
 }
 
 export function useMonthlyChartData(): IMonthlyChartData {
   const { transactions: allTxn, allSaldos, isLoading } = useTransactionsAndSaldos();
 
-  const transactions: TTransaction[] = useMemo(() => {
-    if (allTxn.length === 0) return [];
-
+  const { month, year } = useMemo(() => {
+    if (allTxn.length === 0) return { month: 0, year: 0 };
     const latestDate = allTxn.reduce((max, t) => {
       const d = parseDateUTC(t.dtposted);
       return d > max ? d : max;
     }, new Date(0));
+    return { month: latestDate.getUTCMonth(), year: latestDate.getUTCFullYear() };
+  }, [allTxn]);
 
-    const latestYear = latestDate.getUTCFullYear();
-    const latestMonth = latestDate.getUTCMonth();
+  const transactions: TTransaction[] = useMemo(() => {
+    if (allTxn.length === 0) return [];
 
     return allTxn
       .filter((t) => {
         const d = parseDateUTC(t.dtposted);
-        return d.getUTCFullYear() === latestYear && d.getUTCMonth() === latestMonth;
+        return d.getUTCFullYear() === year && d.getUTCMonth() === month;
       })
       .sort((a, b) => parseDateUTC(a.dtposted).getTime() - parseDateUTC(b.dtposted).getTime());
-  }, [allTxn]);
+  }, [allTxn, month, year]);
 
   const previousBalance = useMemo(() => {
     if (allSaldos.length === 0 || transactions.length === 0) return 0;
@@ -65,5 +68,5 @@ export function useMonthlyChartData(): IMonthlyChartData {
     };
   }, [transactions, previousBalance]);
 
-  return { days, credits, debits, saldo, isLoading };
+  return { days, credits, debits, saldo, month, year, isLoading };
 }
