@@ -68,7 +68,8 @@ export function TransactionForm({
 
   const refreshBalances = async (startDate?: string) => {
     await PostBalances(acctid, startDate);
-    mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}`);
+    mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}&years=2`);
+    mutateSWR((key: string) => typeof key === "string" && key.startsWith(API.TRANSACTIONS.GET_TRANSACTIONS));
   };
 
   const handleApply = async (data: TTransactionFormValues) => {
@@ -126,7 +127,6 @@ export function TransactionForm({
       await DeleteTransaction({ acctid, transactionId: transaction!.id });
       await refreshBalances(transaction!.dtposted);
       toast.success("Transação excluída com sucesso!");
-      mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}`);
       closeRef.current?.close();
       onSuccess();
     } catch (error) {
