@@ -21,7 +21,8 @@ export function DeleteMonthButton({ accountId, month, year }: TDeleteMonthButton
     try {
       await DeleteTransactions({ accountId, month, year });
       toast.success("Transações excluídas com sucesso!");
-      mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}&years=2`);
+      mutateSWR((key: string) => typeof key === "string" && key.startsWith(API.BALANCES.GET_BALANCES));
+      mutateSWR(`${API.BALANCES.GET_YEARS}?accountId=${accountId}`);
       mutateSWR((key: string) => typeof key === "string" && key.startsWith(API.TRANSACTIONS.GET_TRANSACTIONS));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erro ao excluir transações.";

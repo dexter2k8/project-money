@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const flatten = request.nextUrl.searchParams.get("flatten") === "true";
     const fields = request.nextUrl.searchParams.get("fields");
     const years = request.nextUrl.searchParams.get("years");
+    const year = request.nextUrl.searchParams.get("year");
 
     let accountDocs: FirebaseFirestore.DocumentSnapshot[] = [];
 
@@ -66,9 +67,20 @@ export async function GET(request: NextRequest) {
           }
         }
 
+        let saldoEndTimestamp: admin.firestore.Timestamp | null = null;
+        if (year) {
+          const startOfPrevYear = new Date(Date.UTC(Number(year) - 1, 0, 1));
+          const endOfSelectedYear = new Date(Date.UTC(Number(year), 11, 31, 23, 59, 59, 999));
+          saldoStartTimestamp = admin.firestore.Timestamp.fromDate(startOfPrevYear);
+          saldoEndTimestamp = admin.firestore.Timestamp.fromDate(endOfSelectedYear);
+        }
+
         let saldosQuery: FirebaseFirestore.Query = doc.ref.collection("saldos").orderBy("enddate");
         if (saldoStartTimestamp) {
           saldosQuery = saldosQuery.where("enddate", ">=", saldoStartTimestamp);
+        }
+        if (saldoEndTimestamp) {
+          saldosQuery = saldosQuery.where("enddate", "<=", saldoEndTimestamp);
         }
         const saldosSnapshot = await saldosQuery.get();
         for (const saldoDoc of saldosSnapshot.docs) {
@@ -102,9 +114,20 @@ export async function GET(request: NextRequest) {
           }
         }
 
+        let saldoEndTimestamp: admin.firestore.Timestamp | null = null;
+        if (year) {
+          const startOfPrevYear = new Date(Date.UTC(Number(year) - 1, 0, 1));
+          const endOfSelectedYear = new Date(Date.UTC(Number(year), 11, 31, 23, 59, 59, 999));
+          saldoStartTimestamp = admin.firestore.Timestamp.fromDate(startOfPrevYear);
+          saldoEndTimestamp = admin.firestore.Timestamp.fromDate(endOfSelectedYear);
+        }
+
         let saldosQuery: FirebaseFirestore.Query = doc.ref.collection("saldos").orderBy("enddate");
         if (saldoStartTimestamp) {
           saldosQuery = saldosQuery.where("enddate", ">=", saldoStartTimestamp);
+        }
+        if (saldoEndTimestamp) {
+          saldosQuery = saldosQuery.where("enddate", "<=", saldoEndTimestamp);
         }
         const saldosSnapshot = await saldosQuery.get();
         const saldos = saldosSnapshot.docs.map((s) => ({

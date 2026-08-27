@@ -66,7 +66,8 @@ export function TransactionForm({
 
   const refreshBalances = async (startDate?: string) => {
     await PostBalances(accountId, startDate);
-    mutateSWR(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}&years=2`);
+    mutateSWR((key: string) => typeof key === "string" && key.startsWith(API.BALANCES.GET_BALANCES));
+    mutateSWR(`${API.BALANCES.GET_YEARS}?accountId=${accountId}`);
     mutateSWR((key: string) => typeof key === "string" && key.startsWith(API.TRANSACTIONS.GET_TRANSACTIONS));
   };
 

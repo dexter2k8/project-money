@@ -74,7 +74,8 @@ export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
 
         toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);
 
-        mutate(`${API.BALANCES.GET_BALANCES}?accountId=${accountId}&years=2`);
+        mutate((key: string) => typeof key === "string" && key.startsWith(API.BALANCES.GET_BALANCES));
+        mutate(`${API.BALANCES.GET_YEARS}?accountId=${accountId}`);
 
         const date = new Date(earliestDate);
         const month = date.getUTCMonth() + 1;
