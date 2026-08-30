@@ -45,22 +45,6 @@ export default function Dashboard() {
     ? currentSelection?.year
     : yearOptions[0]?.value;
 
-  const canFetchYearBalance = accountId && effectiveYear;
-  const { response: yearBalanceResponse } = useSWR<IResponse<TGetAccountResponse>>(
-    canFetchYearBalance ? API.BALANCES.GET_BALANCES : undefined,
-    canFetchYearBalance ? { accountId, year: effectiveYear } : undefined,
-  );
-
-  const yearSaldos = useMemo(
-    () => yearBalanceResponse?.data?.[0]?.saldos ?? [],
-    [yearBalanceResponse],
-  );
-
-  const saldosForBalance = useMemo(() => {
-    if (yearSaldos.length > 0) return yearSaldos;
-    return allSaldos;
-  }, [yearSaldos, allSaldos]);
-
   const monthItems = useMemo(() => {
     const data = yearsData?.data;
     if (!data || !effectiveYear) return [];
@@ -157,18 +141,18 @@ export default function Dashboard() {
       prevYear -= 1;
     }
 
-    const prevEntry = saldosForBalance.find((s) => {
+    const prevEntry = allSaldos.find((s) => {
       const date = parseDateUTC(s.enddate);
       return date.getUTCMonth() === prevMonth && date.getUTCFullYear() === prevYear;
     });
 
     return prevEntry?.balance ?? 0;
-  }, [saldosForBalance, effectiveMonth, effectiveYear]);
+  }, [allSaldos, effectiveMonth, effectiveYear]);
 
   const currentBalance = useMemo(() => {
     if (effectiveMonth == null || !effectiveYear) return 0;
 
-    const currentEntry = saldosForBalance.find((s) => {
+    const currentEntry = allSaldos.find((s) => {
       const date = parseDateUTC(s.enddate);
       return (
         date.getUTCMonth() === effectiveMonth && date.getUTCFullYear() === Number(effectiveYear)
@@ -176,7 +160,7 @@ export default function Dashboard() {
     });
 
     return currentEntry?.balance ?? 0;
-  }, [saldosForBalance, effectiveMonth, effectiveYear]);
+  }, [allSaldos, effectiveMonth, effectiveYear]);
 
   const transactionsWithSaldo = useMemo(() => {
     return transactions.reduce<TTransactionWithSaldo[]>((acc, t) => {
