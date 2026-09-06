@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
     const userId = await requireAuth();
 
     const body: TPostSingleBalanceArgs = await req.json();
-    const { accountId, balance, enddate } = body;
+    const { accountId, balance: rawBalance, enddate } = body;
+    const balance = Math.abs(rawBalance) < 0.005 ? 0 : rawBalance;
 
     if (!accountId) {
       return NextResponse.json({ error: "accountId is required" }, { status: 400 });

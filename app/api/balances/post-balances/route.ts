@@ -111,7 +111,8 @@ export async function POST(request: NextRequest) {
     for (const monthKey of sortedMonths) {
       const txns = transactionsByMonth.get(monthKey)!;
       const monthTotal = txns.reduce((sum, txn) => sum + txn.trnamt, 0);
-      const finalBalance = previousBalance + monthTotal;
+      const rawBalance = previousBalance + monthTotal;
+      const finalBalance = Math.abs(rawBalance) < 0.005 ? 0 : rawBalance;
 
       const [yearStr, monthStr] = monthKey.split("-");
       const year = Number(yearStr);
