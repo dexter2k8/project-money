@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { mutate } from "swr";
 import { parseOfxFile } from "@/app/utils/parseOfx";
 import { API } from "@/app/utils/paths";
 import Button from "@/components/Button";
@@ -9,9 +8,10 @@ import Button from "@/components/Button";
 type TImportOfxButtonProps = {
   acctid: string;
   accountId: string;
+  onImported: () => Promise<void>;
 };
 
-export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
+export function ImportOfxButton({ acctid, accountId, onImported }: TImportOfxButtonProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -74,16 +74,11 @@ export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
 
         toast.success(`${result.count} transação(ões) importada(s) com sucesso!`);
 
-        mutate((key: string) => typeof key === "string" && key.startsWith(API.BALANCES.GET_BALANCES));
-        mutate(`${API.BALANCES.GET_YEARS}?accountId=${accountId}`);
-
-        const date = new Date(earliestDate);
-        const month = date.getUTCMonth() + 1;
-        const year = date.getUTCFullYear();
-        mutate(`${API.TRANSACTIONS.GET_TRANSACTIONS}?accountId=${accountId}&month=${month}&year=${year}`);
+        await onImported();
       } catch (error) {
         console.error("Import error:", error);
-        const message = error instanceof Error ? error.message : "Erro ao importar arquivo. Verifique o formato.";
+        const message =
+          error instanceof Error ? error.message : "Erro ao importar arquivo. Verifique o formato.";
         toast.error(message);
       } finally {
         setIsUploading(false);
@@ -92,7 +87,7 @@ export function ImportOfxButton({ acctid, accountId }: TImportOfxButtonProps) {
         }
       }
     },
-    [acctid, accountId],
+    [acctid, accountId, onImported],
   );
 
   return (

@@ -24,12 +24,17 @@ function getLastDayOfMonth(year: number, month: number): Date {
   return lastDay.startOf("day").toDate();
 }
 
+interface IPostBalancesBody {
+  accountId: string;
+  startDate?: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const userId = await requireAuth();
 
-    const body = await request.json();
-    const { accountId, startDate } = body as { accountId: string; startDate?: string };
+    const body: IPostBalancesBody = await request.json();
+    const { accountId, startDate } = body;
 
     if (!accountId) {
       return NextResponse.json({ error: "accountId is required" }, { status: 400 });
@@ -45,7 +50,15 @@ export async function POST(request: NextRequest) {
     const extratosRef = accountDoc.ref.collection("extratos");
     const saldosRef = accountDoc.ref.collection("saldos");
 
-    const extratosSnapshot = await extratosRef.get();
+    const startFilter = startDate ? new Date(startDate) : null;
+    const startTimestamp = startFilter ? admin.firestore.Timestamp.fromDate(startFilter) : null;
+
+    let extratosQuery: FirebaseFirestore.Query = extratosRef.select("dtposted", "trnamt");
+    if (startTimestamp) {
+      extratosQuery = extratosQuery.where("dtposted", ">=", startTimestamp);
+    }
+
+    const extratosSnapshot = await extratosQuery.get();
     const allTransactions = extratosSnapshot.docs.map((doc) => {
       const data = doc.data();
       const raw = data.dtposted;
@@ -65,25 +78,50 @@ export async function POST(request: NextRequest) {
 
     allTransactions.sort((a, b) => a.dtposted.getTime() - b.dtposted.getTime());
 
-    const startFilter = startDate ? new Date(startDate) : null;
-
     const filteredTransactions = startFilter
       ? allTransactions.filter((txn) => txn.dtposted >= startFilter)
       : allTransactions;
 
     let previousBalance = 0;
+    const existingSaldos = new Map<string, string>();
 
-    const saldosSnapshot = await saldosRef.orderBy("enddate").get();
-
-    if (startFilter) {
-      const previousSaldos = saldosSnapshot.docs.filter((doc) => {
+    const collectExistingSaldos = (docs: FirebaseFirestore.QueryDocumentSnapshot[]) => {
+      for (const doc of docs) {
         const enddate = doc.data().enddate?.toDate?.();
-        return enddate && enddate < startFilter;
-      });
-      if (previousSaldos.length > 0) {
-        const lastSaldo = previousSaldos[previousSaldos.length - 1];
-        previousBalance = (lastSaldo.data().balance as number) ?? 0;
+        if (enddate) {
+          existingSaldos.set(getMonthKey(enddate), doc.id);
+        }
       }
+    };
+
+    if (startFilter && startTimestamp) {
+      const monthStartTimestamp = admin.firestore.Timestamp.fromDate(
+        dayjs(startFilter).tz(BRT_TZ).startOf("month").toDate(),
+      );
+
+      const [previousSaldoSnapshot, saldosToRecalculateSnapshot] = await Promise.all([
+        saldosRef
+          .select("balance", "enddate")
+          .where("enddate", "<", startTimestamp)
+          .orderBy("enddate", "desc")
+          .limit(1)
+          .get(),
+        saldosRef
+          .select("balance", "enddate")
+          .where("enddate", ">=", monthStartTimestamp)
+          .orderBy("enddate")
+          .get(),
+      ]);
+
+      const previousSaldo = previousSaldoSnapshot.docs[0];
+      if (previousSaldo) {
+        previousBalance = (previousSaldo.data().balance as number) ?? 0;
+      }
+
+      collectExistingSaldos(saldosToRecalculateSnapshot.docs);
+    } else {
+      const saldosSnapshot = await saldosRef.select("balance", "enddate").orderBy("enddate").get();
+      collectExistingSaldos(saldosSnapshot.docs);
     }
 
     const transactionsByMonth = new Map<string, { dtposted: Date; trnamt: number }[]>();
@@ -93,16 +131,6 @@ export async function POST(request: NextRequest) {
         transactionsByMonth.set(monthKey, []);
       }
       transactionsByMonth.get(monthKey)!.push(txn);
-    }
-
-    const existingSaldos = new Map<string, string>();
-    for (const doc of saldosSnapshot.docs) {
-      const data = doc.data();
-      const enddate = data.enddate?.toDate?.();
-      if (enddate) {
-        const key = getMonthKey(enddate);
-        existingSaldos.set(key, doc.id);
-      }
     }
 
     const batch = admin.firestore().batch();

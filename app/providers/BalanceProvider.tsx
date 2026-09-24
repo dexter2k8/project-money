@@ -13,13 +13,11 @@ interface IBalanceContextData {
   banks: TGetBankResponse[];
   selectedAccount: TGetAccountResponse | null;
   selectedBank: TGetBankResponse | null;
-  balance: IResponse<TGetAccountResponse> | undefined;
   accountId: string | null;
   acctid: string | null;
   setAccountId: (value: string | null) => void;
   isLoadingBanks: boolean;
   isLoadingAccounts: boolean;
-  isLoadingBalance: boolean;
 }
 
 const BalanceContext = createContext<IBalanceContextData | null>(null);
@@ -57,11 +55,6 @@ export function BalanceProvider({ children }: PropsWithChildren) {
   const accountId = selectedAccount?.id ?? null;
   const acctid = selectedAccount?.acctid ?? null;
 
-  const { response: balance, isLoading: isLoadingBalance } = useSWR<IResponse<TGetAccountResponse>>(
-    accountId ? API.BALANCES.GET_BALANCES : undefined,
-    accountId ? { accountId, years: "2" } : undefined,
-  );
-
   const selectedBank = useMemo(
     () => bankList.find((b) => Number(b.id) === selectedAccount?.bankid) ?? null,
     [bankList, selectedAccount],
@@ -80,15 +73,13 @@ export function BalanceProvider({ children }: PropsWithChildren) {
       banks: bankList,
       selectedAccount,
       selectedBank,
-      balance,
       accountId,
       acctid,
       setAccountId: handleSetAccountId,
       isLoadingBanks,
       isLoadingAccounts,
-      isLoadingBalance,
     }),
-    [accounts, bankList, selectedAccount, selectedBank, balance, accountId, acctid, handleSetAccountId, isLoadingBanks, isLoadingAccounts, isLoadingBalance],
+    [accounts, bankList, selectedAccount, selectedBank, accountId, acctid, handleSetAccountId, isLoadingBanks, isLoadingAccounts],
   );
 
   return <BalanceContext.Provider value={values}>{children}</BalanceContext.Provider>;

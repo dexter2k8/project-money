@@ -7,6 +7,50 @@ import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
+type TSaldoRange = {
+  start: admin.firestore.Timestamp | null;
+  end: admin.firestore.Timestamp | null;
+};
+
+/**
+ * Resolves the `enddate` range used to filter saldos.
+ * - `month` + `year`: from the previous month up to the selected month
+ *   (the previous month balance is needed as the starting balance).
+ * - `year`: from the previous year up to the selected year.
+ * - `years`: fallback, calculated from the latest saldo of the account.
+ */
+async function resolveSaldoRange(
+  saldosRef: FirebaseFirestore.CollectionReference,
+  years: string | null,
+  year: string | null,
+  month: string | null,
+): Promise<TSaldoRange> {
+  let start: admin.firestore.Timestamp | null = null;
+  let end: admin.firestore.Timestamp | null = null;
+
+  if (years) {
+    const latestSnapshot = await saldosRef.orderBy("enddate", "desc").limit(1).get();
+    const latestDoc = latestSnapshot.docs[0];
+    if (latestDoc) {
+      const latestDate = latestDoc.data().enddate.toDate();
+      const filterDate = new Date(latestDate);
+      filterDate.setUTCFullYear(filterDate.getUTCFullYear() - Number(years));
+      filterDate.setUTCMonth(filterDate.getUTCMonth() - 1);
+      start = admin.firestore.Timestamp.fromDate(filterDate);
+    }
+  }
+
+  if (year && month) {
+    start = admin.firestore.Timestamp.fromDate(new Date(Date.UTC(Number(year), Number(month) - 2, 1)));
+    end = admin.firestore.Timestamp.fromDate(new Date(Date.UTC(Number(year), Number(month), 0, 23, 59, 59, 999)));
+  } else if (year) {
+    start = admin.firestore.Timestamp.fromDate(new Date(Date.UTC(Number(year) - 1, 0, 1)));
+    end = admin.firestore.Timestamp.fromDate(new Date(Date.UTC(Number(year), 11, 31, 23, 59, 59, 999)));
+  }
+
+  return { start, end };
+}
+
 export async function GET(request: NextRequest) {
   try {
     const userId = await requireAuth();
@@ -18,6 +62,7 @@ export async function GET(request: NextRequest) {
     const fields = request.nextUrl.searchParams.get("fields");
     const years = request.nextUrl.searchParams.get("years");
     const year = request.nextUrl.searchParams.get("year");
+    const month = request.nextUrl.searchParams.get("month");
 
     let accountDocs: FirebaseFirestore.DocumentSnapshot[] = [];
 
@@ -54,28 +99,15 @@ export async function GET(request: NextRequest) {
         const accountData = doc.data();
         if (!accountData) continue;
 
-        let saldoStartTimestamp: admin.firestore.Timestamp | null = null;
-        if (years) {
-          const latestSnapshot = await doc.ref.collection("saldos").orderBy("enddate", "desc").limit(1).get();
-          const latestDoc = latestSnapshot.docs[0];
-          if (latestDoc) {
-            const latestDate = latestDoc.data().enddate.toDate();
-            const filterDate = new Date(latestDate);
-            filterDate.setUTCFullYear(filterDate.getUTCFullYear() - Number(years));
-            filterDate.setUTCMonth(filterDate.getUTCMonth() - 1);
-            saldoStartTimestamp = admin.firestore.Timestamp.fromDate(filterDate);
-          }
-        }
+        const saldosRef = doc.ref.collection("saldos");
+        const { start: saldoStartTimestamp, end: saldoEndTimestamp } = await resolveSaldoRange(
+          saldosRef,
+          years,
+          year,
+          month,
+        );
 
-        let saldoEndTimestamp: admin.firestore.Timestamp | null = null;
-        if (year) {
-          const startOfPrevYear = new Date(Date.UTC(Number(year) - 1, 0, 1));
-          const endOfSelectedYear = new Date(Date.UTC(Number(year), 11, 31, 23, 59, 59, 999));
-          saldoStartTimestamp = admin.firestore.Timestamp.fromDate(startOfPrevYear);
-          saldoEndTimestamp = admin.firestore.Timestamp.fromDate(endOfSelectedYear);
-        }
-
-        let saldosQuery: FirebaseFirestore.Query = doc.ref.collection("saldos").orderBy("enddate");
+        let saldosQuery: FirebaseFirestore.Query = saldosRef.orderBy("enddate");
         if (saldoStartTimestamp) {
           saldosQuery = saldosQuery.where("enddate", ">=", saldoStartTimestamp);
         }
@@ -101,28 +133,15 @@ export async function GET(request: NextRequest) {
 
     const data = await Promise.all(
       accountDocs.map(async (doc) => {
-        let saldoStartTimestamp: admin.firestore.Timestamp | null = null;
-        if (years) {
-          const latestSnapshot = await doc.ref.collection("saldos").orderBy("enddate", "desc").limit(1).get();
-          const latestDoc = latestSnapshot.docs[0];
-          if (latestDoc) {
-            const latestDate = latestDoc.data().enddate.toDate();
-            const filterDate = new Date(latestDate);
-            filterDate.setUTCFullYear(filterDate.getUTCFullYear() - Number(years));
-            filterDate.setUTCMonth(filterDate.getUTCMonth() - 1);
-            saldoStartTimestamp = admin.firestore.Timestamp.fromDate(filterDate);
-          }
-        }
+        const saldosRef = doc.ref.collection("saldos");
+        const { start: saldoStartTimestamp, end: saldoEndTimestamp } = await resolveSaldoRange(
+          saldosRef,
+          years,
+          year,
+          month,
+        );
 
-        let saldoEndTimestamp: admin.firestore.Timestamp | null = null;
-        if (year) {
-          const startOfPrevYear = new Date(Date.UTC(Number(year) - 1, 0, 1));
-          const endOfSelectedYear = new Date(Date.UTC(Number(year), 11, 31, 23, 59, 59, 999));
-          saldoStartTimestamp = admin.firestore.Timestamp.fromDate(startOfPrevYear);
-          saldoEndTimestamp = admin.firestore.Timestamp.fromDate(endOfSelectedYear);
-        }
-
-        let saldosQuery: FirebaseFirestore.Query = doc.ref.collection("saldos").orderBy("enddate");
+        let saldosQuery: FirebaseFirestore.Query = saldosRef.orderBy("enddate");
         if (saldoStartTimestamp) {
           saldosQuery = saldosQuery.where("enddate", ">=", saldoStartTimestamp);
         }

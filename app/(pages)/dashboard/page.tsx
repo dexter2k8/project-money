@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSWR } from "@/app/hooks/useSWR";
 import { useBalance } from "@/app/providers/BalanceProvider";
 import { parseDateUTC } from "@/app/utils/dates";
@@ -19,11 +19,13 @@ import type { IResponse } from "@/app/api/types";
 import type { TTransactionWithSaldo } from "./columns";
 
 export default function Dashboard() {
-  const { balance, accountId, acctid, isLoadingBalance } = useBalance();
+  const { accountId, acctid } = useBalance();
 
-  const allSaldos = useMemo(() => balance?.data?.[0]?.saldos ?? [], [balance]);
-
-  const { response: yearsData } = useSWR<IResponse<{ year: number; months: number[] }>>(
+  const {
+    response: yearsData,
+    isLoading: isLoadingYears,
+    mutate: mutateYears,
+  } = useSWR<IResponse<{ year: number; months: number[] }>>(
     accountId ? API.BALANCES.GET_YEARS : undefined,
     accountId ? { accountId } : undefined,
   );
@@ -112,24 +114,68 @@ export default function Dashboard() {
     }));
   };
 
-  const canFetchTransactions = accountId && effectiveYear && effectiveMonth != null;
-  const transactionsParams = canFetchTransactions
+  const canFetch = accountId && effectiveYear && effectiveMonth != null;
+  const scopedParams = canFetch
     ? { accountId, month: String(effectiveMonth + 1), year: effectiveYear }
     : undefined;
 
   const {
     response: transactionsResponse,
-    isLoading,
+    isLoading: isLoadingTransactions,
     mutate: mutateTransactions,
   } = useSWR<IResponse<TGetAccountResponse>>(
-    canFetchTransactions ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
-    transactionsParams,
+    canFetch ? API.TRANSACTIONS.GET_TRANSACTIONS : undefined,
+    scopedParams,
   );
+
+  const {
+    response: balancesResponse,
+    error: balancesError,
+    mutate: mutateBalances,
+  } = useSWR<IResponse<TGetAccountResponse>>(
+    canFetch ? API.BALANCES.GET_BALANCES : undefined,
+    scopedParams,
+  );
+
+  // After an OFX import, refresh the years/months list. If it grew, the selection
+  // effect above jumps to the newest month and both scoped keys revalidate on
+  // their own — revalidating here would only fire a redundant get-balances and
+  // get-transactions pair for the month being left behind.
+  const handleImported = useCallback(async () => {
+    try {
+      const freshYears = await mutateYears();
+      const freshList = freshYears?.data ?? [];
+
+      const yearsGrew = freshList.length > yearOptions.length;
+      const monthsGrew =
+        (freshList.find((y) => String(y.year) === effectiveYear)?.months.length ?? 0) >
+        monthItems.length;
+
+      if (yearsGrew || monthsGrew) return;
+
+      await Promise.all([mutateTransactions(), mutateBalances()]);
+    } catch {
+      // Network errors are already toasted by the useSWR hooks; the import
+      // itself succeeded, so it must not fail because of the revalidation.
+    }
+  }, [
+    mutateYears,
+    mutateTransactions,
+    mutateBalances,
+    yearOptions,
+    monthItems,
+    effectiveYear,
+  ]);
 
   const transactions: TTransaction[] = useMemo(
     () => transactionsResponse?.data?.[0]?.extratos ?? [],
     [transactionsResponse],
   );
+
+  const allSaldos = useMemo(() => balancesResponse?.data?.[0]?.saldos ?? [], [balancesResponse]);
+
+  // Hide caption/footer until the scoped balances arrive, so we never display a stale 0.
+  const hasBalances = !!balancesResponse;
 
   const previousBalance = useMemo(() => {
     if (effectiveMonth == null || !effectiveYear) return 0;
@@ -173,7 +219,7 @@ export default function Dashboard() {
 
   const columns = useMemo(
     () =>
-      canFetchTransactions
+      canFetch
         ? createColumns({
             accountId: accountId ?? "",
             month: effectiveMonth + 1,
@@ -182,24 +228,19 @@ export default function Dashboard() {
             showControls,
           })
         : [],
-    [
-      canFetchTransactions,
-      accountId,
-      effectiveMonth,
-      effectiveYear,
-      mutateTransactions,
-      showControls,
-    ],
+    [canFetch, accountId, effectiveMonth, effectiveYear, mutateTransactions, showControls],
   );
 
-  const caption = <BalanceDisplay value={previousBalance} prefix="Anterior:" />;
+  const caption = hasBalances ? <BalanceDisplay value={previousBalance} prefix="Anterior:" /> : undefined;
 
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
     requestAnimationFrame(() => setHasMounted(true));
   }, []);
 
-  const isInitialLoading = hasMounted && !!acctid && isLoadingBalance && !balance;
+  // Full-screen spinner only for the initial load of the account (years);
+  // month switches are handled by the table's own loading state.
+  const isInitialLoading = hasMounted && !!acctid && isLoadingYears && !yearsData;
 
   return (
     <div className="m-8 bg-white w-full rounded-2xl overflow-hidden flex flex-col">
@@ -207,7 +248,9 @@ export default function Dashboard() {
         <h2>Extrato Bancário</h2>
         <div className="flex items-center gap-2">
           {hasMounted && accountId && <ExportTransactionsCsvButton accountId={accountId} />}
-          {hasMounted && acctid && <ExportBalanceCsvButton acctid={acctid} saldos={allSaldos} />}
+          {hasMounted && acctid && accountId && (
+            <ExportBalanceCsvButton acctid={acctid} accountId={accountId} />
+          )}
         </div>
       </div>
       {isInitialLoading ? (
@@ -233,7 +276,11 @@ export default function Dashboard() {
           <div className="relative m-4 flex-1 min-h-0 flex flex-col">
             <div className="flex items-center justify-between mb-2">
               {hasMounted && acctid && (
-                <ImportOfxButton acctid={acctid} accountId={accountId ?? ""} />
+                <ImportOfxButton
+                  acctid={acctid}
+                  accountId={accountId ?? ""}
+                  onImported={handleImported}
+                />
               )}
               <Switch checked={showControls} onChange={setShowControls} label="Show controls" />
             </div>
@@ -244,8 +291,12 @@ export default function Dashboard() {
                   columns={columns}
                   rows={transactionsWithSaldo}
                   caption={caption}
-                  footerFirst={<BalanceDisplay value={currentBalance} prefix="Saldo:" />}
-                  loading={isLoading}
+                  footerFirst={
+                    hasBalances ? <BalanceDisplay value={currentBalance} prefix="Saldo:" /> : undefined
+                  }
+                  // Keep the table loading until balances arrive too: the running
+                  // saldo column depends on previousBalance from those saldos.
+                  loading={isLoadingTransactions || (!!canFetch && !hasBalances && !balancesError)}
                 />
               </div>
             </div>

@@ -3,14 +3,13 @@ import { useRef, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { mutate as mutateSWR } from "swr";
 import { PostBalances } from "@/app/services/fetchers/balances";
 import {
   DeleteTransaction,
   PatchTransaction,
   PostTransaction,
 } from "@/app/services/fetchers/transactions";
-import { API } from "@/app/utils/paths";
+import { revalidateAfterTransactionChange } from "@/app/utils/revalidate";
 import { transactionSchema } from "@/app/validations/transaction";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
@@ -66,9 +65,7 @@ export function TransactionForm({
 
   const refreshBalances = async (startDate?: string) => {
     await PostBalances(accountId, startDate);
-    mutateSWR((key: string) => typeof key === "string" && key.startsWith(API.BALANCES.GET_BALANCES));
-    mutateSWR(`${API.BALANCES.GET_YEARS}?accountId=${accountId}`);
-    mutateSWR((key: string) => typeof key === "string" && key.startsWith(API.TRANSACTIONS.GET_TRANSACTIONS));
+    await revalidateAfterTransactionChange(accountId);
   };
 
   const handleApply = async (data: TTransactionFormValues) => {
